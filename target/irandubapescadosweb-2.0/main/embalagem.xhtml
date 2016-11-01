@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+ 
+
+
+  <ui:define name="miolo">
+	  <div class="Container96 white-back Fnone MarAuto BordRad10">
+		  <br/>
+		  <h:form id="mensagem">
+			  <p:spacer height="0"></p:spacer>
+			  <p:effect type="fade" for="msgs" event="load" speed="10000">
+				  <p:messages id="msgs" showDetail="true" showSummary="true"
+							  globalOnly="true" closable="true"/>
+			  </p:effect>
+		  </h:form>
+
+		  <h:form id="formtable">
+		   <p:inputText value="#{embalagemBean.filtro.descricao}" size="50"/>
+			<p:commandButton icon="ui-icon-search"  update=":formtable:table" process="@form"  style="margin-left:5px"/>
+			<p:commandButton icon="ui-icon-plus" value="Novo" action="#{embalagemBean.prepararCad()}" oncomplete="PF('modalCad').show()" update=":formCad" />
+
+				<br/>
+			   <br/>
+				<p:dataTable id="table" var="tp" lazy="true" sortBy="#{tp.descricao}" sortOrder="ASCENDING"
+							value="#{embalagemBean.model}" paginator="true"
+							paginatorPosition="bottom" rows="15">
+							<f:facet name="header">
+								Embalagens
+							</f:facet>
+
+							<p:column>
+								<f:facet name="header">
+								  Descricao
+								</f:facet>
+								<h:outputText value="#{tp.descricao}" />
+							</p:column>
+
+							<p:column style="width:100px;">
+								<f:facet name="header">
+									  Editar
+								</f:facet>
+								<p:commandButton value="Editar"  icon="ui-icon-pencil"
+									oncomplete="PF('modalCad').show()" update=":formCad">
+									<f:setPropertyActionListener target="#{embalagemBean.embalagem}"
+										value="#{tp}" />
+								</p:commandButton>
+							</p:column>
+
+							<p:column style="width:100px;">
+								<f:facet name="header">
+									 Excluir
+								</f:facet>
+								<p:commandButton value="Excluir" oncomplete="PF('confirmacaoDelete').show()" icon="ui-icon-trash">
+									<f:setPropertyActionListener target="#{embalagemBean.embalagem}"
+										value="#{tp}" />
+								</p:commandButton>
+							</p:column>
+
+						</p:dataTable>
+
+			</h:form>
+    	</div>
+    </ui:define>
+    
+   <ui:define name="adicionais">
+
+	   <p:confirmDialog widgetVar="confirmacaoDelete" header="Remoção" message="Confirma a exclusão da embalagem?">
+		   <h:form id="formConfirmacao">
+			   <p:commandButton value="Sim"
+								action="#{embalagemBean.delete()}"
+								onsuccess="PF('confirmacaoDelete').hide()"
+								styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								update=":mensagem :formtable:table"/>
+			   <p:commandButton value="Não"
+								onclick="PF('confirmacaoDelete').hide()" type="button"
+								styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								immediate="true" />
+		   </h:form>
+	   </p:confirmDialog>
+		
+		<p:dialog header="Cadastro" widgetVar="modalCad"
+			closable="true" modal="true" closeOnEscape="true" resizable="true"
+			width="560px">
+			<div class="Container96 white-back Fnone MarAuto BordRad10">
+				<br/>
+				<h:form id="formCad">
+					<p:messages id="messages" showDetail="true"
+						autoUpdate="true" closable="true" />
+					<p:fieldset legend="Embalagem">
+						<h:panelGrid id="panelCad" columns="2" cellpadding="4"
+							cellspacing="4">
+							<p:outputLabel value="Descrição: *" />
+							<p:inputText value="#{embalagemBean.embalagem.descricao}"
+								size="50" required="true" requiredMessage="Preencha o campo obrigatório." />
+						</h:panelGrid>
+					</p:fieldset>
+					<br />
+					<br />
+					<p:outputLabel value="Campos obrigatórios *" />
+					<br />
+					<br />
+					<div align="center">
+						<p:commandButton value="salvar" icon="ui-icon-disk"
+							action="#{embalagemBean.salvar()}"
+							update=":formtable:table :formCad" />
+						<p:commandButton id="cancelar" value="cancelar" icon="ui-icon-close" immediate="true"
+							onsuccess="PF('modalCad').hide()" />
+					</div>
+				</h:form>
+			</div>
+		</p:dialog>
+	
+
+	</ui:define>
+ 
+
+</ui:composition>
+

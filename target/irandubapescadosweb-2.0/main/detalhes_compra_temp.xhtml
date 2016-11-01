@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="miolo">
+	
+		<h:form id="formtable">
+			<p:fieldset legend="Dados da compra">
+				<br />
+				<span style="font-weight:bold">Dados da compra (codigo, fornecedor, etc) e provavelmente uma opção para visualização dos lotes em segundo plano
+				para nao ter q carregar os lotes logo de inicio</span>
+			</p:fieldset>
+			<br />
+			<p:fieldset legend="Totais/Valores">
+				<br />
+				<span style="font-weight:bold">Exibir os mesmos dados do Totais/Valores do modal de autorização da compra</span>
+			</p:fieldset>
+			<br />
+			<p:fieldset legend="Historico de alterações de valores">
+				<br />
+				<span style="font-weight:bold">Exibir o historico de alterações de valores da compra como no relatorio Historico compra</span>
+			</p:fieldset>
+			<br />
+			<p:fieldset legend="Historico observações do sistema">
+				<br />
+				<span style="font-weight:bold">Exibir o historico de observações do sistema q atualmente está no campo observacaoVerificacao da compra</span>
+			</p:fieldset>
+			<br />
+			<p:fieldset legend="Historico observações dos usuários">
+				<br />
+				<span style="font-weight:bold">Exibir o historico de observações ou pareceres dos usuários da classe ObservacoesCompra</span>
+			</p:fieldset>
+		</h:form>
+		
+	</ui:define>
+	
+</ui:composition>
+

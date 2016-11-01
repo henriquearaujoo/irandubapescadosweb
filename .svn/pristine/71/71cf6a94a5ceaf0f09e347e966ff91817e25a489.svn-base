@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<f:metadata>
+				<f:viewAction action="#{relatorioArmazenamentoBean.carregarPeixes}" />
+			</f:metadata>
+
+			<h:form id="formtable">
+				<p:fieldset legend="Relatório armazenamento">
+					<h:panelGrid columns="12">
+						<span style="font-weight:bold">Período: </span>
+						<p:calendar id="dataInicio" value="#{relatorioArmazenamentoBean.filtro.dataInicio}" pattern="dd/MM/yyy"/>
+						<p:watermark value="Data inicial" for="dataInicio" />
+						<p:calendar id="dataFinal" value="#{relatorioArmazenamentoBean.filtro.dataFinal}" pattern="dd/MM/yyy"/>
+						<p:watermark value="Data final" for="dataFinal" />
+						<span style="font-weight:bold">Peixes: </span>
+						<p:selectOneMenu id="especie" value="#{relatorioArmazenamentoBean.idPeixe}" >
+							<f:selectItem itemLabel="Selecione o peixe" noSelectionOption="true"/>
+							<f:selectItems value="#{relatorioArmazenamentoBean.peixes}" var="peixe" itemLabel="#{peixe.descricao}" itemValue="#{peixe.id}"/>
+						</p:selectOneMenu>
+
+						<p:commandButton action="#{relatorioArmazenamentoBean.imprimir}" icon="ui-icon-print" style="margin-left:5px" ajax="false" />
+						<p:commandButton action="#{relatorioArmazenamentoBean.limparFiltro()}" icon="ui-icon-close" style="margin-left:5px" update="dataInicio dataFinal"/>
+					</h:panelGrid>
+				</p:fieldset>
+			</h:form>
+		</div>
+	</ui:define>
+	
+</ui:composition>
+

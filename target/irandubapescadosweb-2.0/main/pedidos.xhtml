@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<p:fieldset legend="Pedidos">
+
+				<h:form id="formtable">
+					<h:panelGrid columns="9">
+						<span style="font-weight: bold">Período: </span>
+						<p:calendar id="dataInicio"
+							value="#{pedidoBean.filtro.dataInicio}" pattern="dd/MM/yyy" />
+						<p:watermark value="Data inicial" for="dataInicio" />
+						<p:calendar id="dataFinal"
+							value="#{pedidoBean.filtro.dataFinal}" pattern="dd/MM/yyy" />
+						<p:watermark value="Data final" for="dataFinal" />
+
+						<span style="font-weight: bold; margin-left:5px">Status: </span>
+						<p:selectOneMenu id="status"
+							value="#{pedidoBean.filtro.statusPedido}">
+							<f:selectItem itemLabel="TODOS" noSelectionOption="true"/>
+							<f:selectItems value="#{pedidoBean.status}" var="s" itemLabel="#{s.status}" itemValue="#{s}"/>
+						</p:selectOneMenu>
+
+						<p:commandButton icon="ui-icon-search" update="table"
+							style="margin-left:5px" />
+						<p:commandButton icon="ui-icon-plus" action="#{pedidoBean.prepararCad()}" value="Novo" update="@this" style="margin-left:5px"/>
+					</h:panelGrid>
+
+					<br />
+
+					<p:dataTable id="table" var="p" lazy="true"
+						value="#{pedidoBean.model}" paginator="true"
+						paginatorPosition="bottom" rows="15" sortBy="#{p.id}" sortOrder="DESCENDING">
+						<f:facet name="header">
+								Pedidos
+							</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+								Código
+							</f:facet>
+							<h:outputText value="#{p.codigo}">
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Data
+							</f:facet>
+							<h:outputText value="#{p.data}">
+								<f:convertDateTime pattern="dd/MM/yyyy"
+												   timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Status
+							</f:facet>
+							<h:outputText value="#{p.status.status}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								  Valor
+								</f:facet>
+							<h:outputText value="#{p.valor}" >
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+						<p:column style="width:120px;">
+						   <p:commandButton action="#{pedidoBean.prepararDetalhesPedido}" icon="ui-icon-zoomin" value="Detalhes" title="Detalhes"
+							style="margin-left:5px" >
+							 <f:param name="pedido" value="#{p.id}"/>
+							 <f:setPropertyActionListener value="#{p}" target="#{pedidoBean.pedido}" />
+							</p:commandButton>
+						</p:column>
+
+					</p:dataTable>
+
+				</h:form>
+			</p:fieldset>
+
+		</div>
+	</ui:define>
+
+	<ui:define name="adicionais">
+
+	</ui:define>
+
+
+</ui:composition>
+

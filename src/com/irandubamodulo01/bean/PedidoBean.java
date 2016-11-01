@@ -1,0 +1,1094 @@
+package com.irandubamodulo01.bean;
+
+import com.irandubamodulo01.dao.*;
+import com.irandubamodulo01.enumerated.StatusPedido;
+import com.irandubamodulo01.model.*;
+import com.irandubamodulo01.util.EstoqueUtil;
+import com.irandubamodulo01.util.Filtro;
+import com.irandubamodulo01.util.FormatterUtil;
+import org.apache.commons.io.IOUtils;
+import org.primefaces.event.SelectEvent;
+import org.primefaces.model.*;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
+import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+import java.io.*;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+@Named(value = "pedidoBean")
+@ViewScoped
+public class PedidoBean implements Serializable{
+
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@Inject
+	private	PedidoDAO pedidoDAO;
+	@Inject
+	private TransportadoraDAO transportadoraDAO;
+	@Inject
+	private ClienteDAO clienteDAO;
+	@Inject
+	private VendedorDAO vendedorDAO;
+	@Inject
+	private PeixeDAO peixeDAO;
+	@Inject
+	private TipoPeixeDAO tipoPeixeDAO;
+	@Inject
+	private TamanhoPeixeDAO tamanhoPeixeDAO;
+	@Inject
+	private CamaraDAO camaraDAO;
+	@Inject
+	private ProdutoDAO produtoDAO;
+	@Inject
+	private RomaneioDAO romaneioDAO;
+	@Inject
+	private ArquivoDAO arquivoDAO;
+	@Inject
+	private ArmazenamentoDAO armazenamentoDAO;
+	@Inject
+	private HistoricoPedidoDAO historicoDao;
+	@Inject
+	private	Pedido pedido;
+	@Inject
+	private Produto produto;
+	@Inject
+	private Parcela parcela;
+	@Inject
+	private TipoPeixe tipoPeixe;
+	@Inject
+	private Peixe peixe;
+	@Inject
+	private Camara camara;
+	@Inject
+	private Usuario usuario;
+	@Inject
+	private HistoricoPedido historico;
+
+	private Filtro filtro =  new Filtro();
+	private LazyDataModel<Pedido> model;
+	private List<Cliente> clientes;
+	private List<Transportadora> transportadoras;
+	private List<Vendedor> vendedores;
+	private List<Peixe> peixes;
+	private String nomeTransportadora;
+	private String nomeCliente;
+	private String nomeVendedor;
+	private String nomePeixe;
+	private String nomePeixeProduto;
+	private List<SelectItem> listaTipos;
+	private List<SelectItem> listaTamanhos;
+	private List<SelectItem> listaCamaras;
+	private Boolean inclusaoContinua;
+	private Boolean editandoProduto = false;
+	private Boolean editandoParcela = false;
+	private Part notaFiscal;
+	private @Inject Arquivo arquivo;
+
+	private BigDecimal pesoDisponivel;
+
+	private Boolean podeAlterarOuAdcionarProduto = false;
+
+	private BigDecimal emEstoque;
+
+	private TreeNode root;
+
+	private TreeNode[] itensSelecionados;
+
+	public PedidoBean(){
+
+		usuario = getUsuarioSession().getUsuario();
+
+		setModel(new LazyDataModel<Pedido>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public List<Pedido> load(int first, int pageSize, String sortField,
+					SortOrder sortOrder, Map<String, Object> filters) {
+				getFiltro().setPrimeiroRegistro(first);
+				getFiltro().setQuantidadeRegistros(pageSize);
+				getFiltro().setAscendente(SortOrder.ASCENDING.equals(sortOrder));
+				getFiltro().setPropriedadeOrdenacao(sortField);
+				setRowCount(pedidoDAO.quantidadeFiltrados(getFiltro()));
+				return pedidoDAO.filtrados(getFiltro());
+			}
+		});
+		
+	}
+	
+	public String prepararCad(){
+		return  "pedidoscad?faces-redirect=true";
+	}
+
+	public void inicializarPedido(){
+
+		historico = new HistoricoPedido();
+
+		if (pedido.getId() == null) {
+			getPedido().setStatus(StatusPedido.AGUARDANDO_EMBARQUE);
+			getPedido().setCodigo(new SimpleDateFormat("hhmmssddMMyy").format(new Date()));
+			getPedido().setData(new Date());
+		}else{
+			List<Arquivo> arquivos = arquivoDAO.getArquivosPorPedido(pedido);
+
+			if (arquivos.size() > 0)
+				arquivo = arquivos.get(0);
+			else
+				arquivo = null;
+		}
+
+		setClientes(clienteDAO.getClientesComplete());
+		setVendedores(vendedorDAO.getVendedoresComplete());
+		setTransportadoras(transportadoraDAO.getTransportadorasComplete());
+		setPeixes(peixeDAO.getPeixesComplete());
+
+		if (getPedido().getCliente() != null){
+			setNomeCliente(getPedido().getCliente().getNome());
+		}
+
+		if (getPedido().getVendedor() != null){
+			setNomeVendedor(getPedido().getVendedor().getNome());
+		}
+
+		if (getPedido().getTransportadora() != null){
+			setNomeTransportadora(getPedido().getTransportadora().getNome());
+		}
+
+		if (pedido.getId() != null && pedido.getStatus().equals(StatusPedido.EMBARCADO))
+			gerarParcelas();
+
+		setNomePeixe(null);
+		carregarTipos();
+		carregarTamanhos();
+		carregarCamaras();
+
+		root = new CheckboxTreeNode();
+
+		produto = new Produto();
+	}
+
+
+	public List<String> completeCliente(String query){
+		List<String> results = new ArrayList<String>();
+		for(Cliente cliente : getClientes()){
+			if (cliente.getNome().toLowerCase().startsWith(query.toLowerCase()))
+				results.add(cliente.getNome());
+		}
+		return results;
+	}
+
+	public List<String> completeVendedor(String query){
+		List<String> results = new ArrayList<String>();
+		for(Vendedor vendedor : getVendedores()){
+			if (vendedor.getNome().toLowerCase().startsWith(query.toLowerCase()))
+				results.add(vendedor.getNome());
+		}
+		return results;
+	}
+
+	public List<String> completeTransportadora(String query){
+		List<String> results = new ArrayList<String>();
+		for(Transportadora transportadora : getTransportadoras()){
+			if (transportadora.getNome().toLowerCase().startsWith(query.toLowerCase()))
+				results.add(transportadora.getNome());
+		}
+		return results;
+	}
+
+	public List<String> completePeixe(String query){
+		List<String> results = new ArrayList<String>();
+		for (Peixe peixe : getPeixes()){
+			if (peixe.getDescricao().toLowerCase().startsWith(query.toLowerCase()))
+				results.add(peixe.getDescricao());
+		}
+		return results;
+	}
+
+	public void selecionaCliente(SelectEvent event){
+		getPedido().setCliente(clienteDAO.getClientePorNome(event.getObject().toString()));
+	}
+
+	public void selecionaVendedor(SelectEvent event){
+		getPedido().setVendedor(vendedorDAO.getVendedorPorNome(event.getObject().toString()));
+	}
+
+	public void selecionaTransportadora(SelectEvent event){
+		getPedido().setTransportadora(transportadoraDAO.getTransportadoraPorNome(event.getObject().toString()));
+	}
+
+	public void selecionarPeixe(SelectEvent event){
+		getProduto().setPeixe(peixeDAO.getPeixePorDescricao(event.getObject().toString()));
+		getProduto().setValorVenda(getProduto().getPeixe().getValor());
+		if (getProduto() != null && getProduto().getPeixe() != null && getProduto().getTipoPeixe() != null) {
+			getProduto().setQtdEmEstoque(armazenamentoDAO.getPesoDisponivelPorPeixeTipo(getProduto().getPeixe(), getProduto().getTipoPeixe()));
+		}
+	}
+
+	public void onTipoChange(){
+		getProduto().setQtdEmEstoque(armazenamentoDAO.getPesoDisponivelPorPeixeTipo(getProduto().getPeixe(), getProduto().getTipoPeixe()));
+	}
+
+	public void carregarTipos(){
+		setListaTipos(new ArrayList<SelectItem>());
+
+		List<TipoPeixe> tipos = tipoPeixeDAO.getTiposComplete();
+
+		for (TipoPeixe tipoPeixe : tipos){
+			getListaTipos().add(new SelectItem(tipoPeixe, tipoPeixe.getDescricao()));
+		}
+	}
+
+	public void carregarTamanhos(){
+		setListaTamanhos(new ArrayList<SelectItem>());
+
+		List<TamanhoPeixe> tamanhos = tamanhoPeixeDAO.getTamanhosComplete();
+
+		for (TamanhoPeixe tamanho : tamanhos){
+			getListaTamanhos().add(new SelectItem(tamanho, tamanho.getDescricao()));
+		}
+
+	}
+
+	public void carregarCamaras(){
+		setListaCamaras(new ArrayList<SelectItem>());
+
+		List<Camara> camaras = camaraDAO.getAll(Camara.class);
+
+		for (Camara camara : camaras){
+			getListaCamaras().add(new SelectItem(camara, camara.getDescricao()));
+		}
+	}
+
+	/*public void prepararAddProduto(){
+		setEditandoProduto(false);
+		setNomePeixe(null);
+		setProduto(new Produto());
+		getProduto().setPedido(pedido);
+		pesoDisponivel = BigDecimal.ZERO;
+		carregarTipos();
+	}*/
+
+	/*public void adicionarProduto(){
+		if (!editandoProduto) {
+			if (produto.getPeixe() != null && produto.getTipoPeixe() != null && produto.getPeso() != null) {
+				if (produto.getPeso().compareTo(pesoDisponivel) <= 0) {
+					if (getPedido().getProdutos() == null) {
+						getPedido().setProdutos(new ArrayList<Produto>());
+						getPedido().getProdutos().add(getProduto());
+					} else
+						getPedido().getProdutos().add(getProduto());
+				} else
+					addMessage("Advertência", "O peso informado é maior que o peso disponível para o peixe selecionado.", FacesMessage.SEVERITY_WARN);
+
+			} else
+				addMessage("Advertência", "Prenncha os campos obrigatórios antes de salvar o produto.", FacesMessage.SEVERITY_WARN);
+		}
+	}*/
+
+	public void adicionarProdutos(){
+		/*if (itensSelecionados != null && itensSelecionados.length > 0){
+
+			for(TreeNode node : itensSelecionados){
+				if (((EstoqueUtil) node.getData()).getPeixe() != null && ((EstoqueUtil) node.getData()).getTipo() != null && ((EstoqueUtil) node.getData()).getCamara() != null && ((EstoqueUtil) node.getData()).getPesoLiquido() != null) {
+					produto = new Produto();
+					produto.setPedido(pedido);
+					produto.setPeixe(((EstoqueUtil) node.getData()).getPeixe());
+					produto.setTipoPeixe(((EstoqueUtil) node.getData()).getTipo());
+					produto.setCamara(((EstoqueUtil) node.getData()).getCamara());
+					produto.setPosicaoCamara(((EstoqueUtil) node.getData()).getPosicaoCamara());
+					produto.setPeso(((EstoqueUtil) node.getData()).getPesoLiquido());
+
+					if (getPedido().getProdutos() == null) {
+						getPedido().setProdutos(new ArrayList<Produto>());
+						getPedido().getProdutos().add(getProduto());
+					} else
+						getPedido().getProdutos().add(getProduto());
+				}
+			}
+		}*/
+
+		if (nomePeixeProduto != null && !nomePeixeProduto.isEmpty() && produto.getTipoPeixe() != null && produto.getTamanhoPeixe() != null && produto.getPeso() != null && !produto.getPeso().toString().isEmpty()){
+			try{
+				//Optional<Peixe> peixe = peixes.stream().filter(p -> p.getDescricao().equals(nomePeixeProduto)).findFirst();
+				//produto.setPeixe(peixe.get());
+				produto.setPedido(pedido);
+
+				if (getPedido().getProdutos() == null) {
+					getPedido().setProdutos(new ArrayList<Produto>());
+					getPedido().getProdutos().add(produto);
+				} else
+					getPedido().getProdutos().add(produto);
+
+				produto = new Produto();
+				nomePeixeProduto = null;
+				addMessage("Informação", "Produto adicionado com sucesso.", FacesMessage.SEVERITY_INFO);
+			}catch (Exception e){
+				e.printStackTrace();
+				addMessage("Erro", "Não foi possível adicionar o produto.", FacesMessage.SEVERITY_ERROR);
+			}
+		}else
+			addMessage("Advertência", "Selecione o peixe, o tipo e o tamanho antes de adicionar um produto.", FacesMessage.SEVERITY_WARN);
+
+	}
+
+	/*public void prepararEditarProduto(){
+		setEditandoProduto(true);
+		setNomePeixe(getProduto().getPeixe().getDescricao());
+		if (getProduto() != null && getProduto().getPeixe() != null) {
+			pesoDisponivel = armazenamentoDAO.getPesoDisponivelPorPeixe(getProduto().getPeixe());
+		}
+		carregarTipos();
+	}*/
+
+	public void excluirProduto(){
+		try {
+			if (getProduto().getId() == null) {
+				getPedido().getProdutos().remove(getProduto());
+			} else {
+				produtoDAO.remove(getProduto());
+				getPedido().setProdutos(produtoDAO.getProdutosPorPedido(getPedido()));
+			}
+			addMessage("Informação", "Produto excluido com sucesso.", FacesMessage.SEVERITY_INFO);
+		}catch (Exception e){
+			e.printStackTrace();
+			addMessage("Erro", "Não foi possível excluir o produto.", FacesMessage.SEVERITY_ERROR);
+		}
+	}
+
+	public void gerarParcelas(){
+		if (getPedido().getVendedor() != null && getPedido().getValor() != null && getPedido().getCliente() != null) {
+
+			try{
+				if (pedido != null && pedido.getId() != null)
+					pedidoDAO.deletaParcelasPedido(pedido);
+
+				List<Parcela> parcelas = new ArrayList<Parcela>();
+
+				Integer qtdeParcelas = getPedido().getCliente().getVencimentoParcelas() / 30;
+
+				BigDecimal valor = getPedido().getValor().divide(new BigDecimal(qtdeParcelas), BigDecimal.ROUND_HALF_EVEN, 2);
+
+				for (int i = 0; i < qtdeParcelas.intValue(); i++) {
+					Parcela parcela = new Parcela();
+					parcela.setNumeroParcela(i + 1);
+					parcela.setVendedor(getPedido().getVendedor());
+					parcela.setPedido(getPedido());
+					parcela.setPorcentagemComissao(getPedido().getVendedor().getPorcentagemComissao());
+					parcela.setValor(valor);
+					parcela.setValorComissao(parcela.getValorComissao());
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(getPedido().getData());
+					cal.add(Calendar.MONTH, i + 1);
+					parcela.setDataPagamento(cal.getTime());
+
+					parcelas.add(parcela);
+				}
+
+				getPedido().setParcelas(parcelas);
+
+				//addMessage("Informação", "Parcelas geradas com sucesso.", FacesMessage.SEVERITY_INFO);
+			}catch (Exception e){
+				e.printStackTrace();
+				addMessage("Erro", "Não foi possível gerar as parcelas.", FacesMessage.SEVERITY_ERROR);
+			}
+
+		}else{
+			addMessage("Advertência", "Informe o vendedor, o valor e o cliente do pedido antes de gerar as parcelas.", FacesMessage.SEVERITY_WARN);
+		}
+	}
+
+	public String autorizarPedido(){
+		try{
+			if (!historico.getObservacao().equalsIgnoreCase("")){
+				historico.setPedido(getPedido());
+				historico.setData(new Date());
+				historicoDao.save(historico);
+			}
+
+			historico = new HistoricoPedido();
+			historico.setUsuario(getUsuarioSession().getUsuario());
+			historico.setData(new Date());
+			historico.setPedido(getPedido());
+			historico.setObservacao("Pedido aprovado pelo admin");
+			historicoDao.save(historico);
+
+			if (getPedido().getTransportadora() == null && (getPedido().getPlacaCarro() == null || getPedido().getPlacaCarro().isEmpty())){
+				getPedido().setStatus(StatusPedido.AGUARDANDO_DADOS_TRANSPORTE);
+			}else{
+				getPedido().setStatus(StatusPedido.AGUARDANDO_EMBARQUE);
+			}
+
+			pedidoDAO.salvarPedido(getPedido());
+
+			return cancelar();
+
+		}catch (Exception e){
+			e.printStackTrace();
+			addMessage("Erro", "Não foi possível salvar o pedido.", FacesMessage.SEVERITY_ERROR);
+			return "";
+		}
+
+	}
+
+	public String reprovarPedido(){
+		try{
+			if (!historico.getObservacao().equalsIgnoreCase("")){
+				historico.setPedido(getPedido());
+				historico.setData(new Date());
+				historicoDao.save(historico);
+			}
+
+			historico = new HistoricoPedido();
+			historico.setUsuario(getUsuarioSession().getUsuario());
+			historico.setData(new Date());
+			historico.setPedido(getPedido());
+			historico.setObservacao("Pedido reprovado pelo admin");
+			historicoDao.save(historico);
+
+			getPedido().setStatus(StatusPedido.REPROVADO);
+
+			pedidoDAO.salvarPedido(getPedido());
+
+			return cancelar();
+
+		}catch (Exception e){
+			e.printStackTrace();
+			addMessage("Erro", "Não foi possível salvar o pedido.", FacesMessage.SEVERITY_ERROR);
+			return "";
+		}
+
+	}
+
+	public String salvarPedido(){
+
+		try{
+
+			if ((!nomeTransportadora.isEmpty() && getPedido().getTransportadora() != null) && (getPedido().getPlacaCarro() == null || getPedido().getPlacaCarro().isEmpty())){
+				addMessage("Advertência", "Ao selcionar a transportadora é obrigatório informar a placa do carro.", FacesMessage.SEVERITY_WARN);
+				return "";
+			}else if((nomeTransportadora.isEmpty() || getPedido().getTransportadora() == null) && (getPedido().getPlacaCarro() != null && !getPedido().getPlacaCarro().isEmpty())) {
+				addMessage("Advertência", "Ao informar a placa do carro é obrigatório selecionar a transportadora.", FacesMessage.SEVERITY_WARN);
+				return "";
+			}
+
+			if (getPedido().getStatus() != null && getPedido().getStatus() != StatusPedido.EMBARCADO) {
+				boolean reprovado = false;
+
+				for (Produto produto : getPedido().getProdutos()) {
+					if (produto.getValorVenda().compareTo(produto.getPeixe().getValor()) == -1) {
+						reprovado = true;
+						break;
+					}
+				}
+
+				if (!reprovado) {
+					if (getPedido().getTransportadora() == null && (getPedido().getPlacaCarro() == null || getPedido().getPlacaCarro().isEmpty())) {
+						getPedido().setStatus(StatusPedido.AGUARDANDO_DADOS_TRANSPORTE);
+					} else {
+						getPedido().setStatus(StatusPedido.AGUARDANDO_EMBARQUE);
+					}
+				} else {
+					getPedido().setStatus(StatusPedido.ENVIADO_PARA_APROVACAO);
+				}
+
+				if (getPedido().getProdutos() != null && getPedido().getProdutos().size() > 0) {
+
+					getPedido().setValor(getPedido().getValorTotal());
+					pedidoDAO.salvarPedido(getPedido());
+
+					if (!historico.getObservacao().equalsIgnoreCase("")) {
+						historico.setPedido(getPedido());
+						historico.setData(new Date());
+						historicoDao.save(historico);
+					}
+
+					historico = new HistoricoPedido();
+					historico.setUsuario(getUsuarioSession().getUsuario());
+					historico.setData(new Date());
+					historico.setPedido(getPedido());
+
+					if (!reprovado) {
+						if (getPedido().getTransportadora() == null && (getPedido().getPlacaCarro() == null || getPedido().getPlacaCarro().isEmpty())) {
+							historico.setObservacao("Pedido aguardando dados do transporte");
+						} else {
+							historico.setObservacao("Pedido aguardando embarque");
+						}
+					} else {
+						historico.setObservacao("Pedido enviado para aprovação");
+					}
+
+					historicoDao.save(historico);
+
+					return cancelar();
+
+				} else {
+					addMessage("Advertência", "Adicione produtos antes de salvar o pedido", FacesMessage.SEVERITY_WARN);
+					return "";
+				}
+
+			}
+			else {
+				historico = new HistoricoPedido();
+				historico.setUsuario(getUsuarioSession().getUsuario());
+				historico.setData(new Date());
+				historico.setPedido(getPedido());
+				historico.setObservacao("Pedido embarcado, aguardando finalização");
+
+				historicoDao.save(historico);
+
+				pedidoDAO.salvarPedido(getPedido());
+
+				return cancelar();
+			}
+
+		}catch (Exception e){
+			e.printStackTrace();
+			addMessage("Erro", "Não foi possível salvar o pedido.", FacesMessage.SEVERITY_ERROR);
+			return "";
+		}
+
+	}
+
+	public String retornarPedido(){
+		try{
+			getPedido().setStatus(StatusPedido.AGUARDANDO_EMBARQUE);
+			pedidoDAO.salvarPedido(getPedido());
+
+			if (!historico.getObservacao().equalsIgnoreCase("")) {
+				historico.setPedido(getPedido());
+				historico.setData(new Date());
+				historicoDao.save(historico);
+			}
+
+			historico = new HistoricoPedido();
+			historico.setUsuario(getUsuarioSession().getUsuario());
+			historico.setData(new Date());
+			historico.setPedido(getPedido());
+			historico.setObservacao("Pedido retornado ao embarque");
+
+			historicoDao.save(historico);
+
+			addMessage("Informação", "Pedido retornado com sucesso.", FacesMessage.SEVERITY_ERROR);
+		}catch (Exception e){
+			e.printStackTrace();
+			addMessage("Erro", "Não foi possível retornar o pedido.", FacesMessage.SEVERITY_ERROR);
+			return "";
+		}
+
+		return "pedidos?faces-redirect=true;";
+	}
+
+	public String prepararDetalhesPedido() {
+		return "pedidoscad?faces-redirect=true&amp;includeViewParams=true";
+	}
+
+	public void prepararRomaneiosProduto(){
+		carregarRomaneios();
+	}
+
+	public void carregarRomaneios(){
+		produto.setRomaneios(romaneioDAO.getRomaneiosPorProduto(produto));
+	}
+
+	private String getFileName(Part part) {
+		final String partHeader = part.getHeader("content-disposition");
+		for (String content : part.getHeader("content-disposition").split(";")) {
+			if (content.trim().startsWith("filename")) {
+				return content.substring(content.indexOf('=') + 1).trim()
+						.replace("\"", "");
+			}
+		}
+
+		return null;
+	}
+
+
+	public void salvarNotaFiscal(){
+
+		if (notaFiscal != null) {
+			String fileName = getFileName(notaFiscal);
+			fileName = "pedido_" + pedido.getId() + "_" + fileName;
+
+			String basePath = "C:" + File.separator + "Iranduba Pescados" + File.separator + "arquivos" + File.separator + "notas fiscais" + File.separator;
+			File outputFilePath = new File(basePath + fileName);
+
+			// Copy uploaded file to destination path
+			java.io.InputStream inputStream = null;
+			OutputStream outputStream = null;
+			try {
+				inputStream = notaFiscal.getInputStream();
+				outputStream = new FileOutputStream(outputFilePath);
+
+				int read = 0;
+				final byte[] bytes = new byte[1024];
+				while ((read = inputStream.read(bytes)) != -1) {
+					outputStream.write(bytes, 0, read);
+				}
+
+				List<Arquivo> list = arquivoDAO.getArquivosPorPedido(pedido);
+				Arquivo arquivo1 = null;
+				if (list != null && list.size() > 0) {
+					arquivo1 = list.get(0);
+
+					File arquivoAnterior = new File(basePath + arquivo1.getNome());
+					if (arquivoAnterior.exists())
+						arquivoAnterior.delete();
+				} else
+					arquivo1 = new Arquivo();
+
+				arquivo1.setPedido(pedido);
+				arquivo1.setNome(fileName);
+				arquivo1.setTamanho(notaFiscal.getSize());
+				arquivo1.setTipo(notaFiscal.getContentType());
+
+				pedido.setStatus(StatusPedido.FINALIZADO);
+				pedidoDAO.save(pedido);
+				arquivoDAO.save(arquivo1);
+
+				historico = new HistoricoPedido();
+				historico.setUsuario(getUsuarioSession().getUsuario());
+				historico.setData(new Date());
+				historico.setPedido(pedido);
+				historico.setObservacao("Pedido finalizado, nota fiscal inserida");
+
+				historicoDao.save(historico);
+
+				List<Arquivo> arquivos = arquivoDAO.getArquivosPorPedido(pedido);
+
+				arquivo = arquivo1;
+
+				addMessage("Nota fiscal adicionada com sucesso.", "", FacesMessage.SEVERITY_INFO);
+			} catch (IOException e) {
+				e.printStackTrace();
+				addMessage("Não foi possivel adicionar a nota fiscal.", "", FacesMessage.SEVERITY_INFO);
+			} finally {
+				try {
+					if (outputStream != null) {
+						outputStream.close();
+					}
+					if (inputStream != null) {
+						inputStream.close();
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
+
+	public void downloadNotaFiscal(){
+
+		try{
+
+			if (arquivo != null){
+				arquivo = arquivoDAO.getById(Arquivo.class, arquivo.getId());
+
+				ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+				HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+				response.setContentType("application/octet-stream");
+				response.setHeader("Content-Disposition", "attachment;filename=\"" + arquivo.getNome() + "\"");
+				File file = new File("C:" + File.separator + "Iranduba Pescados" + File.separator + "arquivos" + File.separator + "notas fiscais" + File.separator + arquivo.getNome());
+				response.getOutputStream().write(IOUtils.toByteArray(new FileInputStream(file)));
+				response.getOutputStream().flush();
+				response.getOutputStream().close();
+				FacesContext.getCurrentInstance().responseComplete();
+			}else{
+				addMessage("Aviso: ", "Esse pedido não possui nota fiscal.", FacesMessage.SEVERITY_WARN);
+			}
+
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+
+		arquivo.setDados(null);
+
+	}
+
+	public void buscarEstoque(){
+
+		if (nomePeixe != null && !nomePeixe.isEmpty()) {
+
+			peixe = peixeDAO.getPeixePorDescricao(nomePeixe);
+
+			List<EstoqueUtil> list = armazenamentoDAO.getEstoquePorPeixeCamaraTipo(peixe, camara, tipoPeixe);
+
+			root = new CheckboxTreeNode(new EstoqueUtil());
+
+			for (EstoqueUtil estoqueUtil : list) {
+
+				TreeNode nodeCamara = camaraAdicionada(estoqueUtil.getCamara().getDescricao());
+				if (nodeCamara == null) {
+					String totalCamara = FormatterUtil.getValorFormatado(list.stream().filter(c -> c.getCamara().getDescricao().equals(estoqueUtil.getCamara().getDescricao())).map(EstoqueUtil::getPesoLiquido).reduce(BigDecimal.ZERO, (a, b) -> a.add(b)));
+					nodeCamara = new CheckboxTreeNode(new EstoqueUtil(estoqueUtil.getCamara().getDescricao(), totalCamara), root);
+					nodeCamara.setExpanded(true);
+					nodeCamara.setSelectable(false);
+				}
+
+				TreeNode nodePosicao = posicaoAdicionada(estoqueUtil.getPosicaoCamara().getDescricao(), nodeCamara);
+				if (nodePosicao == null) {
+					String totalPosicao = FormatterUtil.getValorFormatado(list.stream().filter(c -> c.getCamara().getDescricao().equals(estoqueUtil.getCamara().getDescricao()) && c.getPosicaoCamara().getDescricao().equals(estoqueUtil.getPosicaoCamara().getDescricao())).map(EstoqueUtil::getPesoLiquido).reduce(BigDecimal.ZERO, (a, b) -> a.add(b)));
+					nodePosicao = new CheckboxTreeNode(new EstoqueUtil(estoqueUtil.getPosicaoCamara().getDescricao(), totalPosicao), nodeCamara);
+					nodePosicao.setExpanded(true);
+					nodePosicao.setSelectable(false);
+				}
+
+				TreeNode nodePeixe = peixeAdicionado(estoqueUtil.getPeixe().getDescricao(), nodePosicao);
+				if (nodePeixe == null) {
+					BigDecimal pesoPeixe = list.stream().filter(c -> c.getCamara().getDescricao().equals(estoqueUtil.getCamara().getDescricao()) && c.getPosicaoCamara().getDescricao().equals(estoqueUtil.getPosicaoCamara().getDescricao()) && c.getPeixe().getDescricao().equals(estoqueUtil.getPeixe().getDescricao()))
+							.map(EstoqueUtil::getPesoLiquido).reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
+
+					if (pesoPeixe.compareTo(BigDecimal.ZERO) == 1) {
+						String totalPeixe = FormatterUtil.getValorFormatado(pesoPeixe);
+						EstoqueUtil ePeixe = new EstoqueUtil(estoqueUtil.getPeixe().getDescricao(), totalPeixe);
+						nodePeixe = new CheckboxTreeNode(ePeixe, nodePosicao);
+						nodePeixe.setExpanded(true);
+						nodePeixe.setSelectable(false);
+					}
+				}
+
+				EstoqueUtil eTipo = new EstoqueUtil(estoqueUtil.getPeixe(), estoqueUtil.getCamara(), estoqueUtil.getPosicaoCamara(), estoqueUtil.getDataArmazenamento(), estoqueUtil.getTipo(), estoqueUtil.getPeso(), estoqueUtil.getPesoRetirada());
+
+				if (eTipo.getPesoLiquido().compareTo(BigDecimal.ZERO) == 1) {
+					TreeNode nodeTipo = new CheckboxTreeNode(eTipo, nodePeixe);
+					nodeTipo.setExpanded(true);
+					nodeTipo.setSelectable(false);
+				}
+
+			}
+		}else
+			addMessage("Aviso", "Selecione um peixe antes de efetuar a busca no estoque.", FacesMessage.SEVERITY_WARN);
+
+	}
+
+	public TreeNode camaraAdicionada(String camara){
+		for (TreeNode node : root.getChildren()){
+			if (((EstoqueUtil) node.getData()).getDescricaoCamaraPeixe().equals(camara))
+				return node;
+		}
+
+		return null;
+	}
+
+	public TreeNode peixeAdicionado(String peixe, TreeNode nodePosicao){
+
+		for (TreeNode node : nodePosicao.getChildren()){
+			if (((EstoqueUtil) node.getData()).getDescricaoCamaraPeixe().equals(peixe))
+				return node;
+		}
+
+		return null;
+	}
+
+	public TreeNode posicaoAdicionada(String posicao, TreeNode nodeCamara){
+		for (TreeNode node : nodeCamara.getChildren()){
+			if (((EstoqueUtil) node.getData()).getDescricaoCamaraPeixe().equals(posicao))
+				return node;
+		}
+
+		return null;
+	}
+
+	public TreeNode tipoAdicionado(EstoqueUtil eu, TreeNode nodePeixe){
+
+		for (TreeNode node : nodePeixe.getChildren()){
+			if (((EstoqueUtil) node.getData()).getTipo().getId().longValue() == eu.getTipo().getId().longValue()) {
+				//((EstoqueUtil) node.getData()).setPeso(((EstoqueUtil) node.getData()).getPeso().add(eu.getPeso()));
+				//((EstoqueUtil) node.getData()).setPesoRetirada(((EstoqueUtil) node.getData()).getPesoRetirada().add(eu.getPesoRetirada()));
+				return node;
+			}
+		}
+
+		return null;
+	}
+
+	public void prepararEditarParcela(){
+		setEditandoParcela(true);
+	}
+
+	public String cancelar(){
+		return "pedidos?faces-redirect=true";
+	}
+
+	public UsuarioSessionBean getUsuarioSession(){
+		UsuarioSessionBean usuarioSession = (UsuarioSessionBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuariologado");
+		return usuarioSession;
+	}
+	
+	public void addMessage(String summary, String detail, Severity severity) {
+        FacesMessage message = new FacesMessage(severity, summary, detail);
+        FacesContext.getCurrentInstance().addMessage(null, message);
+    }
+
+	public StatusPedido[] getStatus(){
+		return StatusPedido.values();
+	}
+
+	//Getters and Setters
+	public Pedido getPedido() {
+		return pedido;
+	}
+
+	public void setPedido(Pedido pedido) {
+		this.pedido = pedido;
+	}
+
+	public Produto getProduto() {
+		return produto;
+	}
+
+	public void setProduto(Produto produto) {
+		this.produto = produto;
+	}
+
+	public Parcela getParcela() {
+		return parcela;
+	}
+
+	public void setParcela(Parcela parcela) {
+		this.parcela = parcela;
+	}
+
+	public Filtro getFiltro() {
+		return filtro;
+	}
+
+	public void setFiltro(Filtro filtro) {
+		this.filtro = filtro;
+	}
+
+	public LazyDataModel<Pedido> getModel() {
+		return model;
+	}
+
+	public void setModel(LazyDataModel<Pedido> model) {
+		this.model = model;
+	}
+
+	public List<Cliente> getClientes() {
+		return clientes;
+	}
+
+	public void setClientes(List<Cliente> clientes) {
+		this.clientes = clientes;
+	}
+
+	public List<Transportadora> getTransportadoras() {
+		return transportadoras;
+	}
+
+	public void setTransportadoras(List<Transportadora> transportadoras) {
+		this.transportadoras = transportadoras;
+	}
+
+	public List<Vendedor> getVendedores() {
+		return vendedores;
+	}
+
+	public void setVendedores(List<Vendedor> vendedores) {
+		this.vendedores = vendedores;
+	}
+
+	public List<Peixe> getPeixes() {
+		return peixes;
+	}
+
+	public void setPeixes(List<Peixe> peixes) {
+		this.peixes = peixes;
+	}
+
+	public String getNomeTransportadora() {
+		return nomeTransportadora;
+	}
+
+	public void setNomeTransportadora(String nomeTransportadora) {
+		this.nomeTransportadora = nomeTransportadora;
+	}
+
+	public String getNomeCliente() {
+		return nomeCliente;
+	}
+
+	public void setNomeCliente(String nomeCliente) {
+		this.nomeCliente = nomeCliente;
+	}
+
+	public String getNomeVendedor() {
+		return nomeVendedor;
+	}
+
+	public void setNomeVendedor(String nomeVendedor) {
+		this.nomeVendedor = nomeVendedor;
+	}
+
+	public String getNomePeixe() {
+		return nomePeixe;
+	}
+
+	public void setNomePeixe(String nomePeixe) {
+		this.nomePeixe = nomePeixe;
+	}
+
+	public List<SelectItem> getListaTipos() {
+		return listaTipos;
+	}
+
+	public void setListaTipos(List<SelectItem> listaTipos) {
+		this.listaTipos = listaTipos;
+	}
+
+	public Boolean getInclusaoContinua() {
+		return inclusaoContinua;
+	}
+
+	public void setInclusaoContinua(Boolean inclusaoContinua) {
+		this.inclusaoContinua = inclusaoContinua;
+	}
+
+	public Boolean getEditandoProduto() {
+		return editandoProduto;
+	}
+
+	public void setEditandoProduto(Boolean editandoProduto) {
+		this.editandoProduto = editandoProduto;
+	}
+
+	public Boolean getEditandoParcela() {
+		return editandoParcela;
+	}
+
+	public void setEditandoParcela(Boolean editandoParcela) {
+		this.editandoParcela = editandoParcela;
+	}
+
+	public Part getNotaFiscal() {
+		return notaFiscal;
+	}
+
+	public void setNotaFiscal(Part notaFiscal) {
+		this.notaFiscal = notaFiscal;
+	}
+
+	public Arquivo getArquivo() {
+		return arquivo;
+	}
+
+	public void setArquivo(Arquivo arquivo) {
+		this.arquivo = arquivo;
+	}
+
+	public BigDecimal getPesoDisponivel() {
+		return pesoDisponivel;
+	}
+
+	public void setPesoDisponivel(BigDecimal pesoDisponivel) {
+		this.pesoDisponivel = pesoDisponivel;
+	}
+
+	public Boolean getPodeAlterarOuAdcionarProduto() {
+		podeAlterarOuAdcionarProduto = false;
+
+		if (getProduto() != null && getProduto().getPeso() != null && pesoDisponivel != null) {
+			if (getProduto().getPeso().compareTo(BigDecimal.ZERO) > 0 && getProduto().getPeso().compareTo(pesoDisponivel) <= 0)
+				podeAlterarOuAdcionarProduto = true;
+		}
+
+		return podeAlterarOuAdcionarProduto;
+	}
+
+	public void setPodeAlterarOuAdcionarProduto(Boolean podeAlterarOuAdcionarProduto) {
+		this.podeAlterarOuAdcionarProduto = podeAlterarOuAdcionarProduto;
+	}
+
+	public List<SelectItem> getListaCamaras() {
+		return listaCamaras;
+	}
+
+	public void setListaCamaras(List<SelectItem> listaCamaras) {
+		this.listaCamaras = listaCamaras;
+	}
+
+	public TipoPeixe getTipoPeixe() {
+		return tipoPeixe;
+	}
+
+	public void setTipoPeixe(TipoPeixe tipoPeixe) {
+		this.tipoPeixe = tipoPeixe;
+	}
+
+	public TreeNode getRoot() {
+		return root;
+	}
+
+	public void setRoot(TreeNode root) {
+		this.root = root;
+	}
+
+	public Peixe getPeixe() {
+		return peixe;
+	}
+
+	public void setPeixe(Peixe peixe) {
+		this.peixe = peixe;
+	}
+
+	public Camara getCamara() {
+		return camara;
+	}
+
+	public void setCamara(Camara camara) {
+		this.camara = camara;
+	}
+
+	public TreeNode[] getItensSelecionados() {
+		return itensSelecionados;
+	}
+
+	public void setItensSelecionados(TreeNode[] itensSelecionados) {
+		this.itensSelecionados = itensSelecionados;
+	}
+
+	public String getNomePeixeProduto() {
+		return nomePeixeProduto;
+	}
+
+	public void setNomePeixeProduto(String nomePeixeProduto) {
+		this.nomePeixeProduto = nomePeixeProduto;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public HistoricoPedido getHistorico() {
+		return historico;
+	}
+
+	public void setHistorico(HistoricoPedido historico) {
+		this.historico = historico;
+	}
+
+	public List<SelectItem> getListaTamanhos() {
+		return listaTamanhos;
+	}
+
+	public void setListaTamanhos(List<SelectItem> listaTamanhos) {
+		this.listaTamanhos = listaTamanhos;
+	}
+}

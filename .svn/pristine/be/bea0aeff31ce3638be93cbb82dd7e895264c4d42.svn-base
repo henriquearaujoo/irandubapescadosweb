@@ -1,0 +1,143 @@
+package com.irandubamodulo01.model;
+
+
+import com.irandubamodulo01.enumerated.StatusArmazenamento;
+import com.irandubamodulo01.enumerated.TipoDestinoRetirada;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+@Entity
+@Table(name = "retirada")
+public class Retirada implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(unique = true, nullable = false)
+	private Long id;
+	
+	@Column
+	private BigDecimal peso;
+
+	@Column
+	private Integer qtdeEmbalagem;
+
+	@Column
+	private Date data;
+	
+	@Enumerated(EnumType.STRING)
+	private TipoDestinoRetirada destino;
+
+	@Enumerated(EnumType.STRING)
+	private StatusArmazenamento status;
+	
+	@ManyToOne
+	@JoinColumn(name="peixe_id")
+	private Peixe peixe;
+
+	@ManyToOne
+	@JoinColumn(name="tipopeixe_id")
+	private TipoPeixe tipoPeixe;
+
+	@ManyToOne
+	@JoinColumn(name="camara_id")
+	private Camara camara;
+
+	@ManyToOne
+	@JoinColumn(name="posicaocamara_id")
+	private PosicaoCamara posicaoCamara;
+
+	@ManyToOne
+	@JoinColumn(name="usuario_id")
+	private Usuario usuario;
+
+	@OneToMany(mappedBy = "retirada",fetch = FetchType.LAZY)
+	private List<ObservacaoArmazenamento> observacoes;
+
+	public List<ObservacaoArmazenamento> getObservacoes() {
+		return observacoes;
+	}
+
+	public void setObservacoes(List<ObservacaoArmazenamento> observacoes) {
+		this.observacoes = observacoes;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public BigDecimal getPeso() {
+		return peso;
+	}
+
+	public void setPeso(BigDecimal peso) {
+		this.peso = peso;
+	}
+
+	public TipoDestinoRetirada getDestino() {
+		return destino;
+	}
+
+	public void setDestino(TipoDestinoRetirada destino) {
+		this.destino = destino;
+	}
+
+	public Peixe getPeixe() {
+		return peixe;
+	}
+
+	public void setPeixe(Peixe peixe) {
+		this.peixe = peixe;
+	}
+
+	public Integer getQtdeEmbalagem() {
+		return qtdeEmbalagem;
+	}
+
+	public void setQtdeEmbalagem(Integer qtdeEmbalagem) {
+		this.qtdeEmbalagem = qtdeEmbalagem;
+	}
+
+	public StatusArmazenamento getStatus() {
+		return status;
+	}
+
+	public void setStatus(StatusArmazenamento status) {
+		this.status = status;
+	}
+
+	public Date getData() {
+		return data;
+	}
+
+	public void setData(Date data) {
+		this.data = data;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public Camara getCamara() {
+		return camara;
+	}
+
+	public void setCamara(Camara camara) {
+		this.camara = camara;
+	}
+}

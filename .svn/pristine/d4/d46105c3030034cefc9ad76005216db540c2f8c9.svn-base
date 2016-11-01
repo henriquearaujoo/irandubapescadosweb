@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<p:fieldset legend="Armazenamentos">
+
+				<h:form id="formtable">
+					<h:panelGrid columns="8">
+						<span style="font-weight: bold">Período: </span>
+						<p:calendar id="dataInicio"
+							value="#{armazenamentoBean.filtro.dataInicio}" pattern="dd/MM/yyy" />
+						<p:watermark value="Data inicial" for="dataInicio" />
+						<p:calendar id="dataFinal"
+							value="#{armazenamentoBean.filtro.dataFinal}" pattern="dd/MM/yyy" />
+						<p:watermark value="Data final" for="dataFinal" />
+
+						<span style="font-weight: bold; margin-left:5px">Status: </span>
+						<p:selectOneMenu id="status"
+							value="#{armazenamentoBean.filtro.filtroStatus}">
+							<f:selectItem itemLabel="TODOS" noSelectionOption="true"/>
+							<f:selectItems value="#{armazenamentoBean.listaStatus}"/>
+						</p:selectOneMenu>
+
+						<p:commandButton icon="ui-icon-search" update="table"
+							style="margin-left:5px" />
+					</h:panelGrid>
+
+					<br />
+
+					<p:dataTable id="table" var="estoque" lazy="true"
+						value="#{armazenamentoBean.model}" paginator="true"
+						paginatorPosition="bottom" rows="15" sortBy="#{estoque.id}" sortOrder="DESCENDING">
+						<f:facet name="header">
+								Armazenamentos
+							</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+								Data
+							</f:facet>
+							<h:outputText value="#{estoque.data}">
+								<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+												   timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Status
+							</f:facet>
+							<h:outputText value="#{estoque.status}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								  Peixe
+								</f:facet>
+							<h:outputText value="#{estoque.peixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Peso (KG)
+							</f:facet>
+							<h:outputText value="#{estoque.peso}" />
+						</p:column>
+
+						<p:column headerText="Detalhes" width="120">
+						   <p:commandButton icon="ui-icon-zoomin" value="Detalhes" action="#{armazenamentoBean.redirecionarDetalhes}"  update=":frmArmazenamento:panelDetailArm  :frmArmazenamento:fieldArm" title="Detalhes"
+							style="margin-left:5px" >
+							 <f:param name="arm" value="#{estoque.id}"/>
+							 <f:setPropertyActionListener value="#{estoque}" target="#{armazenamentoBean.armazenamento}" />
+							</p:commandButton>
+						</p:column>
+
+					</p:dataTable>
+
+
+
+				</h:form>
+			</p:fieldset>
+		</div>
+	</ui:define>
+
+	<ui:define name="adicionais">
+	
+	  <p:dialog id="modaldetail" widgetVar="modalDetail" modal="true" closeOnEscape="true" resizable="false" width="700">
+	    	
+	       <h:form id="frmArmazenamento">
+	        <p:fieldset legend="Armazenamento" id="fieldArm">
+	          <h:panelGrid id="panelDetailArm" columns="2">
+	             
+	             <h:panelGrid columnClasses="label, value" columns="2">
+		             <span style="font-weight: bold">Data: </span>
+		              <h:outputText value="#{armazenamentoBean.armazenamento.data}">
+								<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+												   timeZone="America/Manaus" />
+		             </h:outputText>
+		             		             
+		             <span style="font-weight: bold">Peixe: </span>
+		              <h:outputText value="#{armazenamentoBean.armazenamento.peixe.descricao}">
+		             </h:outputText>
+		             
+		             <span style="font-weight: bold">Peso: </span>
+		              <h:outputText value="#{armazenamentoBean.armazenamento.peso}kg">
+		             </h:outputText>
+		             
+		             <span style="font-weight: bold">Tamanho: </span>
+		              <h:outputText value="#{armazenamentoBean.armazenamento.tamanhoPeixe.descricao}">
+		             </h:outputText>
+		             
+		             <span style="font-weight: bold">Tipo: </span>
+		              <h:outputText value="#{armazenamentoBean.armazenamento.tipoPeixe.descricao}">
+		             </h:outputText>
+		             
+		             <span style="font-weight: bold">Camara: </span>
+		              <h:outputText value="#{armazenamentoBean.armazenamento.camara.descricao}">
+		             </h:outputText>
+		             
+		             <span style="font-weight: bold">Posicao: </span>
+		              <h:outputText value="#{armazenamentoBean.armazenamento.posicaoCamara.descricao}">
+		             </h:outputText>
+		             
+		             <span style="font-weight: bold">Usuario: </span>
+		              <h:outputText value="#{armazenamentoBean.armazenamento.usuario.nome}">
+		             </h:outputText>
+		             
+		             <span style="font-weight: bold">Status: </span>
+		              <h:outputText value="#{armazenamentoBean.armazenamento.status.status}">
+		             </h:outputText>
+		             
+		         </h:panelGrid>
+		         
+		         <h:panelGrid columns="1" cellpadding="4" cellspacing="4">
+		           <img jsf:value="/foto?produto=#{armazenamentoBean.armazenamento.peixe.id}" width="400" height="200" />
+		           <span style="font-weight: bold">#{armazenamentoBean.armazenamento.peixe.descricao}</span>
+		         </h:panelGrid>
+	               
+	           </h:panelGrid>
+	          <br />
+	        <div align="center">
+	            <p:commandButton value="Autorizar" action="#{armazenamentoBean.autorizar()}" onsuccess="PF('modalDetail').hide()" update=":formtable:table" rendered="#{armazenamentoBean.armazenamento.status.status.equalsIgnoreCase('ENVIADO')}">
+							<p:confirm icon="ui-icon-alert" header="Excluir"
+						    	message="Ao autorizar estará dando entrada ao estoque. Deseja autorizar a entrada?" /> 						
+						</p:commandButton>
+						
+				<p:commandButton value="Retornar" action="#{armazenamentoBean.retornar()}" onsuccess="PF('modalDetail').hide()" update=":formtable:table"  rendered="#{armazenamentoBean.armazenamento.status.status.equalsIgnoreCase('ENVIADO')}">
+							<p:confirm icon="ui-icon-alert" header="Excluir"
+						    	message="Deseja retornar o armazenamento?" /> 						
+						</p:commandButton>		
+	   
+	        </div>
+	         </p:fieldset>
+	       </h:form>
+	  
+	  
+	  </p:dialog>
+	
+	</ui:define>
+
+
+</ui:composition>
+

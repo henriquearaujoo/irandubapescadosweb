@@ -1,0 +1,199 @@
+*{
+	margin:0;
+	padding:0;
+	border:0;
+	
+}
+	
+	
+ .ui-widget,.ui-widget .ui-widget {
+     font-size: 11px !important;
+}	
+		
+		
+ .ui-layout-north {
+             z-index:20 !important;
+             overflow:visible !important;
+              font-size: 11px !important;
+         }
+
+ .ui-layout-north .ui-layout-unit-content {
+             overflow:visible !important;
+              font-size: 11px !important;
+         }
+	
+
+div#menu-lateral{
+ position:relative;
+ top: 15px;
+ width:160px;
+ padding:20px;
+ background:#696969;
+ border-radius:25px;
+ float:left;
+ margin-right:20px;
+ margin-bottom:50px;
+ 
+}
+
+div#menu-lateral ul li{
+  background-color: white; 
+  margin-bottom: 1px; 
+  padding: 1px 10px;
+  display:block;
+  
+  
+}
+
+
+div#menu-lateral ul li a{
+  color: #333333; 
+  text-decoration: none; 
+}
+
+div#menu-lateral ul li a:hover{
+ background:gold;
+ color: #000000; 
+}
+
+div#menu-lateral ul li:hover{
+ background:gold;
+ color: #000000; 
+}
+
+div#menu-lateral ul li ul{
+  display:none;
+  
+}
+
+div#menu-lateral li:hover ul{
+  display:block;
+  
+}
+div#menu-lateral li li a:before { content: '- '; }
+div#menu-lateral ul ul li { background-color: #dcdcdc; }
+	
+div#menu{
+	position:fixed;
+	width:100%;
+	top:0;
+	z-index:500;
+	/*margin:0;*/
+	height:39px;
+	background:#696969;
+	/*background-image:url(img/bgmodal.jpg); */}
+div#menu ul{
+	 height:39px;
+	 padding-left:50px;
+	
+	}
+	
+div#menu ul li{
+	display:inline;
+	
+	}
+	
+div#menu ul li a{
+	color:#FFFFFF;
+	font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
+	font-size:16px;
+	text-decoration:none;
+	float:left;
+	padding-top:9px;
+	padding-bottom:9px;
+	padding-left:20px;
+	padding-right:20px;
+	
+	}
+	
+	div#menu ul li a:hover{
+	/*background:#C39798;*/
+	background:gold;
+	color:#000000;
+	
+	}
+	
+	
+	
+div#logof{
+	 float:right;
+	}
+div#corpo{
+	background:#D8D8D8;
+	height:1090px;
+	margin-top:40px;
+	padding:10px;
+	
+}
+
+div#breaadcrumb{
+	background:#696969;
+	padding:10px 10px 25px 10px;
+	border:1px solid gold;
+	border-radius:10px 10px 0 0;
+	-webkit-border-radius:10px 10px 0 0;
+	-moz-border-radius:10px 10px 0 0;
+
+}
+
+div#conteudo{
+	position:relative;
+	min-height:760px;
+	background:#FFFFFF;
+	top:-25px;
+	border-radius:10px;
+	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	padding:20px;
+}
+	
+#conteudo_form{
+	 width:85%;
+	 margin-left:20px;
+	 
+	}	
+	
+div#conteudo form input{
+	
+	 
+     padding:3px 3px 3px 3px;
+	 margin-bottom:5px;
+	 margin-right:10px;
+
+	}	
+	
+div#conteudo form input:hover{
+	 border:1px solid gold;
+}
+
+label{
+	font-family:"Trebuchet MS", Arial, Helvetica, sans-serif; 
+	font-size: 2px;
+}
+	
+.btcentral{
+	 width:400px;
+	 height:50px;
+	 margin:auto;
+	 border-radius:5px;
+	 -web-border-radius:5px;
+	 -moz-border-radius:5px;
+	 
+	 }	
+
+.button_submit{
+	 width:80px;
+	 height:30px;
+	 margin:4px;
+	}
+	 
+div#conteudo form input:focus{
+	 border:1px solid #FCED16;
+	 background-color: #FCED16;
+	}	
+	
+	
+div#conteudo form select{border:1px solid ;}	
+div#conteudo form fieldset{border:1px solid #CBCBCB; padding:10px}
+	#menu ul {
+}

@@ -1,0 +1,710 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+        
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<f:view>
+			  <f:metadata>
+				<f:viewParam name="fornec" value="#{fornecedorBean.fornec}"/>
+				<f:viewAction action="#{fornecedorBean.carregarDados()}" />
+			 </f:metadata>
+
+			<h:form id="mensagem">
+				<p:spacer height="0"></p:spacer>
+				<p:effect type="fade" for="msgs" event="load" speed="10000">
+					<p:messages id="msgs" showDetail="true" showSummary="true"
+								globalOnly="true" closable="true"/>
+				</p:effect>
+			</h:form>
+			<h:form id="formCadFornec">
+
+				<p:fieldset legend="Dados pessoais">
+					<h:panelGrid columns="1" cellspacing="5" >
+
+						<h:panelGroup >
+							<h:panelGrid columns="7">
+								<p:outputLabel value="Código" />
+								<p:inputText id="id" value="#{fornecedorBean.fornec.id}" disabled="true"/>
+								<p:message for="id"/>
+
+								<p:outputLabel value="Tipo: *" />
+									<p:selectOneMenu id="tipo" value="#{fornecedorBean.fornec.tipoPessoa}" required="true" requiredMessage="Tipo é um campo obrigatório">
+										<f:selectItem itemLabel="Selecione um tipo" itemValue=""/>
+										<f:selectItems value="#{fornecedorBean.tiposPessoa}" var="t" itemValue="#{t}" itemLabel="#{t.tipo}"/>
+										<p:ajax update="panelTipoPessoa"/>
+									</p:selectOneMenu>
+								<p:message for="tipo"/>
+
+								<h:panelGroup id="panelTipoPessoa">
+									<h:panelGrid columns="2">
+										<h:panelGrid columns="3" rendered="#{fornecedorBean.fornec.tipoPessoa.tipo.equals('Física')}">
+											<p:outputLabel value="CPF:" />
+											<p:inputMask id="cpf" mask="999.999.999-99" value="#{fornecedorBean.fornec.cpf}" />
+											<p:message for="cpf"/>
+										</h:panelGrid>
+
+										<h:panelGrid columns="3" rendered="#{fornecedorBean.fornec.tipoPessoa.tipo.equals('Jurídica')}">
+											<p:outputLabel value="CNPJ: " />
+											<p:inputMask id="cnpj" mask="999-999-999.99/999" value="#{fornecedorBean.fornec.cnpj}" />
+											<p:message for="cnpj"/>
+										</h:panelGrid>
+									</h:panelGrid>
+								</h:panelGroup>
+							</h:panelGrid>
+						</h:panelGroup>
+
+						<h:panelGrid columns="3">
+							<p:outputLabel value="Nome/Razão Social: *" />
+							<p:inputText id="nome" size="92" value="#{fornecedorBean.fornec.nome}" required="true" requiredMessage="Nome/Razão Social é um campo obrigatório." />
+							<p:message for="nome"/>
+
+							<p:outputLabel value="Nome Fantasia:" />
+							<p:inputText id="nomeFantasia" size="92" value="#{fornecedorBean.fornec.nomeFantasia}" />
+							<p:message for="nomeFantasia"/>
+
+							<p:outputLabel value="RG:" />
+							<p:inputText id="rg" value="#{fornecedorBean.fornec.rg}" />
+							<p:message for="rg"/>
+
+							<p:outputLabel value="Endereço: " />
+							<p:inputText id="endereco" size="92" value="#{fornecedorBean.fornec.endereco}" />
+							<p:message for="endereco"/>
+
+							<p:outputLabel value="Estado: " />
+							<p:inputText id="estado" size="51" value="#{fornecedorBean.fornec.estado}" />
+							<p:message for="estado"/>
+
+							<p:outputLabel value="Cidade: " />
+							<p:inputText id="cidade" size="51" value="#{fornecedorBean.fornec.cidade}" />
+							<p:message for="cidade"/>
+
+							<p:outputLabel value="Bairro: " />
+							<p:inputText id="bairro" size="51" value="#{fornecedorBean.fornec.bairro}" />
+							<p:message for="bairro"/>
+
+							<p:outputLabel value="Número:" />
+							<p:inputText id="numero" value="#{fornecedorBean.fornec.numero}" />
+							<p:message for="numero"/>
+
+							<p:outputLabel value="CEP:" />
+							<p:inputText id="cep" value="#{fornecedorBean.fornec.cep}" />
+							<p:message for="cep"/>
+
+							<p:outputLabel value="Telefone (1):" />
+							<p:inputMask id="telefone1" mask="(99) 99999-9999" value="#{fornecedorBean.fornec.telefone1}"/>
+							<p:message for="telefone1"/>
+
+							<p:outputLabel value="Telefone (2):" />
+							<p:inputMask id="telefone2" mask="(99) 99999-9999" value="#{fornecedorBean.fornec.telefone2}" />
+							<p:message for="telefone2"/>
+						</h:panelGrid>
+
+						<h:panelGroup>
+							<h:panelGrid columns="3" >
+								<p:outputLabel value="Complemento:" />
+								<p:inputText id="complemento" size="92" value="#{fornecedorBean.fornec.complemento}" style="padding-left: 100px" />
+								<p:message for="complemento"/>
+							</h:panelGrid>
+						</h:panelGroup>
+
+						<h:panelGrid >
+							<p:outputLabel value="Ponto de Referência:" />
+							<p:inputTextarea id="pontoreferencia" value="#{fornecedorBean.fornec.pontoReferencia}" cols="70" rows="3" />
+							<p:message for="pontoreferencia"/>
+						</h:panelGrid>
+					</h:panelGrid>
+
+				</p:fieldset>
+				<br></br>
+				<p:fieldset legend="Transporte" toggleable="true" toggleSpeed="500" collapsed="true" rendered="#{fornecedorBean.fornec.id != null}">
+
+
+					  <div align="right">
+						<p:commandButton icon="ui-icon-plus" value="Novo" action="#{fornecedorBean.prepararCadastroBarco}" oncomplete="PF('modalCadBarco').show()" update=":formCadBarco"/>
+					   </div>
+				<br />
+
+				<p:dataTable id="tableBarcos" var="b"
+					value="#{fornecedorBean.fornec.barcos}"  paginator="true" paginatorPosition="bottom" rows="20">
+					<f:facet name="header">
+					Transportes
+				</f:facet>
+
+					<p:column>
+						<f:facet name="header">
+					  Nome
+					</f:facet>
+						<h:outputText value="#{b.nome}" />
+					</p:column>
+
+					<p:column style="width:115px;">
+						<f:facet name="header">
+						  Editar
+						</f:facet>
+						<p:commandButton icon="ui-icon-pencil" value="Editar" oncomplete="PF('modalCadBarco').show()" update=":formCadBarco">
+							<f:setPropertyActionListener target="#{fornecedorBean.barco}"
+								value="#{b}" />
+						</p:commandButton>
+					</p:column>
+
+					<p:column style="width:115px;">
+						<f:facet name="header">
+						  Excluir
+						</f:facet>
+						<p:commandButton value="Excluir" icon="ui-icon-trash"
+							oncomplete="PF('confirmacaoDelete').show()">
+							<f:setPropertyActionListener target="#{fornecedorBean.barco}"
+								value="#{b}" />
+					</p:commandButton>
+					</p:column>
+
+				</p:dataTable>
+
+				</p:fieldset>
+				<br />
+
+				<p:fieldset legend="Adiantamentos" toggleable="true" toggleSpeed="500" collapsed="true" rendered="#{fornecedorBean.fornec.id != null}">
+					<h:panelGrid id="panelSaldo" columns="2">
+						<span style="font-weight: bold">Total Adiantamento: </span>
+						<p:outputLabel value="#{fornecedorBean.totalAdiantamento}">
+							<f:convertNumber type="currency" locale="pt_BR" />
+						</p:outputLabel>
+
+						<span style="font-weight: bold;color: red;">Saldo Devedor: </span>
+						<p:outputLabel value="#{fornecedorBean.saldoDevedor}" style="color: red;">
+							<f:convertNumber type="currency" locale="pt_BR" />
+						</p:outputLabel>
+					</h:panelGrid>
+
+					  <div align="right">
+						  <h:panelGrid columns="2">
+								<p:commandButton icon="ui-icon-plus" value="Novo" action="#{fornecedorBean.prepararAdiantamento()}" oncomplete="PF('modalAdiantameto').show()" update=":formCadAdiantamento"/>
+							  	<p:commandButton icon="ui-icon-minus" value="Descontos no Adiantamento" action="#{fornecedorBean.obterDescontosDeAdiantamento}" oncomplete="PF('modalDescontosAdiantametos').show()" update=":panelDescontosAdiantameto"/>
+						  </h:panelGrid>
+					   </div>
+				<br />
+
+				<p:dataTable id="tableAdiantamento" var="ad"
+					value="#{fornecedorBean.fornec.adiantamentos}"  paginator="true" paginatorPosition="bottom" rows="5">
+					<f:facet name="header">
+					Adiantamentos
+				</f:facet>
+
+					<p:column>
+						<f:facet name="header">
+					  Data
+					</f:facet>
+						<h:outputText value="#{ad.data}">
+						<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss "
+								timeZone="America/Manaus" />
+						</h:outputText>
+					</p:column>
+
+					<p:column >
+						<f:facet name="header">
+							Usuario
+						</f:facet>
+						<h:outputText value="#{ad.usuario.nome}" />
+					</p:column>
+
+					<p:column>
+						<f:facet name="header">
+					  Valor
+					</f:facet>
+						<h:outputText value="#{ad.valor}" >
+							<f:convertNumber type="currency" maxFractionDigits="2" />
+						</h:outputText>
+					</p:column>
+
+					<p:column >
+						<f:facet name="header">
+							Tipo
+						</f:facet>
+						<h:outputText value="Dinheiro" rendered="#{ad.tipo == 'DINHEIRO'}"/>
+						<h:outputText value="Cheque: #{ad.numeroCheque} - #{ad.nomeCheque}" rendered="#{ad.tipo == 'CHEQUE'}"/>
+						<h:outputText value="Transferência: #{ad.conta.beneficiado} - #{ad.conta.agencia}/#{ad.conta.conta}" rendered="#{ad.tipo == 'TRANSFERENCIA'}"/>
+					</p:column>
+
+					<p:column >
+						<f:facet name="header">
+							Observação
+						</f:facet>
+						<h:outputText value="#{ad.observacao}" />
+					</p:column>
+
+					<p:column style="width:115px;" >
+						<f:facet name="header">
+					  Editar
+					</f:facet>
+						<p:commandButton icon="ui-icon-pencil" value="Editar" action="#{fornecedorBean.editarAdiantamento}" oncomplete="PF('modalAdiantameto').show()" update=":formCadAdiantamento">
+							<f:setPropertyActionListener target="#{fornecedorBean.adiantamento}"
+								value="#{ad}" />
+						</p:commandButton>
+					</p:column>
+
+					<p:column style="width:115px;" rendered="#{loginBean.usuarioSession.usuario.perfil.descricao.equals('Admin')}" >
+						<f:facet name="header">
+						  Excluir
+						</f:facet>
+						<p:commandButton value="Excluir" icon="ui-icon-trash"
+							oncomplete="PF('confirmacaoDeleteAdiantamento').show()">
+							<f:setPropertyActionListener target="#{fornecedorBean.adiantamento}"
+								value="#{ad}" />
+					</p:commandButton>
+					</p:column>
+
+				</p:dataTable>
+
+				</p:fieldset>
+				<br></br>
+				<p:fieldset legend="Contas bancárias" toggleable="true" toggleSpeed="500" collapsed="true" rendered="#{fornecedorBean.fornec.id != null}">
+
+					  <div align="right">
+						<p:commandButton icon="ui-icon-plus" value="Novo" action="#{fornecedorBean.prepararCadastroConta()}" oncomplete="PF('modalCadConta').show()" update=":formCadConta"/>
+					   </div>
+					<br />
+
+					<p:dataTable id="tableContas" var="c"
+						value="#{fornecedorBean.fornec.contas}"  paginator="true" paginatorPosition="bottom" rows="5">
+						<f:facet name="header">
+							Contas bancárias
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+								Banco
+							</f:facet>
+							<h:outputText value="#{c.banco}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Beneficiado
+							</f:facet>
+							<h:outputText value="#{c.beneficiado}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Agência
+							</f:facet>
+							<h:outputText value="#{c.agencia}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Conta
+							</f:facet>
+							<h:outputText value="#{c.conta}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Tipo
+							</f:facet>
+							<h:outputText value="#{c.tipo.label}" />
+						</p:column>
+
+						<p:column style="width: 115px;">
+							<f:facet name="header">
+							Editar
+							</f:facet>
+							<p:commandButton icon="ui-icon-pencil" value="Editar" oncomplete="PF('modalCadConta').show()" update=":formCadConta">
+								<f:setPropertyActionListener target="#{fornecedorBean.conta}"
+									value="#{c}" />
+							</p:commandButton>
+						</p:column>
+
+						<p:column style="width: 115px;">
+							<f:facet name="header">
+							Excluir
+							</f:facet>
+							<p:commandButton value="Excluir" icon="ui-icon-trash"
+								oncomplete="PF('confirmacaoDeleteConta').show()">
+								<f:setPropertyActionListener target="#{fornecedorBean.conta}"
+									value="#{c}" />
+							</p:commandButton>
+						</p:column>
+
+					</p:dataTable>
+
+				</p:fieldset>
+
+				<br></br>
+				<p:fieldset legend="Preço Diferenciado" toggleable="true" toggleSpeed="500" collapsed="true" rendered="#{fornecedorBean.fornec.id != null}">
+					<h:panelGrid id="panelPrecoDiferenciado" >
+
+						<p:effect type="fade" for="msgpd" event="load" speed="50000">
+							<p:messages id="msgpd" showDetail="true" showSummary="true"
+										closable="true"/>
+						</p:effect>
+
+						<h:panelGrid id="panelDadosPrecoDiferenciado" columns="11" rendered="#{loginBean.usuarioSession.usuario.perfil.descricao.equals('Admin')}">
+
+							<p:outputLabel value="Peixe: " />
+							<p:autoComplete id="epeixe" value="#{fornecedorBean.nomePeixe}" completeMethod="#{fornecedorBean.completePeixe}" size="50" maxResults="20"/>
+							<p:message for="epeixe"/>
+
+							<p:outputLabel value="Valor: " />
+							<p:inputText id="valorp" value="#{fornecedorBean.precoDiferenciado.valor}" onkeypress="return formatarNumero(this,event,18,2);" >
+								<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+							</p:inputText>
+							<p:message for="valorp"/>
+
+							<p:commandButton icon="ui-icon-plus" action="#{fornecedorBean.adicionarPrecoDiferenciado}" value="Adicionar" update=":formCadFornec:tablPrecoDiferenciado msgpd epeixe valorp" process="panelDadosPrecoDiferenciado" style="margin-left:5px"/>
+
+							<p:outputLabel value="Copiar do fornecedor " style="padding-left: 50px"/>
+							<p:autoComplete id="efornec" value="#{fornecedorBean.nomeFornecedor}" completeMethod="#{fornecedorBean.completeFornecedor}" size="50" maxResults="20"/>
+							<p:message for="efornec"/>
+
+							<p:commandButton icon="ui-icon-plus" oncomplete="PF('confirmacaoCopiaItens').show()" value="Copiar" style="margin-left:5px"/>
+
+						</h:panelGrid>
+
+
+						<br />
+
+						<p:dataTable id="tablPrecoDiferenciado" var="p"
+									 value="#{fornecedorBean.fornec.precosDiferenciados}"  paginator="true" paginatorPosition="bottom" rows="15">
+							<f:facet name="header">
+								Itens
+							</f:facet>
+
+							<p:column filterBy="#{p.peixe.descricao}">
+								<f:facet name="header">
+									Peixe
+								</f:facet>
+								<h:outputText value="#{p.peixe.descricao}" />
+							</p:column>
+
+							<p:column style="width:110px;">
+								<f:facet name="header">
+									Valor
+								</f:facet>
+								<p:inputText  value="#{p.valor}" onkeypress="return formatarNumero(this,event,18,2);" size="12">
+									<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+								</p:inputText>
+							</p:column>
+
+							<p:column style="width:120px;" rendered="#{loginBean.usuarioSession.usuario.perfil.descricao.equals('Admin')}">
+								<f:facet name="header">
+									Excluir
+								</f:facet>
+								<p:commandButton value="Excluir" icon="ui-icon-trash"
+												 oncomplete="PF('confirmacaoDeletePrecoDiferenciado').show()">
+									<f:setPropertyActionListener target="#{fornecedorBean.precoDiferenciado}"
+																 value="#{p}" />
+								</p:commandButton>
+							</p:column>
+
+						</p:dataTable>
+					</h:panelGrid>
+
+					<br/>
+					<div align="right">
+						<h:panelGrid columns="2">
+							<p:commandButton icon="ui-icon-plus" value="Atualizar Valores" oncomplete="PF('confirmacaoAtualizacaoValores').show()" process="tablPrecoDiferenciado" rendered="#{loginBean.usuarioSession.usuario.perfil.descricao.equals('Admin')}"/>
+							<p:commandButton icon="ui-icon-print" value="Imprimir" action="#{fornecedorBean.imprimirTabelaPrecoFornecedor}" ajax="false" />
+						</h:panelGrid>
+					</div>
+				</p:fieldset>
+
+				<br/><br/>
+					<p:outputLabel value="Campos obrigatórios *" />
+				<br/><br/>
+
+				<div class="btcentral">
+
+					<p:commandButton icon="ui-icon-disk" value="Salvar" action="#{fornecedorBean.salvarFornec()}" update="formCadFornec :mensagem" />
+					<p:commandButton icon="ui-icon-close" value="Fechar" action="#{fornecedorBean.cancelar()}" immediate="true"/>
+				</div>
+				<br/><br/>
+			</h:form>
+
+			</f:view>
+		</div>
+	</ui:define>
+	
+	<ui:define name="adicionais">
+			<p:dialog header="Cadastro de transporte" widgetVar="modalCadBarco" closable="true"
+				modal="true" closeOnEscape="true" resizable="true" width="560px">
+				<h:form id="formCadBarco">
+					<p:messages id="messagesTransporte" showDetail="true" autoUpdate="true" closable="true" />
+					<p:fieldset legend="Transporte">
+						<h:panelGrid id="panelTransporte" columns="2" cellpadding="4" cellspacing="4">
+						  <p:outputLabel value="Descrição: *" />
+						  <p:inputText value="#{fornecedorBean.barco.nome}" style="width:350px"/>
+						</h:panelGrid>			
+					</p:fieldset>	
+					<br/><br/>
+					<p:outputLabel value="Campos obrigatórios *" />
+					<br/><br/>
+				    <div align="center">
+						<p:commandButton icon="ui-icon-disk" value="Salvar" action="#{fornecedorBean.salvarBarco()}" update="panelTransporte :formCadFornec:tableBarcos :mensagem"/>
+						<p:commandButton icon="ui-icon-close" action="#{fornecedorBean.cancelarCadBarco()}" value="Fechar" onsuccess="PF('modalCadBarco').hide()"/>
+					</div>
+				</h:form>	
+				
+			</p:dialog>
+
+			<p:dialog header="Descontos no Adiantamento" widgetVar="modalDescontosAdiantametos" closable="true"
+					  modal="true" closeOnEscape="true" resizable="true" width="950">
+				<h:panelGrid id="panelDescontosAdiantameto">
+					<p:dataTable id="tablDescontosAdiantamentos" var="p"
+								 value="#{fornecedorBean.descontosAdiantamentos}"  paginator="true" paginatorPosition="bottom" rows="10">
+						<f:facet name="header">
+							Descontos
+						</f:facet>
+
+						<p:column style="width:40px;">
+							<f:facet name="header">
+
+							</f:facet>
+							<h:outputText value="#{p.seq}" />
+						</p:column>
+
+						<p:column style="width:150px;">
+							<f:facet name="header">
+								Cód. Compra
+							</f:facet>
+							<h:outputText value="#{p.compra.codigo}"/>
+						</p:column>
+
+						<p:column style="width:130px;">
+							<f:facet name="header">
+								Data da Compra
+							</f:facet>
+							<h:outputText value="#{p.compra.dataCompra}">
+								<f:convertDateTime pattern="dd/MM/yyyy"
+												   timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column style="width:130px;">
+							<f:facet name="header">
+								Data do Pagamento
+							</f:facet>
+							<h:outputText value="#{p.dataPagamento}">
+								<f:convertDateTime pattern="dd/MM/yyyy"
+												   timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column style="width:120px;">
+							<f:facet name="header">
+								Valor
+							</f:facet>
+							<h:outputText  value="#{p.valor}" >
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+						<p:column style="width:200px;">
+							<f:facet name="header">
+								Status
+							</f:facet>
+							<h:outputText value="#{p.statusPagamento}" />
+						</p:column>
+					</p:dataTable>
+
+					<br/>
+
+					<h:panelGrid columns="2">
+						<h:outputText value="Total:" />
+						<h:outputText  value="#{fornecedorBean.totalDescontosAdiantamento}" >
+							<f:convertNumber type="currency" maxFractionDigits="2" />
+						</h:outputText>
+					</h:panelGrid>
+
+				</h:panelGrid>
+			</p:dialog>
+			
+			<p:dialog header="Adiantamento" widgetVar="modalAdiantameto" closable="true"
+				modal="true" closeOnEscape="true" resizable="true" width="600px">
+				<h:form id="formCadAdiantamento" enctype="multipart/form-data" acceptcharset="ISO-8859-1">
+					<p:messages id="messagesAdiantamento" showDetail="true" autoUpdate="true" closable="true" />
+
+					<p:fieldset legend="Dados do Adiantamento">
+						<h:panelGrid id="panelAdiantamento" cellpadding="4" cellspacing="4">
+
+							<h:panelGrid columns="2">
+								<p:outputLabel value="Tipo: *" />
+								<p:selectOneMenu value="#{fornecedorBean.adiantamento.tipo}" >
+									<f:selectItems value="#{fornecedorBean.tiposAdiantamento}" var="t" itemValue="#{t}" itemLabel="#{t.tipo}"/>
+									<p:ajax update="panelTipoPagamento panelComprovante"/>
+								</p:selectOneMenu>
+							</h:panelGrid>
+
+							<h:panelGrid id="panelTipoPagamento" columns="2">
+								<p:outputLabel value="Nome Cheque: *" rendered="#{fornecedorBean.adiantamento.tipo == 'CHEQUE'}"/>
+								<p:inputText value="#{fornecedorBean.adiantamento.nomeCheque}" size="50" rendered="#{fornecedorBean.adiantamento.tipo == 'CHEQUE'}"/>
+								<p:outputLabel value="Número Cheque: *" rendered="#{fornecedorBean.adiantamento.tipo == 'CHEQUE'}"/>
+								<p:inputText value="#{fornecedorBean.adiantamento.numeroCheque}" style="width:100px" rendered="#{fornecedorBean.adiantamento.tipo == 'CHEQUE'}"/>
+
+								<p:outputLabel value="Contas: *" rendered="#{fornecedorBean.adiantamento.tipo == 'TRANSFERENCIA'}"/>
+								<p:selectOneMenu value="#{fornecedorBean.adiantamento.conta}" rendered="#{fornecedorBean.adiantamento.tipo == 'TRANSFERENCIA'}">
+									<f:selectItem itemLabel="Selecione a conta"/>
+									<f:selectItems value="#{fornecedorBean.listaDeContas}"/>
+									<f:converter converterId="SelectOneMenuConverter"/>
+								</p:selectOneMenu>
+
+								<p:outputLabel value="Comprovante:" style="margin-top: 40px" rendered="#{fornecedorBean.adiantamento.tipo == 'TRANSFERENCIA'}"/>
+								<h:inputFile id="file"
+											 label="file"
+											 value="#{fornecedorBean.comprovante}" required="false" rendered="#{fornecedorBean.adiantamento.tipo == 'TRANSFERENCIA'}">
+								</h:inputFile>
+
+							</h:panelGrid>
+
+							<h:panelGrid id="panelComprovante">
+								<p:commandLink value="Comprovante: #{fornecedorBean.arquivo.nome}" action="#{fornecedorBean.downloadComprovante()}" rendered="#{fornecedorBean.adiantamento.tipo == 'TRANSFERENCIA' and fornecedorBean.arquivo != null and fornecedorBean.arquivo.id != null}"
+											   style="color: blue" ajax="false" >
+								</p:commandLink>
+							</h:panelGrid>
+
+							<h:panelGrid columns="2">
+								<p:outputLabel value="Valor: *" />
+								<p:inputText id="valor" value="#{fornecedorBean.adiantamento.valor}" style="width:100px" onkeypress="return formatarNumero(this,event,18,2);">
+									<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+								</p:inputText>
+
+								<p:outputLabel value="Observação: *" />
+								<p:inputTextarea id="observacao" value="#{fornecedorBean.adiantamento.observacao}" rows="5" cols="55" maxlength="255"/>
+								</h:panelGrid>
+							</h:panelGrid>
+					</p:fieldset>
+
+					<br/><br/>
+					<p:outputLabel value="Campos obrigatórios *" />
+					<br/><br/>
+				    <div align="center">
+						<p:commandButton icon="ui-icon-disk" id="btSalvar" value="Salvar" action="#{fornecedorBean.salvarAdiantamento()}" update="panelAdiantamento :formCadFornec:tableAdiantamento :formCadFornec:panelSaldo"
+										 ajax="false"/>
+						<p:commandButton icon="ui-icon-close" action="#{fornecedorBean.cancelarCadAdiantamento()}" value="Fechar" onsuccess="PF('modalAdiantameto').hide()"/>
+					</div>
+				</h:form>	
+			</p:dialog>
+			
+			<p:dialog header="Cadastro de conta bancária" widgetVar="modalCadConta" closable="true"
+				modal="true" closeOnEscape="true" resizable="false" width="560px">
+				<h:form id="formCadConta">
+					<p:messages id="messagesConta" showDetail="true" autoUpdate="true" closable="true" />
+					<p:fieldset legend="Conta">
+						<h:panelGrid id="panelConta" columns="2" cellpadding="4" cellspacing="4">
+						  <p:outputLabel value="Banco: *" />
+						  <p:inputText value="#{fornecedorBean.conta.banco}" style="width:350px"/>
+						  <p:outputLabel value="Beneficiado: *" />
+						  <p:inputText value="#{fornecedorBean.conta.beneficiado}" style="width:350px"/>
+						  <p:outputLabel value="Agência: *" />
+						  <p:inputText value="#{fornecedorBean.conta.agencia}" style="width:100px"/>
+						  <p:outputLabel value="Conta: *" />
+						  <p:inputText value="#{fornecedorBean.conta.conta}" style="width:100px"/>
+						  <p:outputLabel value="Tipo: *" />
+						  <p:selectOneMenu value="#{fornecedorBean.conta.tipo}" >
+						  	<f:selectItems value="#{fornecedorBean.tiposConta}" var="t" itemValue="#{t}" itemLabel="#{t.label}"/>
+						  </p:selectOneMenu>
+						</h:panelGrid>			
+					</p:fieldset>	
+					<br/><br/>
+					<p:outputLabel value="Campos obrigatórios *" />
+					<br/><br/>
+				    <div align="center">
+						<p:commandButton icon="ui-icon-disk" value="Salvar" action="#{fornecedorBean.salvarConta()}" update="panelConta :formCadFornec:tableContas :mensagem"/>
+						<p:commandButton icon="ui-icon-close" action="#{fornecedorBean.cancelarCadConta()}" value="Cancelar" onsuccess="PF('modalCadConta').hide()"/>
+					</div>
+				</h:form>	
+				
+			</p:dialog>
+			
+			
+			<p:confirmDialog widgetVar="confirmacaoDelete" header="Confirmação" message="Confirma a exclusão do barco?">
+				<h:form id="formConfirmacao">
+					<p:commandButton value="Sim" action="#{fornecedorBean.excluirBarco()}"
+						styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+						update=":formCadFornec:tableBarcos :mensagem"
+						onsuccess="PF('confirmacaoDelete').hide()" />
+					<p:commandButton value="Não"
+						onclick="PF('confirmacaoDelete').hide()" type="button"
+						styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+						immediate="true" />
+				</h:form>
+			</p:confirmDialog>
+		
+			<p:confirmDialog widgetVar="confirmacaoDeleteAdiantamento" header="Confirmação" message="Confirma a exclusão de adiantamento?">
+				<h:form id="formConfirmacaoAdiantamento">
+					<p:commandButton value="Sim" action="#{fornecedorBean.excluirAdiantamento()}"
+						styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+						update=":formCadFornec:tableAdiantamento :formCadFornec:panelSaldo :mensagem"
+						onsuccess="PF('confirmacaoDeleteAdiantamento').hide()" />
+					<p:commandButton value="Não"
+						onclick="PF('onfirmacaoDeleteAdiantamento').hide()" type="button"
+						styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+						immediate="true" />
+				</h:form>
+			</p:confirmDialog>
+			
+			<p:confirmDialog widgetVar="confirmacaoDeleteConta" header="Confirmação" message="Confirma a exclusão da conta?">
+				<h:form id="formConfirmacaoConta">
+					<p:commandButton value="Sim" action="#{fornecedorBean.excluirConta()}"
+						styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+						update=":formCadFornec:tableContas :mensagem"
+						onsuccess="PF('confirmacaoDeleteConta').hide()" />
+					<p:commandButton value="Não"
+						onclick="PF('confirmacaoDeleteConta').hide()" type="button"
+						styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+						immediate="true" />
+				</h:form>
+			</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoDeletePrecoDiferenciado" header="Confirmação" message="Confirma a exclusão do item?">
+			<h:form id="formConfirmacaoDeletePrecoDiferenciado">
+				<p:commandButton value="Sim" action="#{fornecedorBean.excluirPrecoDiferenciado()}"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 update=":formCadFornec:tablPrecoDiferenciado :formCadFornec:msgpd"
+								 onsuccess="PF('confirmacaoDeletePrecoDiferenciado').hide()" />
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoDeletePrecoDiferenciado').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoCopiaItens" header="Confirmação" message="Confirma a cópia do itens do fornecedor selecionado?">
+			<h:form id="formConfirmacaoCopiaItens">
+				<p:commandButton value="Sim" action="#{fornecedorBean.copiarPrecosDiferenciados}"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 update=":formCadFornec:tablPrecoDiferenciado :formCadFornec:msgpd :formCadFornec:efornec"
+								 onsuccess="PF('confirmacaoCopiaItens').hide()" />
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoCopiaItens').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoAtualizacaoValores" header="Confirmação" message="Confirma a atualização dos valores de todos os itens?">
+			<h:form id="formConfirmacaoAtualizacaoValores">
+				<p:commandButton value="Sim" action="#{fornecedorBean.atualizarValores}"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 update=":formCadFornec:tablPrecoDiferenciado :formCadFornec:msgpd"
+								 onsuccess="PF('confirmacaoAtualizacaoValores').hide()" />
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoAtualizacaoValores').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+			
+    </ui:define>
+  
+</ui:composition>
+
+

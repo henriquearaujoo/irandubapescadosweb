@@ -1,0 +1,346 @@
+package com.irandubamodulo01.bean;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
+import javax.faces.context.ExternalContext;
+import javax.faces.view.*;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+
+import org.apache.commons.io.IOUtils;
+import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
+import org.primefaces.model.StreamedContent;
+import org.primefaces.model.UploadedFile;
+
+import com.irandubamodulo01.dao.ArquivoDAO;
+import com.irandubamodulo01.dao.PagamentoDAO;
+import com.irandubamodulo01.model.Arquivo;
+import com.irandubamodulo01.model.Pagamento;
+import com.irandubamodulo01.model.TipoPagamento;
+import com.irandubamodulo01.util.Filtro;
+
+@Named(value = "pagamentosPendentesBean")
+@ViewScoped
+public class PagamentosPendentesBean implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private @Inject Pagamento pagamento;
+	private @Inject Arquivo arquivo;
+	private @Inject PagamentoDAO pagamentoDAO; 
+	private @Inject ArquivoDAO arquivoDAO;
+	
+	private Filtro filtro = new Filtro();
+	private LazyDataModel<Pagamento> model;
+	private Integer pendente = 1;
+	private StreamedContent fileDownload;
+	private Part comprovante;
+	private BigDecimal pagoEmDinheiro = BigDecimal.ZERO;
+	private BigDecimal pagoEmCheque = BigDecimal.ZERO;
+	private BigDecimal pagoEmAdiantamento = BigDecimal.ZERO;
+	
+
+	public PagamentosPendentesBean() {
+		carregarPagamentos();
+	}
+
+	public void carregarPagamentos() {
+
+		model = new LazyDataModel<Pagamento>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public List<Pagamento> load(int first, int pageSize, String sortField,
+					SortOrder sortOrder, Map<String, Object> filters) {
+				filtro.setPrimeiroRegistro(first);
+				filtro.setQuantidadeRegistros(pageSize);
+				filtro.setAscendente(SortOrder.ASCENDING.equals(sortOrder));
+				filtro.setPropriedadeOrdenacao(sortField);
+				
+				if (pendente == 1)
+					filtro.setPendente(true);
+				else if (pendente == 0)
+					filtro.setPendente(false);
+				else
+					filtro.setPendente(null);
+				
+				filtro.setTipoPagamento(TipoPagamento.TRANSFERENCIA);
+				
+				setRowCount(pagamentoDAO.quantidadeFiltrados(filtro));
+				return pagamentoDAO.filtrados(filtro);
+			}
+
+		};
+	}
+	
+	public void carregarDetalhes(){
+
+		List<Pagamento> pagamentos = pagamentoDAO.getPagamentoPorCompraSemTransferencia(pagamento.getCompra());
+		for(Pagamento pag : pagamentos){
+			if (pag.getTipoPagamento().equals(TipoPagamento.DINHEIRO))
+				pagoEmDinheiro = pag.getValor();
+			else if(pag.getTipoPagamento().equals(TipoPagamento.CHEQUE))
+				pagoEmCheque = pag.getValor();
+			else if (pag.getTipoPagamento().equals(TipoPagamento.ADIANTAMENTO))
+				pagoEmAdiantamento = pag.getValor();
+		}
+
+		if (pagamento.getDataPagamento() == null)
+			pagamento.setDataPagamento(new Date());
+		
+		List<Arquivo> arquivos = arquivoDAO.getArquivosPorPagamento(pagamento);
+		
+		if (arquivos.size() > 0)
+    		arquivo = arquivos.get(0);
+		else
+			arquivo = null;
+	}
+	
+	/*public void salvarComprovante() {
+		// Extract file name from content-disposition header of file part
+		if(comprovante != null) {
+			String fileName = getFileName(comprovante);
+			try {
+
+				List<Arquivo> list = arquivoDAO.getArquivosPorPagamento(pagamento);
+				Arquivo arquivo1 = null;
+				if (list != null && list.size() > 0) {
+					arquivo1 = list.get(0);
+				} else
+					arquivo1 = new Arquivo();
+
+				arquivo1.setPagamento(pagamento);
+				arquivo1.setNome(fileName);
+				arquivo1.setTamanho(comprovante.getSize());
+				arquivo1.setTipo(comprovante.getContentType());
+				//arquivo1.setDados(IOUtils.toByteArray(comprovante.getInputStream()));
+
+				arquivoDAO.save(arquivo1);
+
+				addMessage("Comprovante adicionado com sucesso.", "", FacesMessage.SEVERITY_INFO);
+			} catch (Exception e) {
+				e.printStackTrace();
+				addMessage("Não foi possivel adicionar o comprovante.", "", FacesMessage.SEVERITY_INFO);
+			}
+		}
+    }*/
+
+	public String salvarComprovante(){
+		// Extract file name from content-disposition header of file part
+		String fileName = getFileName(comprovante);
+		fileName = "comprovante_pagamento_" + pagamento.getId() + "_" + fileName;
+
+		String basePath = "C:" + File.separator + "Iranduba Pescados" + File.separator + "arquivos" + File.separator + "comprovantes" + File.separator;
+		File outputFilePath = new File(basePath + fileName);
+
+		// Copy uploaded file to destination path
+		java.io.InputStream inputStream = null;
+		OutputStream outputStream = null;
+		try {
+			inputStream = comprovante.getInputStream();
+			outputStream = new FileOutputStream(outputFilePath);
+
+			int read = 0;
+			final byte[] bytes = new byte[1024];
+			while ((read = inputStream.read(bytes)) != -1) {
+				outputStream.write(bytes, 0, read);
+			}
+
+			List<Arquivo> list = arquivoDAO.getArquivosPorPagamento(pagamento);
+			Arquivo arquivo1 = null;
+			if (list != null && list.size() > 0) {
+				arquivo1 = list.get(0);
+
+				File fotoAnterior = new File(basePath + arquivo1.getNome());
+				if (fotoAnterior.exists())
+					fotoAnterior.delete();
+			}else
+				arquivo1 = new Arquivo();
+
+			arquivo1.setPagamento(pagamento);
+			arquivo1.setNome(fileName);
+			arquivo1.setTamanho(comprovante.getSize());
+			arquivo1.setTipo(comprovante.getContentType());
+
+			arquivoDAO.save(arquivo1);
+
+			addMessage("Comprovante adicionado com sucesso.", "", FacesMessage.SEVERITY_INFO);
+		} catch (IOException e) {
+			e.printStackTrace();
+			addMessage("Não foi possivel adicionar o comprovante.", "", FacesMessage.SEVERITY_INFO);
+		} finally {
+			try {
+				if (outputStream != null) {
+					outputStream.close();
+				}
+				if (inputStream != null) {
+					inputStream.close();
+				}
+			}catch (Exception e){
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	private String getFileName(Part part) {
+		final String partHeader = part.getHeader("content-disposition");
+		for (String content : part.getHeader("content-disposition").split(";")) {
+			if (content.trim().startsWith("filename")) {
+				return content.substring(content.indexOf('=') + 1).trim()
+						.replace("\"", "");
+			}
+		}
+		return null;
+	}
+		
+	public void downloadComprovante(){
+
+		try{
+
+			if (arquivo != null){
+				arquivo = arquivoDAO.getById(Arquivo.class, arquivo.getId());
+
+				ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+				HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+				response.setContentType("application/octet-stream");
+				response.setHeader("Content-Disposition", "attachment;filename=\"" + arquivo.getNome() + "\"");
+				File file = new File("C:" + File.separator + "Iranduba Pescados" + File.separator + "arquivos" + File.separator + "comprovantes" + File.separator + arquivo.getNome());
+				response.getOutputStream().write(IOUtils.toByteArray(new FileInputStream(file)));
+				response.getOutputStream().flush();
+				response.getOutputStream().close();
+				FacesContext.getCurrentInstance().responseComplete();
+			}else{
+				addMessage("Aviso: ", "Esse pagamento não possui comprovante.", FacesMessage.SEVERITY_WARN);
+			}
+
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		
+		arquivo.setDados(null);
+		
+	}
+	
+	public void fecharPagamento(){
+		
+		try {
+			pagamento.setPendente(false);
+			
+			pagamentoDAO.save(pagamento);
+
+			carregarPagamentos();
+			
+			addMessage("Informação: ", "Pagamento fechado com sucesso.", FacesMessage.SEVERITY_INFO);
+		} catch (Exception e) {
+			e.printStackTrace();
+			addMessage("Erro: ", "Não foi possivel fechar o pagamento.", FacesMessage.SEVERITY_ERROR);
+		}
+	}
+
+	public void limparFiltro() {
+		filtro.setNome("");
+		filtro.setDataInicio(null);
+		filtro.setDataFinal(null);
+	}
+
+	public void addMessage(String summary, String detail, Severity severity) {
+		FacesMessage message = new FacesMessage(severity, summary, detail);
+		FacesContext.getCurrentInstance().addMessage(null, message);
+	}
+
+	public Filtro getFiltro() {
+		return filtro;
+	}
+
+	public void setFiltro(Filtro filtro) {
+		this.filtro = filtro;
+	}
+
+	public LazyDataModel<Pagamento> getModel() {
+		return model;
+	}
+
+	public void setModel(LazyDataModel<Pagamento> model) {
+		this.model = model;
+	}
+
+	public Pagamento getPagamento() {
+		return pagamento;
+	}
+
+	public void setPagamento(Pagamento pagamento) {
+		this.pagamento = pagamento;
+	}
+
+	public Integer getPendente() {
+		return pendente;
+	}
+
+	public void setPendente(Integer pendente) {
+		this.pendente = pendente;
+	}
+
+	public StreamedContent getFileDownload() {
+		return fileDownload;
+	}
+
+	public void setFileDownload(StreamedContent fileDownload) {
+		this.fileDownload = fileDownload;
+	}
+
+	public Arquivo getArquivo() {
+		return arquivo;
+	}
+
+	public void setArquivo(Arquivo arquivo) {
+		this.arquivo = arquivo;
+	}
+
+	public Part getComprovante() {
+		return comprovante;
+	}
+
+	public void setComprovante(Part comprovante) {
+		this.comprovante = comprovante;
+	}
+
+	public BigDecimal getPagoEmDinheiro() {
+		return pagoEmDinheiro;
+	}
+
+	public void setPagoEmDinheiro(BigDecimal pagoEmDinheiro) {
+		this.pagoEmDinheiro = pagoEmDinheiro;
+	}
+
+	public BigDecimal getPagoEmCheque() {
+		return pagoEmCheque;
+	}
+
+	public void setPagoEmCheque(BigDecimal pagoEmCheque) {
+		this.pagoEmCheque = pagoEmCheque;
+	}
+
+	public BigDecimal getPagoEmAdiantamento() {
+		return pagoEmAdiantamento;
+	}
+
+	public void setPagoEmAdiantamento(BigDecimal pagoEmAdiantamento) {
+		this.pagoEmAdiantamento = pagoEmAdiantamento;
+	}
+}

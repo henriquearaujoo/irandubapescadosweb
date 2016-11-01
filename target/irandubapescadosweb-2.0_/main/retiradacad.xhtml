@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+        
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<f:view>
+			  <f:metadata>
+				<f:viewParam name="retirada" value="#{retiradaBean.retirada}"/>
+				  <f:viewAction action="#{retiradaBean.inicializarRetirada}" />
+			 </f:metadata>
+
+			<h:form id="mensagem">
+				<p:spacer height="0"></p:spacer>
+				<p:effect type="fade" for="msgs" event="load" speed="10000">
+					<p:messages id="msgs" showDetail="true" showSummary="true"
+								globalOnly="true" closable="true"/>
+				</p:effect>
+			</h:form>
+			<h:form id="formCadRetirada">
+
+				<p:fieldset legend="Dados da retirada">
+					<h:panelGrid columns="1" cellspacing="5" >
+
+						<h:panelGrid columns="3">
+							<p:outputLabel value="Peixe: *" />
+							<p:autoComplete id="peixe" value="#{retiradaBean.nomePeixe}" completeMethod="#{retiradaBean.completePeixe}" size="50" maxResults="20" required="true" requiredMessage="Peixe é um campo obrigatório."/>							<p:message for="peixe"/>
+
+							<p:outputLabel value="Tipo: *" />
+							<p:selectOneMenu id="tipo" value="#{retiradaBean.retirada.tipoPeixe}" required="true" requiredMessage="Tipo é um campo obrigatório.">
+								<f:selectItem itemLabel="Selecione um tipo"/>
+								<f:selectItems value="#{retiradaBean.tiposPeixe}"/>
+								<f:converter converterId="SelectOneMenuConverter"/>
+							</p:selectOneMenu>
+							<p:message for="tipo"/>
+
+							<p:outputLabel value="Quantidade de Embalagens: *" />
+							<p:inputText id="qtdeemb" value="#{retiradaBean.retirada.qtdeEmbalagem}" required="true" requiredMessage="Quantidade é um campo obrigatório"/>
+							<p:message for="qtdeemb"/>
+
+							<p:outputLabel value="Peso: *" />
+							<p:inputText id="peso" value="#{retiradaBean.retirada.peso}" onkeypress="return formatarNumero(this,event,18,2);" required="true" requiredMessage="Peso é um campo obrigatório">
+								<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+							</p:inputText>
+							<p:message for="peso"/>
+
+							<p:outputLabel value="Câmara: *" />
+							<p:selectOneMenu id="camara" value="#{retiradaBean.retirada.camara}" required="true" requiredMessage="Camara é um campo obrigatório.">
+								<f:selectItems value="#{retiradaBean.camaras}"/>
+								<f:converter converterId="SelectOneMenuConverter"/>
+							</p:selectOneMenu>
+							<p:message for="camara"/>
+
+							<p:outputLabel value="Posição: *" />
+							<p:selectOneMenu id="posicao" value="#{retiradaBean.retirada.posicaoCamara}" required="true" requiredMessage="Posição é um campo obrigatório.">
+								<f:selectItems value="#{retiradaBean.posicoes}"/>
+								<f:converter converterId="SelectOneMenuConverter"/>
+							</p:selectOneMenu>
+							<p:message for="posicao"/>
+
+
+						</h:panelGrid>
+					</h:panelGrid>
+
+				</p:fieldset>
+				<br/><br/>
+				<h:panelGrid columns="2">
+					<p:selectBooleanCheckbox value="#{retiradaBean.inclusaoContinua}"/>
+					<p:outputLabel value="Inclusão contínua?" />
+				</h:panelGrid>
+				<br/>
+					<p:outputLabel value="Campos obrigatórios *" />
+				<br/><br/>
+
+				<div class="btcentral">
+					<p:commandButton icon="ui-icon-disk" value="Salvar" action="#{retiradaBean.salvar()}" update="formCadRetirada :mensagem" />
+					<p:commandButton icon="ui-icon-close" value="Cancelar" action="#{retiradaBean.cancelar()}" immediate="true"/>
+				</div>
+			</h:form>
+
+			</f:view>
+		</div>
+	</ui:define>
+
+</ui:composition>
+
+

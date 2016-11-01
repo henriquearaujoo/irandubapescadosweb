@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<f:metadata>
+				<f:viewAction action="#{estoqueBean.inicializarEstoque}" />
+			</f:metadata>
+
+			<h:form id="formtable">
+				<p:fieldset legend="Visualização do Estoque" toggleable="true" collapsed="false">
+					<h:panelGrid id="panelProdutos">
+						<p:effect type="fade" for="msgspr" event="load" speed="50000">
+							<p:messages id="msgspr" showDetail="true" showSummary="true"
+										closable="true"/>
+						</p:effect>
+
+						<h:panelGrid id="panelFiltroEstoque" columns="10">
+							<p:outputLabel value="Peixe: " />
+							<p:autoComplete id="epeixe" value="#{estoqueBean.nomePeixe}" completeMethod="#{estoqueBean.completePeixe}" size="50" maxResults="20"/>
+							<p:message for="epeixe"/>
+
+							<p:outputLabel value="Tipo: " />
+							<p:selectOneMenu id="etipo" value="#{estoqueBean.tipoPeixe}">
+								<f:selectItem itemLabel="Selecione o tipo" />
+								<f:selectItems value="#{estoqueBean.listaTipos}"/>
+								<f:converter converterId="SelectOneMenuConverter"/>
+							</p:selectOneMenu>
+							<p:message for="etipo"/>
+
+							<p:outputLabel value="Câmara: " />
+							<p:selectOneMenu id="ecamara" value="#{estoqueBean.camara}">
+								<f:selectItem itemLabel="Selecione a câmara" itemValue="null"/>
+								<f:selectItems value="#{estoqueBean.listaCamaras}"/>
+								<f:converter converterId="SelectOneMenuConverter"/>
+							</p:selectOneMenu>
+							<p:message for="ecamara"/>
+
+							<p:commandButton icon="ui-icon-search" action="#{estoqueBean.buscarEstoque}" value="Buscar no estoque" update="tableEstoque msgspr" style="margin-left:5px" process="panelFiltroEstoque"/>
+						</h:panelGrid>
+
+						<br/>
+
+						<p:fieldset legend="Itens do estoque" >
+							<p:treeTable id="tableEstoque" value="#{estoqueBean.root}" var="p" selectionMode="checkbox"
+										 scrollHeight="500" emptyMessage="Não há itens">
+								<f:facet name="header">
+									Produtos
+								</f:facet>
+								<p:column headerText="Local">
+									<h:outputText value="#{p.descricaoCamaraPeixe}" />
+
+									<h:outputText value=" - #{p.pesoTotal} kg" rendered="#{p.pesoTotal != null}"/>
+								</p:column>
+								<p:column headerText="Produto">
+									<h:outputText value="#{p.descricao}" />
+								</p:column>
+							</p:treeTable>
+						</p:fieldset>
+
+						<br/>
+
+					</h:panelGrid>
+				</p:fieldset>
+			</h:form>
+		</div>
+	</ui:define>
+	
+</ui:composition>
+

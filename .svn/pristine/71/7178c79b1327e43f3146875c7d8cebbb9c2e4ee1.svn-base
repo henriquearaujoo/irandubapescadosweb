@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+ 
+
+
+  <ui:define name="miolo">
+	  <div class="Container96 white-back Fnone MarAuto BordRad10">
+		  <br/>
+		  <h:form id="mensagem">
+			  <p:spacer height="0"></p:spacer>
+			  <p:effect type="fade" for="msgs" event="load" speed="10000">
+				  <p:messages id="msgs" showDetail="true" showSummary="true"
+							  globalOnly="true" closable="true"/>
+			  </p:effect>
+		  </h:form>
+
+		  <h:form id="formtable">
+
+		   <p:inputText value="#{fornecedorBean.filtro.nome}" size="50"/>
+			<p:commandButton icon="ui-icon-search"  update=":formtable:tablefornec" process="@form"  style="margin-left:5px"/>
+			<p:commandButton icon="ui-icon-plus" value="Novo" action="#{fornecedorBean.prepararTelaCad()}" update="@this" style="margin-left:5px"/>
+
+		  <br/>
+			   <br/>
+
+				<p:dataTable id="tablefornec" var="f" sortBy="#{f.nome}" sortOrder="ASCENDING"
+					value="#{fornecedorBean.model}" lazy="true" paginator="true" paginatorPosition="bottom" rows="15">
+					<f:facet name="header">
+					Listagem de Fornecedores
+				</f:facet>
+
+					<p:column>
+						<f:facet name="header">
+					  Nome
+					</f:facet>
+						<h:outputText value="#{f.nome}" />
+					</p:column>
+
+
+					<p:column>
+						<f:facet name="header">
+					  Cnpj
+					</f:facet>
+						<h:outputText value="#{f.cnpj}" />
+					</p:column>
+
+					<p:column>
+						<f:facet name="header">
+					  Cpf
+					</f:facet>
+						<h:outputText value="#{f.cpf}" />
+					</p:column>
+
+					<p:column>
+						<f:facet name="header">
+							Tipo
+						</f:facet>
+						<h:outputText value="#{f.tipoPessoa.tipo}" />
+					</p:column>
+
+					<p:column style="width:100px;">
+						<f:facet name="header">
+						  Editar
+						</f:facet>
+						<p:commandButton action="#{fornecedorBean.editarFornec()}" icon="ui-icon-pencil"
+							value="Editar">
+							<f:param name="fornec" value="#{f.id}"/>
+							<f:setPropertyActionListener target="#{fornecedorBean.fornec}" value="#{f}" />
+						</p:commandButton>
+					</p:column>
+
+					<p:column style="width:100px;">
+						<f:facet name="header">
+						  Excluir
+						</f:facet>
+						<p:commandButton value="Excluir" icon="ui-icon-trash"
+							oncomplete="PF('confirmacaoDelete').show()">
+							<f:setPropertyActionListener target="#{fornecedorBean.fornec}"
+								value="#{f}" />
+						</p:commandButton>
+					</p:column>
+
+				</p:dataTable>
+
+			</h:form>
+    	</div>
+    </ui:define>
+    
+    <ui:define name="adicionais">
+		<p:confirmDialog widgetVar="confirmacaoDelete" header="Remoção" message="Confirma a exclusão do fornecedor?">
+			<h:form id="formConfirmacao">
+				<p:commandButton value="Sim"
+					action="#{fornecedorBean.deletarFornec()}"
+					onsuccess="PF('confirmacaoDelete').hide()"
+					styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+					update=":formtable:tablefornec :mensagem"/>
+				<p:commandButton value="Não"
+					onclick="PF('confirmacaoDelete').hide()" type="button"
+					styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+					immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+
+	</ui:define>
+ 
+
+</ui:composition>
+

@@ -1,0 +1,335 @@
+package com.irandubamodulo01.model;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.primefaces.model.TreeNode;
+
+import com.irandubamodulo01.enumerated.StatusCompra;
+import com.irandubamodulo01.model.Lote;
+
+@Entity
+@Table(name="compra")
+public class Compra implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(unique=true, nullable=false)
+	private Long id;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date dataCompra;
+	@Column(precision = 10, scale = 2, nullable = false)
+	private BigDecimal valorTotal;
+	@Column(columnDefinition="TEXT")
+	private String observacao;
+	@Column(columnDefinition="TEXT")
+	private String observacaoVerificacao;
+	@Column
+	private Boolean status;
+	@Column
+	private Boolean pause;
+	@ManyToOne(cascade=CascadeType.PERSIST)
+	@JoinColumn(name="fornecedor_id")
+	private Fornecedor fornecedor;
+	@ManyToOne
+	@JoinColumn(name="barco_id")
+	private Barco barco;
+	@OneToMany(cascade=CascadeType.PERSIST, fetch=FetchType.LAZY)
+	private List<Lote> lotes;
+	@Column
+	private String codigo;
+	@Column
+	private Boolean autorizado;
+	@OneToMany(mappedBy = "compra")
+	private List<Pagamento> pagamentos;
+	@Column
+	private String notaFiscal;
+	@OneToMany(mappedBy =  "compra", fetch = FetchType.LAZY)
+	private List<Observacao> observacoes;
+	@Enumerated(EnumType.STRING)
+	private StatusCompra  statusCompra;
+	@Transient
+	public static List<Compra> listaDeCompras;
+	@Transient
+	private List<HistoricoAlteracaoValor> historicos;
+	@Transient
+	private List<String> observacoesSistema;
+	@Column
+	private BigDecimal acrescimo;
+	@Column
+	private BigDecimal desconto;
+	@Transient
+	private TreeNode treeNode;
+	
+	public TreeNode getTreeNode() {
+		return treeNode;
+	}
+
+
+	public void setTreeNode(TreeNode treeNode) {
+		this.treeNode = treeNode;
+	}
+
+
+	public Compra(){
+		
+		
+	}
+	
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
+	public Date getDataCompra() {
+		return dataCompra;
+	}
+
+	public void setDataCompra(Date dataCompra) {
+		this.dataCompra = dataCompra;
+	}
+
+	public String getObservacao() {
+		return observacao;
+	}
+
+	public void setObservacao(String observacao) {
+		this.observacao = observacao;
+	}
+	
+	
+	public Fornecedor getFornecedor() {
+		return fornecedor;
+	}
+
+	public void setFornecedor(Fornecedor fornecedor) {
+		this.fornecedor = fornecedor;
+	}
+
+	public Boolean getStatus() {
+		return status;
+	}
+
+	public void setStatus(Boolean status) {
+		this.status = status;
+	}
+
+
+	public BigDecimal getValorTotal() {
+		return valorTotal;
+	}
+
+
+	public void setValorTotal(BigDecimal valorTotal) {
+		this.valorTotal = valorTotal;
+	}
+
+
+	public List<Lote> getLotes() {
+		return lotes;
+	}
+
+
+	public void setLotes(List<Lote> lotes) {
+		this.lotes = lotes;
+	}
+	
+	public String getNomeFornecedor(){
+		if (fornecedor != null)
+			return fornecedor.getNome();
+		else
+			return "";
+	}
+	
+	public static List<Compra> getListaDeCompras() {
+		if (listaDeCompras != null)
+			return listaDeCompras;
+		else
+			return new ArrayList<Compra>();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Compra other = (Compra) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+
+
+	public String getCodigo() {
+		return codigo;
+	}
+
+
+	public void setCodigo(String codigo) {
+		this.codigo = codigo;
+	}
+
+
+	public Barco getBarco() {
+		return barco;
+	}
+
+
+	public void setBarco(Barco barco) {
+		this.barco = barco;
+	}
+
+
+	public Boolean getAutorizado() {
+		return autorizado;
+	}
+
+
+	public void setAutorizado(Boolean autorizado) {
+		this.autorizado = autorizado;
+	}
+
+
+	public List<Pagamento> getPagamentos() {
+		return pagamentos;
+	}
+
+
+	public void setPagamentos(List<Pagamento> pagamentos) {
+		this.pagamentos = pagamentos;
+	}
+
+
+	public Boolean getPause() {
+		return pause;
+	}
+
+
+	public void setPause(Boolean pause) {
+		this.pause = pause;
+	}
+
+
+	public String getObservacaoVerificacao() {
+		return observacaoVerificacao;
+	}
+
+
+	public void setObservacaoVerificacao(String observacaoVerificacao) {
+		this.observacaoVerificacao = observacaoVerificacao;
+	}
+
+
+	public String getNotaFiscal() {
+		return notaFiscal;
+	}
+
+
+	public void setNotaFiscal(String notaFiscal) {
+		this.notaFiscal = notaFiscal;
+	}
+
+
+	public List<Observacao> getObservacoes() {
+		return observacoes;
+	}
+
+
+	public void setObservacoes(List<Observacao> observacoes) {
+		this.observacoes = observacoes;
+	}
+
+
+	public StatusCompra getStatusCompra() {
+		return statusCompra;
+	}
+
+
+	public void setStatusCompra(StatusCompra statusCompra) {
+		this.statusCompra = statusCompra;
+	}
+
+
+	public List<HistoricoAlteracaoValor> getHistoricos() {
+		return historicos;
+	}
+
+
+	public void setHistoricos(List<HistoricoAlteracaoValor> historicos) {
+		this.historicos = historicos;
+	}
+
+
+	public List<String> getObservacoesSistema() {
+		return observacoesSistema;
+	}
+
+
+	public void setObservacoesSistema(List<String> observacoesSistema) {
+		this.observacoesSistema = observacoesSistema;
+	}
+
+
+	public BigDecimal getAcrescimo() {
+		return acrescimo;
+	}
+
+
+	public void setAcrescimo(BigDecimal acrescimo) {
+		this.acrescimo = acrescimo;
+	}
+
+
+	public BigDecimal getDesconto() {
+		return desconto;
+	}
+
+
+	public void setDesconto(BigDecimal desconto) {
+		this.desconto = desconto;
+	}
+
+}

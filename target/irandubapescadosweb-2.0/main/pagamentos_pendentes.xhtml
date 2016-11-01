@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<h:form id="mensagem">
+				<p:spacer height="0"></p:spacer>
+				<p:effect type="fade" for="msgs" event="load" speed="10000">
+					<p:messages id="msgs" showDetail="true" showSummary="true"
+								globalOnly="true" closable="true"/>
+				</p:effect>
+			</h:form>
+
+			<h:form id="formtable">
+				<p:fieldset legend="Pagamentos pendentes" >
+
+					<h:panelGrid columns="12">
+						<span style="font-weight: bold">Fornecedor: </span>
+						<p:inputText id="nome" value="#{pagamentosPendentesBean.filtro.nome}" size="50" />
+						<p:watermark value="Nome" for="nome" />
+						<span style="font-weight: bold">Período: </span>
+						<p:calendar id="dataInicio"
+							value="#{pagamentosPendentesBean.filtro.dataInicio}" pattern="dd/MM/yyy" />
+						<p:watermark value="Data inicial" for="dataInicio" />
+						<p:calendar id="dataFinal"
+							value="#{pagamentosPendentesBean.filtro.dataFinal}" pattern="dd/MM/yyy" />
+						<p:watermark value="Data final" for="dataFinal" />
+						<span style="font-weight: bold">Status: </span>
+						<p:selectOneMenu id="status" value="#{pagamentosPendentesBean.pendente}">
+							<f:selectItem itemLabel="Todos" itemValue="-1" />
+							<f:selectItem itemLabel="Pendentes" itemValue="1" />
+							<f:selectItem itemLabel="Pago" itemValue="0" />
+						</p:selectOneMenu>
+						<p:commandButton action="#{pagamentosPendentesBean.carregarPagamentos()}"
+							icon="ui-icon-search" update="tablePagamentos" style="margin-left:5px" />
+						<p:commandButton action="#{pagamentosPendentesBean.limparFiltro()}"
+							icon="ui-icon-close" style="margin-left:5px"
+							update="nome dataInicio dataFinal status" />
+					</h:panelGrid>
+
+					<br />
+
+					<p:dataTable id="tablePagamentos" var="pag"
+						value="#{pagamentosPendentesBean.model}" lazy="true" paginator="true"
+						paginatorPosition="bottom" rows="15"
+						sortBy="#{pag.id}" sortOrder="DESCENDING">
+						<f:facet name="header">
+							Relação de pagamentos
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+						  Data da compra
+						</f:facet>
+							<h:outputText value="#{pag.compra.dataCompra}">
+								<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+						  Fornecedor
+						</f:facet>
+							<h:outputText value="#{pag.compra.fornecedor.nome}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+						  Valor
+						</f:facet>
+							<h:outputText value="#{pag.valor}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+						  Status
+						</f:facet>
+							<h:outputText value="Pendente" rendered="#{pag.pendente}" />
+							<h:outputText value="Pago" rendered="#{!pag.pendente}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+						  Data do pagamento
+						</f:facet>
+							<h:outputText value="#{pag.dataPagamento}">
+								<f:convertDateTime pattern="dd/MM/yyyy"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column style="width:120px;">
+							<p:commandButton
+								value="Detalhes" action="#{pagamentosPendentesBean.prepararDetalhes}" icon="ui-icon-zoomin">
+								<f:param name="pagamento" value="pag.id"></f:param>
+								<f:setPropertyActionListener target="#{pagamentosPendentesBean.pagamento}"
+									value="#{pag}" />
+							</p:commandButton>
+						</p:column>
+
+					</p:dataTable>
+
+				</p:fieldset>
+
+			</h:form>
+		</div>
+	</ui:define>
+
+	<ui:define name="adicionais">
+
+		
+	</ui:define>
+
+</ui:composition>
+

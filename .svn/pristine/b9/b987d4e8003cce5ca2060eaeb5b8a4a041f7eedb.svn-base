@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<f:metadata>
+				<f:viewParam name="pagamento" value="#{pagamentosPendentesBean.pagamento}"/>
+				<f:viewAction action="#{pagamentosPendentesBean.carregarDetalhes}" />
+			</f:metadata>
+
+			<h:form id="formModalDetalhesPagamento" enctype="multipart/form-data">
+				<p:messages id="messagesPagamento" showDetail="true" autoUpdate="true" closable="true" />
+				<p:fieldset legend="Dados do pagamento">
+					<h:panelGrid columns="2" >
+
+						<span style="font-weight: bold">Data da compra: </span>
+						<p:outputLabel value="#{pagamentosPendentesBean.pagamento.compra.dataCompra}">
+							<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+											   timeZone="America/Manaus" />
+						</p:outputLabel>
+
+						<span style="font-weight: bold">Fornecedor: </span>
+						<p:outputLabel value="#{pagamentosPendentesBean.pagamento.compra.fornecedor.nome}"/>
+
+						<span style="font-weight: bold">CPF: </span>
+						<p:outputLabel value="#{pagamentosPendentesBean.pagamento.compra.fornecedor.cpf}"/>
+
+						<span style="font-weight: bold">CNPJ: </span>
+						<p:outputLabel value="#{pagamentosPendentesBean.pagamento.compra.fornecedor.cnpj}"/>
+
+						<span style="font-weight: bold">Pago em Dinheiro: </span>
+						<p:outputLabel value="#{pagamentosPendentesBean.pagoEmDinheiro}">
+							<f:convertNumber type="currency" maxFractionDigits="2" />
+						</p:outputLabel>
+
+						<span style="font-weight: bold">Pago em Cheque: </span>
+						<p:outputLabel value="#{pagamentosPendentesBean.pagoEmCheque}">
+							<f:convertNumber type="currency" maxFractionDigits="2" />
+						</p:outputLabel>
+
+						<span style="font-weight: bold">Desconto em Adiantamento: </span>
+						<p:outputLabel value="#{pagamentosPendentesBean.pagoEmAdiantamento}">
+							<f:convertNumber type="currency" maxFractionDigits="2" />
+						</p:outputLabel>
+
+					</h:panelGrid>
+
+					<p:separator/>
+
+					<h:panelGrid columns="2" >
+
+						<span style="font-weight: bold">Banco: </span>
+						<p:outputLabel value="#{pagamentosPendentesBean.pagamento.conta.banco}"/>
+
+						<span style="font-weight: bold">Agência: </span>
+						<p:outputLabel value="#{pagamentosPendentesBean.pagamento.conta.agencia}"/>
+
+						<span style="font-weight: bold">Conta: </span>
+						<p:outputLabel value="#{pagamentosPendentesBean.pagamento.conta.conta}"/>
+
+						<span style="font-weight: bold">Valor da transferência: </span>
+						<p:outputLabel value="#{pagamentosPendentesBean.pagamento.valor}">
+							<f:convertNumber type="currency" maxFractionDigits="2" />
+						</p:outputLabel>
+
+					</h:panelGrid>
+				</p:fieldset>
+				<br />
+				<p:fieldset legend="Comprovante">
+					<h:panelGrid columns="1">
+						<h:inputFile id="file"
+									 label="file"
+									 value="#{pagamentosPendentesBean.comprovante}" required="false">
+						</h:inputFile>
+					</h:panelGrid>
+					<br />
+					<h:panelGrid columns="1" id="panelComprovante">
+						<p:commandButton value="Salvar comprovante" action="#{pagamentosPendentesBean.salvarComprovante}" ajax="false" icon="ui-icon-document" update="panelComprovante :mensagem"/>
+						<br />
+						<p:commandLink value="Comprovante: #{pagamentosPendentesBean.arquivo.nome}" action="#{pagamentosPendentesBean.downloadComprovante()}" rendered="#{pagamentosPendentesBean.arquivo != null and pagamentosPendentesBean.arquivo.id != null}"
+									   style="color: blue" ajax="false">
+						</p:commandLink>
+					</h:panelGrid>
+				</p:fieldset>
+				<br />
+				<h:panelGrid columns="2">
+					<span style="font-weight: bold">Data do pagamento: </span>
+					<p:calendar id="dataPagamento"
+								value="#{pagamentosPendentesBean.pagamento.dataPagamento}" pattern="dd/MM/yyyy" />
+				</h:panelGrid>
+				<br />
+				<h:panelGrid columns="2">
+					<p:commandButton value="Finalizar pagamento" icon="ui-icon-check" onclick="PF('confirmacaoFechamentoPagamento').show()" rendered="#{pagamentosPendentesBean.pagamento.pendente}" type="button" process="@this"/>
+					<p:commandButton value="Fechar" icon="ui-icon-close" action="#{pagamentosPendentesBean.fechar}" immediate="true" ajax="false"/>
+				</h:panelGrid>
+			</h:form>
+		</div>
+	</ui:define>
+
+	<ui:define name="adicionais">
+		<p:confirmDialog widgetVar="confirmacaoFechamentoPagamento"
+						 header="Confirmação" message="Ao confirmar a finalização do pagamento este não poderá mais ser alterado. Confirma a finalização do pagamento?">
+			<h:form id="formConfirmacaoFechamentoPagamento">
+				<p:commandButton value="Sim"
+								 action="#{pagamentosPendentesBean.fecharPagamento()}"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 onsuccess="PF('confirmacaoFechamentoPagamento').hide(); PF('modalDetalhesPagamento').hide()"
+								 update=":formtable:tablePagamentos :mensagem" ajax="false" process=":formModalDetalhesPagamento"/>
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoFechamentoPagamento').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+	</ui:define>
+
+</ui:composition>
+

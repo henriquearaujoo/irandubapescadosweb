@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<p:fieldset legend="Retiradas">
+
+				<h:form id="formtable">
+					<h:panelGrid columns="9">
+						<span style="font-weight: bold">Período: </span>
+						<p:calendar id="dataInicio"
+							value="#{retiradaBean.filtro.dataInicio}" pattern="dd/MM/yyy" />
+						<p:watermark value="Data inicial" for="dataInicio" />
+						<p:calendar id="dataFinal"
+							value="#{retiradaBean.filtro.dataFinal}" pattern="dd/MM/yyy" />
+						<p:watermark value="Data final" for="dataFinal" />
+						<span style="font-weight: bold; margin-left:5px">Status: </span>
+						<p:selectOneMenu id="status"
+							value="#{retiradaBean.filtro.filtroStatus}">
+							<f:selectItem itemLabel="TODOS" noSelectionOption="true"/>
+							<f:selectItems value="#{retiradaBean.listaStatus}"/>
+						</p:selectOneMenu>
+
+						<p:commandButton icon="ui-icon-search" update="table"
+							style="margin-left:5px" />
+
+						<p:commandButton icon="ui-icon-plus" value="Novo" action="#{retiradaBean.prepararTelaCad()}" update="@this" style="margin-left:5px"/>
+
+					</h:panelGrid>
+
+					<br />
+
+					<p:dataTable id="table" var="ret" lazy="true" sortBy="#{ret.id}" sortOrder="DESCENDING"
+						value="#{retiradaBean.model}" paginator="true"
+						paginatorPosition="bottom" rows="15">
+						<f:facet name="header">
+								Retiradas
+							</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+								Data
+							</f:facet>
+							<h:outputText value="#{ret.data}">
+								<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+												   timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Status
+							</f:facet>
+							<h:outputText value="#{ret.status}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								  Peixe
+								</f:facet>
+							<h:outputText value="#{ret.peixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Peso (KG)
+							</f:facet>
+							<h:outputText value="#{ret.peso}" />
+						</p:column>
+
+						<p:column headerText="Detalhes" width="120">
+						   <p:commandButton icon="ui-icon-search" value="Detalhes" action="#{retiradaBean.redirecionarDetalhes}" title="Detalhes"
+							style="margin-left:5px" >
+							 <f:param name="re" value="#{ret.id}" />
+							 <f:setPropertyActionListener value="#{ret}" target="#{retiradaBean.retirada}" />
+							</p:commandButton>
+						</p:column>
+
+					</p:dataTable>
+
+
+
+				</h:form>
+			</p:fieldset>
+		</div>
+	</ui:define>
+
+</ui:composition>
+

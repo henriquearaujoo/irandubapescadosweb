@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+        
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<f:view>
+			  <f:metadata>
+				<f:viewParam name="vendedor" value="#{vendedorBean.vendedor}"/>
+			 </f:metadata>
+
+			<h:form id="mensagem">
+				<p:spacer height="0"></p:spacer>
+				<p:effect type="fade" for="msgs" event="load" speed="10000">
+					<p:messages id="msgs" showDetail="true" showSummary="true"
+								globalOnly="true" closable="true"/>
+				</p:effect>
+			</h:form>
+			<h:form id="formCadVendedor">
+
+				<p:fieldset legend="Dados pessoais">
+					<h:panelGrid columns="1" cellspacing="5" >
+
+						<h:panelGroup >
+							<h:panelGrid columns="7">
+								<p:outputLabel value="Código" />
+								<p:inputText id="id" value="#{vendedorBean.vendedor.id}" disabled="true" size="13"/>
+								<p:message for="id"/>
+
+								<p:outputLabel value="Tipo: *" />
+									<p:selectOneMenu id="tipo" value="#{vendedorBean.vendedor.tipoPessoa}" required="true" requiredMessage="Tipo é um campo obrigatório">
+										<f:selectItem itemLabel="Selecione um tipo" itemValue=""/>
+										<f:selectItems value="#{vendedorBean.tiposPessoa}" var="t" itemValue="#{t}" itemLabel="#{t.tipo}"/>
+										<p:ajax update="panelTipoPessoa"/>
+									</p:selectOneMenu>
+								<p:message for="tipo"/>
+
+								<h:panelGroup id="panelTipoPessoa">
+									<h:panelGrid columns="2">
+										<h:panelGrid columns="3" rendered="#{vendedorBean.vendedor.tipoPessoa.tipo.equals('Física')}">
+											<p:outputLabel value="CPF:" />
+											<p:inputMask id="cpf" mask="999.999.999-99" value="#{vendedorBean.vendedor.cpf}" />
+											<p:message for="cpf"/>
+										</h:panelGrid>
+
+										<h:panelGrid columns="3" rendered="#{vendedorBean.vendedor.tipoPessoa.tipo.equals('Jurídica')}">
+											<p:outputLabel value="CNPJ: " />
+											<p:inputMask id="cnpj" mask="99.999.999.9999/99" value="#{vendedorBean.vendedor.cnpj}" />
+											<p:message for="cnpj"/>
+										</h:panelGrid>
+									</h:panelGrid>
+								</h:panelGroup>
+							</h:panelGrid>
+						</h:panelGroup>
+
+						<h:panelGrid columns="3">
+							<p:outputLabel value="Nome/Razão Social: *" />
+							<p:inputText id="nome" size="92" value="#{vendedorBean.vendedor.nome}" required="true" requiredMessage="Nome/Razão Social é um campo obrigatório." />
+							<p:message for="nome"/>
+
+							<p:outputLabel value="Nome Fantasia:" />
+							<p:inputText id="nomeFantasia" size="92" value="#{vendedorBean.vendedor.nomeFantasia}" />
+							<p:message for="nomeFantasia"/>
+
+							<p:outputLabel value="RG:" />
+							<p:inputText id="rg" value="#{vendedorBean.vendedor.rg}" />
+							<p:message for="rg"/>
+
+							<p:outputLabel value="Endereço: " />
+							<p:inputText id="endereco" size="92" value="#{vendedorBean.vendedor.endereco}" />
+							<p:message for="endereco"/>
+
+							<p:outputLabel value="Estado: " />
+							<p:inputText id="estado" size="51" value="#{vendedorBean.vendedor.estado}" />
+							<p:message for="estado"/>
+
+							<p:outputLabel value="Cidade: " />
+							<p:inputText id="cidade" size="51" value="#{vendedorBean.vendedor.cidade}" />
+							<p:message for="cidade"/>
+
+							<p:outputLabel value="Bairro: " />
+							<p:inputText id="bairro" size="51" value="#{vendedorBean.vendedor.bairro}" />
+							<p:message for="bairro"/>
+
+							<p:outputLabel value="Número:" />
+							<p:inputText id="numero" value="#{vendedorBean.vendedor.numero}" />
+							<p:message for="numero"/>
+
+							<p:outputLabel value="CEP:" />
+							<p:inputText id="cep" value="#{vendedorBean.vendedor.cep}" />
+							<p:message for="cep"/>
+
+							<p:outputLabel value="Telefone (1):" />
+							<p:inputMask id="telefone1" mask="(99) 99999-9999" value="#{vendedorBean.vendedor.telefone1}"/>
+							<p:message for="telefone1"/>
+
+							<p:outputLabel value="Telefone (2):" />
+							<p:inputMask id="telefone2" mask="(99) 99999-9999" value="#{vendedorBean.vendedor.telefone2}" />
+							<p:message for="telefone2"/>
+
+							<p:outputLabel value="Porcentagem Comissão (%): *" />
+							<p:inputText id="porcentagem" value="#{vendedorBean.vendedor.porcentagemComissao}" onkeypress="return formatarNumero(this,event,18,2);" required="true" requiredMessage="Porcentagem Comissão é um campo obrigatório">
+								<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+							</p:inputText>
+							<p:message for="porcentagem"/>
+						</h:panelGrid>
+
+						<h:panelGroup>
+							<h:panelGrid columns="3" >
+								<p:outputLabel value="Complemento:" />
+								<p:inputText id="complemento" size="92" value="#{vendedorBean.vendedor.complemento}" style="padding-left: 100px" />
+								<p:message for="complemento"/>
+							</h:panelGrid>
+						</h:panelGroup>
+
+						<h:panelGrid >
+							<p:outputLabel value="Ponto de Referência:" />
+							<p:inputTextarea id="pontoreferencia" value="#{vendedorBean.vendedor.pontoReferencia}" cols="70" rows="3" />
+							<p:message for="pontoreferencia"/>
+						</h:panelGrid>
+					</h:panelGrid>
+
+				</p:fieldset>
+				<br/><br/>
+				<h:panelGrid columns="2">
+					<p:selectBooleanCheckbox value="#{vendedorBean.inclusaoContinua}"/>
+					<p:outputLabel value="Inclusão contínua?" />
+				</h:panelGrid>
+				<br/>
+					<p:outputLabel value="Campos obrigatórios *" />
+				<br/><br/>
+
+				<div class="btcentral">
+					<p:commandButton icon="ui-icon-disk" value="Salvar" action="#{vendedorBean.salvar()}" update="formCadVendedor :mensagem" />
+					<p:commandButton icon="ui-icon-close" value="Cancelar" action="#{vendedorBean.cancelar()}" immediate="true"/>
+				</div>
+			</h:form>
+
+			</f:view>
+		</div>
+	</ui:define>
+
+</ui:composition>
+
+

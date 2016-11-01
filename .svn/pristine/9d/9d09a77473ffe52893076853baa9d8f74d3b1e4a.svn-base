@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<f:metadata>
+				<f:viewParam name="cp" value="#{compraFinalizadaBean.compra}" />
+				<f:viewAction action="#{compraFinalizadaBean.carregarDetalhesCompra()}" />
+			</f:metadata>
+
+
+			<h:form id="formModalDetalhes">
+				<h:panelGrid id="panelDetalhes">
+
+					<p:fieldset legend="Dados da Compra" toggleable="true"
+						toggleSpeed="500" >
+						<h:panelGrid columns="4" cellpadding="5">
+							<span style="font-weight: bold">Código: </span>
+							<p:outputLabel value=" #{compraFinalizadaBean.compra.codigo}" />
+							<span style="font-weight: bold">Data: </span>
+							<p:outputLabel value="#{compraFinalizadaBean.compra.dataCompra}">
+								<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+									timeZone="America/Manaus" />
+							</p:outputLabel>
+							<span style="font-weight: bold">Fornecedor: </span>
+							<p:outputLabel value=" #{compraFinalizadaBean.compra.fornecedor.nome}" />
+							<span style="font-weight: bold">Transporte: </span>
+							<p:outputLabel value=" #{compraFinalizadaBean.compra.barco.nome}" />
+							<span style="font-weight: bold">NF de Entrada: </span>
+							<p:outputLabel value=" #{compraFinalizadaBean.compra.notaFiscal}" rendered="#{compraFinalizadaBean.compra.notaFiscal != null}"/>
+						</h:panelGrid>
+						<br />
+						<p:treeTable id="treeTab" value="#{compraFinalizadaBean.compra.treeNode}" var="item" emptyMessage="Não ha itens">
+							<f:facet name="header">
+								Pesagens
+							</f:facet>
+							<p:column headerText="Peixe" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<h:outputText value="#{item.codigo}" style="font-weight: bold"/>
+							</p:column>
+							<p:column headerText="Valor Tabela" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<p:outputLabel value="#{item.peixe.valor}" rendered="#{(item.acrescimo.doubleValue() > 0 or item.desconto.doubleValue() > 0) and !item.nohPai}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+								<p:outputLabel value="--" rendered="#{(item.acrescimo.doubleValue() == 0 and item.desconto.doubleValue() == 0) and !item.nohPai}">
+								</p:outputLabel>
+
+								<h:outputText value="#{item.peixe.valor}" rendered="#{item.nohPai}" style="font-weight: bold">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</h:outputText>
+							</p:column>
+							<p:column headerText="Valor KG" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<p:outputLabel value="#{item.valorUnitarioPeixe}" rendered="#{!item.nohPai}" style="color: #{item.isPrecoDiferenciado ? '#00AEEF' : null}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+
+								<h:outputText value="#{item.valorUnitarioPeixe}" rendered="#{item.nohPai}" style="font-weight: bold" >
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</h:outputText>
+							</p:column>
+							<p:column headerText="Peso bruto" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<p:outputLabel value="#{item.peso}" rendered="#{!item.nohPai}"/>
+								<h:outputText value="#{item.totalPesoBruto}" rendered="#{item.nohPai}" style="font-weight: bold"/>
+							</p:column>
+							<p:column headerText="Peso líquido" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<p:outputLabel value="#{item.pesoLiquido}" rendered="#{!item.nohPai}"/>
+								<h:outputText value="#{item.totalPesoLiquido}" rendered="#{item.nohPai}" style="font-weight: bold"/>
+							</p:column>
+							<p:column headerText="Qtde. caçapas" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<p:outputLabel value="#{item.qtdCaixas}" rendered="#{!item.nohPai}"/>
+								<h:outputText value="#{item.totalCaixas}" rendered="#{item.nohPai}" style="font-weight: bold"/>
+							</p:column>
+							<p:column headerText="Valor total" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<p:outputLabel value="#{item.valorSemAcrescimoEDesconto}" rendered="#{!item.nohPai}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+								<h:outputText value="#{item.totalValor}" rendered="#{item.nohPai}" style="font-weight: bold">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</h:outputText>
+								<p:outputLabel value=" - " rendered="#{item.desconto.doubleValue() > 0 and !item.nohPai}"
+											   style="color: red;" />
+								<p:outputLabel value="#{item.desconto}"
+											   rendered="#{item.desconto.doubleValue() > 0 and !item.nohPai}" style="color: red;">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+								<p:outputLabel value=" + " rendered="#{item.acrescimo.doubleValue() > 0 and !item.nohPai}"
+											   style="color: blue;" />
+								<p:outputLabel value="#{item.acrescimo}"
+											   rendered="#{item.acrescimo.doubleValue() > 0 and !item.nohPai}" style="color: blue;">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+								<p:outputLabel value=" = " rendered="#{(item.acrescimo.doubleValue() > 0 or item.desconto.doubleValue() > 0) and !item.nohPai}" />
+								<p:outputLabel value="#{item.valor}" rendered="#{(item.acrescimo.doubleValue() > 0 or item.desconto.doubleValue() > 0) and !item.nohPai}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+							</p:column>
+
+						</p:treeTable>
+
+						<br/>
+						<table >
+							<tr ><td style="width: 20px; background-color: #00AEEF"></td><td style="padding-left: 10px">Valor do KG diferenciado definido pelo administrador.</td></tr>
+						</table>
+					</p:fieldset>
+					<br />
+					<p:fieldset legend="Totais/Valores" toggleable="true"
+						toggleSpeed="500">
+						<h:panelGrid columns="3">
+
+							<h:panelGrid id="panelValores" columns="2" cellpadding="5">
+								<span style="font-weight: bold">Total Peso Bruto: </span>
+								<p:outputLabel value="#{compraFinalizadaBean.totalPesoBruto}" />
+								<span style="font-weight: bold">Total Peso Liquido: </span>
+								<p:outputLabel value="#{compraFinalizadaBean.totalPesoLiquido}" />
+								<span style="font-weight: bold">Total Qtde. Caçapas: </span>
+								<p:outputLabel value="#{compraFinalizadaBean.totalQtdeCacapa}" />
+								<span style="font-weight: bold">Total Descontos: </span>
+								<p:outputLabel value="#{compraFinalizadaBean.totalDescontos}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+								<span style="font-weight: bold">Total Acréscimos: </span>
+								<p:outputLabel value="#{compraFinalizadaBean.totalAcrescimos}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+
+							</h:panelGrid>
+
+							<h:panelGrid columns="2" cellpadding="5">
+
+								<span style="font-weight: bold">Valor Total: </span>
+								<p:outputLabel value="#{compraFinalizadaBean.totalCompra}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+
+								<span style="font-weight: bold">Pago em dinheiro: </span>
+								<p:outputLabel value="#{compraFinalizadaBean.pagDinheiro}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+
+								<span style="font-weight: bold">Pago via tranferência: </span>
+								<p:outputLabel value="#{compraFinalizadaBean.pagTransferencia}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+
+								<span style="font-weight: bold">Pago em cheque: </span>
+								<p:outputLabel value="#{compraFinalizadaBean.pagCheque}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+
+								<p:outputLabel value="--"/>
+								<p:outputLabel value="--"/>
+
+							</h:panelGrid>
+
+							<h:panelGrid columns="2" cellpadding="5">
+								<span style="font-weight: bold">Adiantamento em dinheiro: </span>
+								<p:outputLabel value="#{compraFinalizadaBean.pagAdiantamentoDinheiro}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+								<span style="font-weight: bold">Adiantamento em cheque: </span>
+								<p:outputLabel value="#{compraFinalizadaBean.pagAdiantamentoCheque}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+								<span style="font-weight: bold">Adiantamento via transferência: </span>
+								<p:outputLabel value="#{compraFinalizadaBean.pagAdiantamentoTransferencia}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+
+								<p:outputLabel value="--"/>
+								<p:outputLabel value="--"/>
+
+								<p:outputLabel value="--"/>
+								<p:outputLabel value="--"/>
+							</h:panelGrid>
+
+						</h:panelGrid>
+
+						<h:panelGrid >
+							<p:dataTable id="tablePagamentos" var="p"
+										 value="#{compraFinalizadaBean.pagamentos}"  paginator="true" paginatorPosition="bottom" rows="5"
+										 emptyMessage="Não há pagamentos">
+								<p:column>
+									<f:facet name="header">
+										Tipo
+									</f:facet>
+									<h:outputText value="Dinheiro" rendered="#{p.tipoDoPagamento == 'DINHEIRO'}"/>
+									<h:outputText value="Cheque" rendered="#{p.tipoDoPagamento == 'CHEQUE'}"/>
+									<h:outputText value="Transferência" rendered="#{p.tipoDoPagamento == 'TRANSFERENCIA'}"/>
+									<h:outputText value="Adiantamento" rendered="#{p.tipoDoPagamento == 'ADIANTAMENTO'}"/>
+								</p:column>
+
+								<p:column style="width:110px;">
+									<f:facet name="header">
+										Valor
+									</f:facet>
+									<h:outputText value="#{p.valor}">
+										<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+									</h:outputText>
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										Cheque
+									</f:facet>
+									<h:outputText value="#{p.numeroCheque} - #{p.nomeCheque}" rendered="#{p.tipoDoPagamento == 'CHEQUE'}"/>
+									<h:outputText value="#{p.adiantamento.numeroCheque} - #{p.adiantamento.nomeCheque}" rendered="#{p.tipoDoPagamento == 'ADIANTAMENTO' and p.adiantamento != null and p.adiantamento.tipo == 'CHEQUE'}"/>
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										Conta
+									</f:facet>
+									<h:outputText value="#{p.conta.beneficiado} - #{p.conta.agencia}/#{p.conta.conta}" rendered="#{p.tipoDoPagamento == 'TRANSFERENCIA'}"/>
+									<h:outputText value="#{p.adiantamento.conta.beneficiado} - #{p.adiantamento.conta.agencia}/#{p.adiantamento.conta.conta}" rendered="#{p.tipoDoPagamento == 'ADIANTAMENTO' and p.adiantamento != null and p.adiantamento.tipo == 'TRANSFERENCIA'}"/>
+								</p:column>
+
+							</p:dataTable>
+						</h:panelGrid>
+					</p:fieldset>
+					<br />
+
+					<p:fieldset legend="Historico de alterações de valores"
+						toggleable="true" toggleSpeed="500" collapsed="true">
+						<br />
+						<p:dataTable id="tableObsHistorico" var="obs"
+							value="#{compraFinalizadaBean.compra.historicos}"
+							emptyMessage="Não há itens" rows="5" paginator="true"
+							paginatorPosition="bottom"
+							sortBy="#{obs.id}" sortOrder="descending">
+
+
+								<p:column headerText="Data" style="width:15%;">
+									<p:outputLabel value="#{obs.data}">
+										<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+														   timeZone="America/Manaus" />
+									</p:outputLabel>
+
+								</p:column>
+
+								<p:column headerText="Usuário" style="width:20%;">
+									<p:outputLabel value="#{obs.usuario.nome}" />
+								</p:column>
+
+								<p:column headerText="Tipo">
+									<p:outputLabel rendered="#{obs.tipo.equals('ACRESCIMO')}" value="Acréscimo" />
+									<p:outputLabel rendered="#{!obs.tipo.equals('ACRESCIMO')}" value="Desconto" />
+								</p:column>
+
+								<p:column headerText="Valor">
+									<p:outputLabel value="#{obs.valor}">
+										<f:convertNumber type="currency" maxFractionDigits="2" />
+									</p:outputLabel>
+								</p:column>
+
+
+							<p:column headerText="Observações" style="width:65%;">
+									<p:outputLabel value="#{obs.observacao}" />
+								</p:column>
+
+
+
+							</p:dataTable>
+
+
+					</p:fieldset>
+					<br />
+					<p:fieldset legend="Historico observações do sistema"
+						toggleable="true" toggleSpeed="500" collapsed="true">
+						<br />
+						<p:dataTable id="tableObsSistema" var="obs"
+							value="#{compraFinalizadaBean.compra.observacoesSistema}"
+							emptyMessage="Não há itens" rows="5" paginator="true"
+							paginatorPosition="bottom">
+
+							<p:column headerText="Observações">
+								<p:outputLabel value="#{obs}" />
+							</p:column>
+						</p:dataTable>
+					</p:fieldset>
+					<br />
+					<p:fieldset legend="Historico observações dos usuários"
+						toggleable="true" toggleSpeed="500" collapsed="true" >
+						<br />
+
+							<p:dataTable id="tableObs" var="obs"
+								value="#{compraFinalizadaBean.compra.observacoes}"
+								emptyMessage="Não há itens" rows="5" paginator="true"
+								paginatorPosition="bottom"
+								sortBy="#{obs.id}" sortOrder="descending">
+
+								<p:column headerText="Data" style="width:15%;">
+									<p:outputLabel value="#{obs.data}">
+										<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+														   timeZone="America/Manaus" />
+									</p:outputLabel>
+
+								</p:column>
+
+								<p:column headerText="Usuário" style="width:20%;">
+									<p:outputLabel value="#{obs.usuario.nome}" />
+								</p:column>
+
+								<p:column headerText="Observações" style="width:65%;">
+									<p:outputLabel value="#{obs.observacao}" />
+								</p:column>
+
+							</p:dataTable>
+
+					</p:fieldset>
+
+					<br/>
+					<br/>
+
+					<div align="center">
+						<h:panelGrid columns="5">
+
+							<p:commandButton value="Recibo" icon="ui-icon-document-b"
+											 action="#{compraFinalizadaBean.imprimirRecibo()}" ajax="false" >
+							</p:commandButton>
+
+							<p:commandButton value="Espelho da Compra" icon="ui-icon-document-b"
+											 action="#{compraFinalizadaBean.imprimirEspelho()}" ajax="false" >
+							</p:commandButton>
+
+							<p:commandButton value="Nota fiscal" icon="ui-icon-document" onclick="PF('modalNotaFiscal').show()" update=":formNotaFiscal:panelNota">
+							</p:commandButton>
+
+							<p:commandButton value="Reabrir a Compra"
+											 onclick="PF('confirmacaoReabertura').show()" icon="ui-icon-arrowreturnthick-1-w"
+											 rendered="#{loginBean.usuarioSession.usuario.perfil.descricao.equals('Admin') and loginBean.usuarioSession.usuario.login == 'alexis'}">
+							</p:commandButton>
+
+							<p:commandButton value="Fechar" action="#{compraFinalizadaBean.cancelar()}" icon="ui-icon-close"/>
+
+						</h:panelGrid>
+					</div>
+
+					<br/>
+					<br/>
+				</h:panelGrid>
+			</h:form>
+		</div>
+	</ui:define>
+
+	<ui:define name="adicionais">
+		<p:dialog header="Nota fiscal de Entrada"
+				  widgetVar="modalNotaFiscal" modal="true" closable="true"
+				  closeOnEscape="true"  >
+			<h:form id="formNotaFiscal">
+				<p:messages id="messages" showDetail="true" autoUpdate="true" closable="true" />
+				<h:panelGrid id="panelNota" columns="2">
+					<p:outputLabel value="Número: *" />
+					<p:inputText value="#{compraFinalizadaBean.compra.notaFiscal}" size="50"/>
+				</h:panelGrid>
+				<br />
+				<h:panelGrid columns="2">
+					<p:commandButton value="Salvar" action="#{compraFinalizadaBean.salvarCompra}" icon="ui-icon-disk" update=":formModalDetalhes:panelDetalhes"/>
+					<p:commandButton value="Fechar" onclick="PF('modalNotaFiscal').hide()" icon="ui-icon-close"/>
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:confirmDialog widgetVar="confirmacaoReabertura" header="Confirmação"
+						 message="Confirma a reabertura da compra?">
+			<h:form id="formReabertura">
+				<p:commandButton value="Sim"
+								 action="#{compraFinalizadaBean.reabrirCompra()}"
+								 onsuccess="PF('confirmacaoReabertura').hide()"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"/>
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoReabertura').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+	</ui:define>
+
+</ui:composition>
+

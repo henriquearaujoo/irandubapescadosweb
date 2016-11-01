@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<h:form id="formtable">
+
+				<p:fieldset legend="Relatório de histórico de alteração de valor">
+
+					<h:panelGrid columns="12">
+						<span style="font-weight: bold">Fornecedor: </span>
+						<p:inputText id="nome" value="#{relatorioHistoricoAlteracaoValor.filtro.nome}" />
+						<p:watermark value="Nome" for="nome" />
+						<span style="font-weight: bold">Período: </span>
+						<p:calendar id="dataInicio"
+							value="#{relatorioHistoricoAlteracaoValor.filtro.dataInicio}" pattern="dd/MM/yyy" />
+						<p:watermark value="Data inicial" for="dataInicio" />
+						<p:calendar id="dataFinal"
+							value="#{relatorioHistoricoAlteracaoValor.filtro.dataFinal}" pattern="dd/MM/yyy" />
+						<p:watermark value="Data final" for="dataFinal" />
+						<span style="font-weight: bold">Status: </span>
+						<p:selectOneMenu id="status" value="#{relatorioHistoricoAlteracaoValor.filtroStatus}">
+							<f:selectItem itemLabel="Todos" itemValue="-1" />
+							<f:selectItem itemLabel="Pendentes" itemValue="0" />
+							<f:selectItem itemLabel="Pagas" itemValue="1" />
+						</p:selectOneMenu>
+						<p:commandButton action="#{relatorioHistoricoAlteracaoValor.carregarCompras()}"
+							icon="ui-icon-search" update="tableCompras" style="margin-left:5px" />
+						<p:commandButton action="#{relatorioHistoricoAlteracaoValor.limparFiltro()}"
+							icon="ui-icon-close" style="margin-left:5px"
+							update="nome dataInicio dataFinal status" />
+					</h:panelGrid>
+
+					<br />
+
+					<p:dataTable id="tableCompras" var="compra"
+						value="#{relatorioHistoricoAlteracaoValor.model}" lazy="true" paginator="true"
+						paginatorPosition="bottom" rows="5">
+						<f:facet name="header">
+							Relação de compras
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+						  Data
+						</f:facet>
+							<h:outputText value="#{compra.dataCompra}">
+								<f:convertDateTime pattern="HH:mm:ss dd/MM/yyyy"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+						  Fornecedor
+						</f:facet>
+							<h:outputText value="#{compra.fornecedor.nome}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+						  Valor
+						</f:facet>
+							<h:outputText value="#{compra.valorTotal}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+						  Status
+						</f:facet>
+							<h:outputText value="Pendente" rendered="#{!compra.status}" />
+							<h:outputText value="Paga" rendered="#{compra.status}" />
+						</p:column>
+
+						<p:column style="width:100px;">
+							<p:commandButton
+								action="#{relatorioHistoricoAlteracaoValor.imprimirRelatorio}"
+								value="Imprimir" ajax="false">
+								<f:setPropertyActionListener target="#{relatorioHistoricoAlteracaoValor.compra}"
+									value="#{compra}" />
+							</p:commandButton>
+						</p:column>
+
+					</p:dataTable>
+
+				</p:fieldset>
+
+			</h:form>
+		</div>
+	</ui:define>
+
+	<ui:define name="adicionais">
+		
+		<p:confirmDialog widgetVar="confirmacaoImpressaoRecibo"
+			header="Confirmação" message="Imprimir recibo?">
+			<h:form id="formConfirmacaoImpressaoRecibo">
+				<p:commandButton value="Sim"
+					action="#{relatorioHistoricoAlteracaoValor.imprimirRecibo()}"
+					styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+					immediate="true"
+					onsuccess="PF('confirmacaoImpressaoRecibo').hide()" ajax="false" />
+				<p:commandButton value="Não"
+					onclick="PF('confirmacaoImpressaoRecibo').hide()" type="button"
+					styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+					immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+	</ui:define>
+
+</ui:composition>
+

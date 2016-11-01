@@ -1,0 +1,469 @@
+package com.irandubamodulo01.bean;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.*;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import com.irandubamodulo01.dao.*;
+import com.irandubamodulo01.enumerated.TipoPessoa;
+import com.irandubamodulo01.model.*;
+import org.hibernate.Hibernate;
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
+
+import com.irandubamodulo01.util.Filtro;
+
+@Named(value="fornecedorBean")
+@javax.faces.view.ViewScoped
+public class FornecedorBean implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private @Inject Fornecedor fornec; 
+	private @Inject FornecedorDAO fornDAO;
+	private @Inject BarcoDAO barcoDAO;
+	private @Inject AdiantamentoDAO adiantamentoDAO;
+	private @Inject ContaDAO contaDAO;
+	private @Inject	PrecoDiferenciadoDAO precoDiferenciadoDAO;
+	private @Inject PeixeDAO peixeDAO;
+	private  LazyDataModel<Fornecedor> model;
+	private LazyDataModel<Barco> modelBarcos;
+	private Filtro filtro = new Filtro();
+	private Barco barco = new Barco();
+	private AdiantamentoFornecedor adiantamento = new  AdiantamentoFornecedor();
+	private Conta conta;
+	private String nomePeixe;
+	private String nomeFornecedor;
+	private List<Peixe> peixes;
+	private List<Fornecedor> fornecedores;
+	private PrecoDiferenciado precoDiferenciado = new PrecoDiferenciado();
+	
+	public FornecedorBean() {
+		
+		model = new LazyDataModel<Fornecedor>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public List<Fornecedor> load(int first, int pageSize, String sortField,
+					SortOrder sortOrder, Map<String, Object> filters) {
+				filtro.setPrimeiroRegistro(first);
+				filtro.setQuantidadeRegistros(pageSize);
+				filtro.setAscendente(SortOrder.ASCENDING.equals(sortOrder));
+				filtro.setPropriedadeOrdenacao(sortField);
+				setRowCount(fornDAO.quantidadeFiltrados(filtro));
+				return fornDAO.filtrados(filtro);
+			}
+		};
+	}
+	
+	public void carregarBarcos(){
+		if (fornec != null) {
+			if (fornec.getId() != null) {
+				fornec.setBarcos(new ArrayList<Barco>());
+				fornec.getBarcos().addAll(barcoDAO.getBarcosPorFornecedor(fornec));
+			}
+		}
+	}
+	
+	public void carregarContas(){
+		if (fornec != null) {
+			if (fornec.getId() != null) {
+				fornec.setContas(contaDAO.getContasPorFornecedor(fornec));
+			}
+		}
+	}
+	
+	public void carregarAdiantamentos(){
+		if (fornec != null) {
+			if (fornec.getId() != null) {
+				fornec.setAdiantamentos(adiantamentoDAO.getAdiantamentoPorFornecedor(fornec));	
+			}
+		}
+	}
+
+	public void carregarPrecosDiferenciados(){
+		if (fornec != null){
+			if (fornec.getId() != null){
+				fornec.setPrecosDiferenciados(precoDiferenciadoDAO.getPrecoDiferenciadoPorFornecedor(fornec));
+			}
+		}
+	}
+
+	public void carregarDados(){
+		setPeixes(peixeDAO.getPeixesComplete());
+		setFornecedores(fornDAO.getFornecedoresComplete());
+	}
+
+	public void cancelarCadBarco(){
+		barco = new Barco();
+	}
+	
+	public void cancelarCadAdiantamento(){
+		adiantamento = new AdiantamentoFornecedor();
+	}
+	
+	public void cancelarCadConta(){
+		conta = new Conta();
+	}
+	
+	public void prepararCadastroBarco(){
+		barco = new Barco();
+	}
+	
+	public void prepararAdiantamento(){
+		adiantamento = new AdiantamentoFornecedor();
+	}
+	
+	public void prepararCadastroConta(){
+		conta = new Conta();
+	}
+	
+	public TipoConta[] getTiposConta(){
+		return TipoConta.values();
+	}
+
+	public TipoPessoa[] getTiposPessoa(){
+		return TipoPessoa.values();
+	}
+	
+	public void excluirBarco(){
+		try {
+			barcoDAO.remove(barco);
+			addMessage("Informação: ", "Transporte excluido com sucesso.", FacesMessage.SEVERITY_INFO);
+		} catch (Exception e) {
+			addMessage("Erro: ", "Não foi possivel excluir o transporte.", FacesMessage.SEVERITY_ERROR);
+		}
+		
+		carregarBarcos();
+	}
+	
+	public void excluirAdiantamento(){
+		try {
+			adiantamentoDAO.remove(adiantamento);
+			addMessage("Informação: ", "Adiantemento excluido com sucesso.", FacesMessage.SEVERITY_INFO);
+		} catch (Exception e) {
+			e.printStackTrace();
+			addMessage("Erro: ", "Não foi possivel excluir o adiantamento.", FacesMessage.SEVERITY_ERROR);
+		}
+		
+		carregarAdiantamentos();
+	}
+	
+	public void excluirConta(){
+		try {
+			contaDAO.remove(conta);
+			addMessage("Informação: ", "Conta excluida com sucesso.", FacesMessage.SEVERITY_INFO);
+		} catch (Exception e) {
+			e.printStackTrace();
+			addMessage("Erro: ", "Não foi possivel excluir a conta.", FacesMessage.SEVERITY_ERROR);
+		}
+		
+		carregarContas();
+	}
+
+	public void excluirPrecoDiferenciado(){
+		try{
+			precoDiferenciadoDAO.remove(precoDiferenciado);
+			addMessage("Informação: ", "Item excluido com sucesso.", FacesMessage.SEVERITY_INFO);
+		}catch (Exception e){
+			e.printStackTrace();
+			addMessage("Erro: ", "Não foi possivel excluir o item.", FacesMessage.SEVERITY_ERROR);
+		}
+
+		carregarPrecosDiferenciados();
+	}
+	
+	public void salvarBarco(){
+		if (barco.getNome() != null && !barco.getNome().equals("")) {
+			barco.setFornecedor(fornec);
+			barcoDAO.save(barco);
+			fornec.setBarcos(new ArrayList<Barco>());
+			fornec.getBarcos().addAll(barcoDAO.getBarcosPorFornecedor(fornec));
+			barco = new Barco();
+			addMessage("Informação: ", "Transporte salva com sucesso.", FacesMessage.SEVERITY_INFO);
+		}else
+			addMessage("Não foi possível salvar o transporte.", "Preencha os campos obrigatórios.", FacesMessage.SEVERITY_ERROR);
+	}
+
+	public UsuarioSessionBean getUsuarioSession(){
+		UsuarioSessionBean usuarioSession = (UsuarioSessionBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuariologado");
+		return usuarioSession;
+	}
+
+	public void salvarAdiantamento(){
+		if (adiantamento.getValor() != null && adiantamento.getValor() != BigDecimal.ZERO && !adiantamento.getObservacao().isEmpty()) {
+			adiantamento.setFornecedor(fornec);
+			adiantamento.setUsuario(getUsuarioSession().getUsuario());
+			adiantamento.setData(new Date());
+			adiantamentoDAO.save(adiantamento);
+			fornec.setAdiantamentos(new ArrayList<AdiantamentoFornecedor>());
+			fornec.getAdiantamentos().addAll(adiantamentoDAO.getAdiantamentoPorFornecedor(fornec));
+			adiantamento = new AdiantamentoFornecedor();
+			addMessage("Informação: ", "Adiantamento salvo com sucesso.", FacesMessage.SEVERITY_INFO);
+		}else
+			addMessage("Não foi possível salvar o adiantamento.", "Preencha os campos obrigatórios.", FacesMessage.SEVERITY_ERROR);
+	}
+	
+	public void salvarConta(){
+		if ((conta.getBanco() != null && !conta.getBanco().equals("")) && (conta.getBeneficiado() != null && !conta.getBeneficiado().equals("")) && (conta.getAgencia() != null && !conta.getAgencia().equals("") && (conta.getConta() != null && !conta.getConta().equals("")))){
+			conta.setFornecedor(fornec);
+			contaDAO.save(conta);
+			fornec.setContas(new ArrayList<Conta>());
+			fornec.getContas().addAll(contaDAO.getContasPorFornecedor(fornec));
+			conta = new Conta();
+			addMessage("Informação: ", "Conta salva com sucesso.", FacesMessage.SEVERITY_INFO);
+		}else
+			addMessage("Não foi possível salvar a conta.", "Preencha os campos obrigatórios.", FacesMessage.SEVERITY_ERROR);
+	}
+	
+	public String cancelar(){
+		return "fornecedores?faces-redirect=true";
+	}
+	
+	public void salvarFornec(){
+
+		try {
+			fornec = fornDAO.save(fornec);
+			addMessage("Informação: ", "Fornecedor salvo com sucesso.", FacesMessage.SEVERITY_INFO);
+		} catch (Exception e) {
+			e.printStackTrace();
+			addMessage("Erro: ", "Não foi possível salvar fornecedor.", FacesMessage.SEVERITY_ERROR);
+		}
+	}
+	
+	public String prepararTelaCad(){
+		return "forneccad?faces-redirect=true";
+	}
+	
+
+	
+	public String editarFornec(){
+		return "forneccad?faces-redirect=true&amp;includeViewParams=true";
+	}
+	
+	public void deletarFornec(){
+		if (fornDAO.verificaExisteCompra(fornec)) {
+			addMessage("Não foi possivel deletar fornecedor", "fornecedor associado a uma compra.", FacesMessage.SEVERITY_ERROR);
+			fornec = new Fornecedor();
+			return;
+		}
+		try{
+			fornDAO.remove(fornec);
+			addMessage("Informação", "Fornecedor excluído com sucesso", FacesMessage.SEVERITY_INFO);
+		}catch (Exception e){
+			e.printStackTrace();
+			addMessage("Erro", "Não foi possível excluir o fornecedor.", FacesMessage.SEVERITY_ERROR);
+		}
+
+	}
+
+	public List<String> completePeixe(String query){
+		List<String> results = new ArrayList<String>();
+		for (Peixe peixe : getPeixes()){
+			if (peixe.getDescricao().toLowerCase().startsWith(query.toLowerCase()))
+				results.add(peixe.getDescricao());
+		}
+		return results;
+	}
+
+	public List<String> completeFornecedor(String query){
+		List<String> results = new ArrayList<String>();
+		for (Fornecedor fornecedor : getFornecedores()){
+			if (fornecedor.getNome().toLowerCase().startsWith(query.toLowerCase()))
+				results.add(fornecedor.getNome());
+		}
+		return results;
+	}
+
+	public void adicionarPrecoDiferenciado(){
+		if (nomePeixe != null && !nomePeixe.isEmpty() && precoDiferenciado.getValor() != null && !precoDiferenciado.getValor().toString().isEmpty()) {
+
+			try {
+				Optional<Peixe> peixe = peixes.stream().filter(p -> p.getDescricao().equals(nomePeixe)).findFirst();
+
+				PrecoDiferenciado pd = precoDiferenciadoDAO.getPrecoDiferenciadoPorFornecedorEPeixe(fornec, peixe.get());
+
+				if (pd == null) {
+					precoDiferenciado.setPeixe(peixe.get());
+					precoDiferenciado.setFornecedor(fornec);
+
+					precoDiferenciadoDAO.save(precoDiferenciado);
+
+					precoDiferenciado = new PrecoDiferenciado();
+					nomePeixe = null;
+					carregarPrecosDiferenciados();
+
+					addMessage("Informação", "Valor adicionado com sucesso.", FacesMessage.SEVERITY_INFO);
+				}
+				else
+					addMessage("Advertência", "Já foi adicionado um valor para o peixe selecionado.", FacesMessage.SEVERITY_WARN);
+			} catch (Exception e) {
+				e.printStackTrace();
+				addMessage("Erro", "Não foi possível adicionar o valor.", FacesMessage.SEVERITY_ERROR);
+			}
+		}else
+			addMessage("Advertência", "Selecione um peixe e digite um valor antes de adicionar um novo item.", FacesMessage.SEVERITY_WARN);
+	}
+
+	public void copiarPrecosDiferenciados(){
+		if (nomeFornecedor != null && !nomeFornecedor.isEmpty()) {
+			try {
+				List<Long> ids = new ArrayList<Long>();
+				Optional<Fornecedor> fornecedor = fornecedores.stream().filter(f -> f.getNome().equals(nomeFornecedor)).findFirst();
+				for (PrecoDiferenciado pd : fornec.getPrecosDiferenciados()) {
+					ids.add(pd.getPeixe().getId());
+				}
+				List<PrecoDiferenciado> list = precoDiferenciadoDAO.getPrecoDiferenciadoPorFornecedorPeixeDif(fornecedor.get(), ids);
+
+				for (PrecoDiferenciado pd : list) {
+					pd.setId(null);
+					pd.setFornecedor(fornec);
+
+					precoDiferenciadoDAO.save(pd);
+				}
+
+				nomeFornecedor = null;
+				carregarPrecosDiferenciados();
+
+				addMessage("Informação", "Cópia dos itens efetuada com sucesso.", FacesMessage.SEVERITY_INFO);
+			} catch (Exception e) {
+				e.printStackTrace();
+				addMessage("Erro", "Não foi possível efetuar a cópia dos itens.", FacesMessage.SEVERITY_ERROR);
+			}
+		}else
+			addMessage("Advertência", "Selecione um fornecedor antes de efetuar a cópia.", FacesMessage.SEVERITY_WARN);
+	}
+
+	public void atualizarValores(){
+		try {
+
+			for(PrecoDiferenciado pd : fornec.getPrecosDiferenciados()){
+				precoDiferenciadoDAO.save(pd);
+			}
+
+			carregarPrecosDiferenciados();
+
+			addMessage("Informação", "Valores atualizados com sucesso.", FacesMessage.SEVERITY_INFO);
+		}catch (Exception e){
+			e.printStackTrace();
+			addMessage("Erro", "Não foi possível atualizar os valores dos itens.", FacesMessage.SEVERITY_ERROR);
+		}
+	}
+
+	public void limpar(){
+
+		fornec = new Fornecedor();
+	}
+	
+	public void addMessage(String summary, String detail, Severity severity) {
+        FacesMessage message = new FacesMessage(severity, summary, detail);
+        FacesContext.getCurrentInstance().addMessage(null, message);
+    }
+
+	public List<Peixe> getPeixes() {
+		return peixes;
+	}
+
+	public void setPeixes(List<Peixe> peixes) {
+		this.peixes = peixes;
+	}
+	
+	public Fornecedor getFornec() {
+		return fornec;
+	}
+	public void setFornec(Fornecedor fornec) {
+		this.fornec = fornec;
+	}
+	
+
+	public Filtro getFiltro() {
+		return filtro;
+	}
+
+	public void setFiltro(Filtro filtro) {
+		this.filtro = filtro;
+	}
+
+	public LazyDataModel<Fornecedor> getModel() {
+		return model;
+	}
+
+	public void setModel(LazyDataModel<Fornecedor> model) {
+		this.model = model;
+	}
+
+
+	public Barco getBarco() {
+		return barco;
+	}
+
+
+	public void setBarco(Barco barco) {
+		this.barco = barco;
+	}
+
+	public LazyDataModel<Barco> getModelBarcos() {
+		return modelBarcos;
+	}
+
+	public void setModelBarcos(LazyDataModel<Barco> modelBarcos) {
+		this.modelBarcos = modelBarcos;
+	}
+
+	public AdiantamentoFornecedor getAdiantamento() {
+		return adiantamento;
+	}
+
+	public void setAdiantamento(AdiantamentoFornecedor adiantamento) {
+		this.adiantamento = adiantamento;
+	}
+
+	public Conta getConta() {
+		if (conta == null)
+			conta = new Conta();
+		return conta;
+	}
+
+	public void setConta(Conta conta) {
+		this.conta = conta;
+	}
+
+	public String getNomePeixe() {
+		return nomePeixe;
+	}
+
+	public void setNomePeixe(String nomePeixe) {
+		this.nomePeixe = nomePeixe;
+	}
+
+	public PrecoDiferenciado getPrecoDiferenciado() {
+		return precoDiferenciado;
+	}
+
+	public void setPrecoDiferenciado(PrecoDiferenciado precoDiferenciado) {
+		this.precoDiferenciado = precoDiferenciado;
+	}
+
+	public List<Fornecedor> getFornecedores() {
+		return fornecedores;
+	}
+
+	public void setFornecedores(List<Fornecedor> fornecedores) {
+		this.fornecedores = fornecedores;
+	}
+
+	public String getNomeFornecedor() {
+		return nomeFornecedor;
+	}
+
+	public void setNomeFornecedor(String nomeFornecedor) {
+		this.nomeFornecedor = nomeFornecedor;
+	}
+}

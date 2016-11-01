@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<f:view>
+				<f:metadata>
+					<f:viewParam name="cam" value="#{camarabean.camara}" />
+				</f:metadata>
+
+				<h:form id="mensagem">
+					<p:spacer height="0"></p:spacer>
+					<p:effect type="fade" for="msgs" event="load" speed="10000">
+						<p:messages id="msgs" showDetail="true" showSummary="true"
+									globalOnly="true" closable="true"/>
+					</p:effect>
+				</h:form>
+
+				<h:form id="formCadCamara">
+
+					<p:fieldset legend="Descrição">
+						<h:panelGrid columns="3" cellspacing="5">
+
+							<p:outputLabel value="Descrição: *" />
+							<p:inputText id="nome" value="#{camarabean.camara.descricao}"
+								required="true"
+								requiredMessage="Descrição é um campo obrigatório." size="50"/>
+							<p:message for="nome"/>
+
+						</h:panelGrid>
+
+					</p:fieldset>
+					<br></br>
+					<p:fieldset   legend="Posições" toggleable="true" toggleSpeed="500"
+						collapsed="true" rendered="#{camarabean.camara.id != null}">
+
+
+						<div align="right">
+							<p:commandButton value="Novo" icon="ui-icon-plus"
+								action="#{camarabean.prepararCadastroPosicao()}"
+								oncomplete="PF('modalCadPosicao').show()" update=":formCadPosicao" />
+						</div>
+						<br />
+
+						<p:dataTable id="tablePosicoes" var="p"
+							value="#{camarabean.camara.posicoes}" paginator="true"
+							paginatorPosition="bottom" rows="20">
+							<f:facet name="header">
+								Posições
+							</f:facet>
+
+							<p:column>
+								<f:facet name="header">
+								  Descricao
+								</f:facet>
+								<h:outputText value="#{p.descricao}" />
+							</p:column>
+
+							<p:column style="width:100px;">
+								<f:facet name="header">
+									  Editar
+								</f:facet>
+								<p:commandButton value="Editar" icon="ui-icon-pencil"
+									oncomplete="PF('modalCadPosicao').show()" update=":formCadPosicao">
+									<f:setPropertyActionListener target="#{camarabean.posicao}"
+										value="#{p}" />
+								</p:commandButton>
+							</p:column>
+
+							<p:column style="width:100px;">
+								<f:facet name="header">
+									 Excluir
+								</f:facet>
+								<p:commandButton value="Excluir" action="#{camarabean.deletePosicao()}" icon="ui-icon-trash" update=":formCadCamara:tablePosicoes">
+								<p:confirm icon="ui-icon-alert"
+									header="Excluir"
+									message="Excluir Posição" />
+									<f:setPropertyActionListener target="#{camarabean.posicao}"
+										value="#{p}" />
+								</p:commandButton>
+							</p:column>
+
+						</p:dataTable>
+
+					</p:fieldset>
+					<br />
+
+					<p:outputLabel value="Campos obrigatórios *" />
+					<br />
+					<br />
+
+					<div class="btcentral">
+
+						<p:commandButton icon="ui-icon-disk" value="Salvar" action="#{camarabean.salvar()}" update="formCadCamara :mensagem" ajax="true"/>
+						<p:commandButton icon="ui-icon-close" value="Cancelar"
+							action="#{camarabean.cancelar()}" immediate="true" />
+					</div>
+				</h:form>
+
+
+			</f:view>
+		</div>
+	</ui:define>
+
+	<ui:define name="adicionais">
+		
+		<p:dialog header="Cadastro de Posições" widgetVar="modalCadPosicao"
+			closable="true" modal="true" closeOnEscape="true" resizable="true"
+			width="560px">
+			<h:form id="formCadPosicao">
+				<p:messages id="messages" showDetail="true"
+					autoUpdate="true" closable="true" />
+				<p:fieldset legend="Posição">
+					<h:panelGrid id="panelPosicao" columns="2" cellpadding="4"
+						cellspacing="4">
+						<p:outputLabel value="Descrição: *" />
+						<p:inputText value="#{camarabean.posicao.descricao}"
+							style="width:350px" required="true" requiredMessage="Preencha o campo obrigatório." />
+					</h:panelGrid>
+				</p:fieldset>
+				<br />
+				<br />
+				<p:outputLabel value="Campos obrigatórios *" />
+				<br />
+				<br />
+				<div align="center">
+					<p:commandButton value="salvar"
+						action="#{camarabean.salvarPosicao()}"
+						update="panelPosicao :formCadCamara:tablePosicoes" />
+					<p:commandButton id="cancelar" value="cancelar" immediate="true"
+						onsuccess="PF('modalCadPosicao').hide()" />
+				</div>
+			</h:form>
+
+		</p:dialog>
+	
+
+	</ui:define>
+
+</ui:composition>
+
+

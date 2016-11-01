@@ -1,0 +1,98 @@
+<ui:composition 
+
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui">
+
+	<p:idleMonitor timeout="1500000" onactive="" onidle="PF('idleDialog').show()" />
+
+	<p:dialog header="Sessão Expirada." resizable="false"
+			  closable="false" widgetVar="idleDialog" modal="true" width="400">
+		<h:form>
+			<h:panelGrid columns="1" style="text-align:center;width:100%; ">
+				<h:outputText value="Sessão expirou após 30 minutos de inatividade." />
+				<h:outputText value="Por favor, efetue login novamente." />
+				<h:outputText value="" />
+				<p:commandButton value="Voltar ao login" action="#{loginBean.logout()}" immediate="true" />
+			</h:panelGrid>
+		</h:form>
+	</p:dialog>
+    
+    <h:form>
+	    <div id="layout-header" class="Unselectable fontRegular">
+	        <a href="dashboard.xhtml" id="layout-logo">
+	            <span class="Fs19 FontTitilliumSemiBoldItalic Fleft"><span class="softblue">IRANDUBA PESCADOS</span></span>
+	        </a>
+	    	<ul id="sm-topmenu" class="layout-header-widgets white Fs14">
+	    		<li class="Fleft BordRadHalf TexAlCenter"><i class="icon-user-male"></i>
+	    			<ul class="layout-header-widgets-submenu BordRad5 shadows white Animated05">
+	    				<li class="Animated05"><a class="white Unselectable"><i class="icon-user-male Fs26 OvHidden"></i><span class="Fs18">#{loginBean.usuarioSession.usuario.nome}</span></a></li>
+						<li class="Animated05"><a class="white Unselectable"><span class="Fs10">Último login - #{loginBean.usuarioSession.ultimoLogin.dataFormatada}</span></a></li>
+	    				<li class="Animated05"><a href="#" onclick="meusdados()" class="white Unselectable"><i class="icon-sliders"></i>Meus dados</a></li>
+	    			</ul>
+	    		</li>
+	    		<li class="Fleft BordRadHalf TexAlCenter"><i class="icon-wrench-1"></i>
+	    			<ul class="layout-header-widgets-submenu BordRad5 shadows white Animated05">
+	    				<li class="Animated05"><a href="#" onclick="carregarConfiguracoes()" class="white Unselectable"><i class="icon-sun"></i>Configurações</a></li>
+	    				<li class="Animated05"><a href="#" class="white Unselectable"><i class="icon-info"></i>Sobre</a></li>
+	    			</ul>
+	    		</li>
+	    		<li class="Fleft BordRadHalf TexAlCenter"><i class="icon-power"></i>
+	    			<ul class="layout-header-widgets-submenu BordRad5 shadows white Animated05">
+	    				<li class="Animated05"><a href="#" onclick="logout()" class="white Unselectable"><i class="icon-logout"></i>Sair</a></li>
+	    			</ul>
+	    		</li>
+	    	</ul>
+	    	<!-- NEVER REMOVE FOLLOWING 'UL' TAG ! BECAUSE THIS CONTAINS RESPONSIVE MODE HEADER MENU OPEN-CLOSE BUTTON -->
+	    	<ul id="sm-mobiletopmenu" class="layout-header-widgets white Fs14">
+	    		<li class="Fleft BordRadHalf TexAlCenter Animated05 DisplayOnResponsive"><i class="icon-th-1"></i></li>
+	    	</ul>
+	    	<!-- ****** -->
+	   	</div>
+   	</h:form>
+   	
+   	<p:dialog header="Configurações" widgetVar="modalConfiguracoes" closable="true"
+		modal="true" closeOnEscape="true" resizable="true" width="490px">
+		<h:form id="formConf">
+			<p:messages id="messages" showDetail="true" autoUpdate="true" closable="true" />
+			<h:panelGrid columns="2" cellpadding="4" cellspacing="4">
+			  <p:outputLabel value="Peso da caçapa:" />
+			  <h:panelGroup>
+				  <p:inputText value="#{configuracoesBean.configuracoes.pesoCacapa}" style="width:60px" onkeypress="return formatarNumero(this,event,18,2);">
+						 <f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+				  </p:inputText>
+				  <p:outputLabel value="KG" style="padding-left: 10px"/>
+			  </h:panelGroup>
+			  <p:outputLabel value="Valor mínimo para débito de adiantamento:" />
+			  <p:inputText value="#{configuracoesBean.configuracoes.valorMinimoDebitoAdiantamento}" style="width:60px" onkeypress="return formatarNumero(this,event,18,2);">
+					 <f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+			  </p:inputText>
+			</h:panelGrid>
+			<br /><br />
+			<h:panelGrid columns="2" cellpadding="4" cellspacing="4">
+				<p:commandButton value="Salvar" action="#{configuracoesBean.salvarConfiguracoes()}"
+					styleClass="ui-confirmdialog-yes" icon="ui-icon-check"/>
+				<p:commandButton value="Cancelar"
+					onclick="PF('modalConfiguracoes').hide()" type="button"
+					styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+					immediate="true" />
+			</h:panelGrid>
+		</h:form>	
+			
+	</p:dialog>
+	
+	<h:form id="formRemote">
+		<p:remoteCommand name="carregarConfiguracoes" action="#{configuracoesBean.carregarConfiguracoes()}" oncomplete="PF('modalConfiguracoes').show()" update=":formConf"/>
+		<p:remoteCommand name="logout" action="#{loginBean.logout()}" />
+		<p:remoteCommand name="meusdados" action="#{usuariobean.editarUsuario()}" >
+			<f:setPropertyActionListener target="#{usuariobean.usuario}"
+							value="#{loginBean.usuarioSession.usuario}" />
+		</p:remoteCommand>
+		<p:remoteCommand name="carregarCompras" action="baixa_compra?faces-redirect=true" />
+		<p:remoteCommand name="carregarComprasAutorizar" action="#{dashBoardBean.carregarComprasAutorizar}" />
+		<p:remoteCommand name="carregarPagamentos" action="pagamentos_pendentes?faces-redirect=true" />
+		<p:remoteCommand name="relatorioCompras" action="relatorio_compras?faces-redirect=true" />
+    </h:form>
+</ui:composition>

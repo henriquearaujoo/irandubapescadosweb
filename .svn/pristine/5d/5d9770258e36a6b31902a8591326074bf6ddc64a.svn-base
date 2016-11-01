@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<h:form id="formtable">
+				<p:fieldset legend="Pagamento de compras">
+					<h:panelGrid columns="12">
+						<span style="font-weight: bold">Fornecedor: </span>
+						<p:inputText id="nome" value="#{baixaCompraBean.filtro.nome}" size="50"/>
+						<p:watermark value="Nome" for="nome" />
+						<span style="font-weight: bold">Período: </span>
+						<p:calendar id="dataInicio"
+							value="#{baixaCompraBean.filtro.dataInicio}" pattern="dd/MM/yyy" />
+						<p:watermark value="Data inicial" for="dataInicio" />
+						<p:calendar id="dataFinal"
+							value="#{baixaCompraBean.filtro.dataFinal}" pattern="dd/MM/yyy" />
+						<p:watermark value="Data final" for="dataFinal" />
+						<span style="font-weight: bold">Status: </span>
+						<p:selectOneMenu id="status"
+							value="#{baixaCompraBean.filtroStatus}">
+							<f:selectItems value="#{baixaCompraBean.listaStatus}" />
+						</p:selectOneMenu>
+						<p:commandButton action="#{baixaCompraBean.carregarCompras()}"
+							icon="ui-icon-search" update="tableCompras"
+							style="margin-left:5px" />
+						<p:commandButton action="#{baixaCompraBean.limparFiltro()}"
+							icon="ui-icon-close" style="margin-left:5px"
+							update="nome dataInicio dataFinal status" />
+					</h:panelGrid>
+
+					<br />
+
+					<p:dataTable id="tableCompras" var="compra"
+						value="#{baixaCompraBean.model}" lazy="true" paginator="true"
+						paginatorPosition="bottom" rows="15" sortBy="#{compra.id}" sortOrder="DESCENDING">
+						<f:facet name="header">
+							Relação de compras
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+						  Código
+						</f:facet>
+							<h:outputText value="#{compra.codigo}" />
+						</p:column>
+						<p:column>
+							<f:facet name="header">
+						  Data
+						</f:facet>
+							<h:outputText value="#{compra.dataCompra}">
+								<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+						  Fornecedor
+						</f:facet>
+							<h:outputText value="#{compra.fornecedor.nome}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+						  Valor
+						</f:facet>
+							<h:outputText value="#{compra.valorTotal}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+						  Status
+						</f:facet>
+							<h:outputText value="#{compra.statusCompra.status}" />
+						</p:column>
+
+						<p:column style="width:100px;" rendered="false">
+							<p:commandButton value="Pagar" update=":formModalFormaDePag"
+								action="#{baixaCompraBean.prepararValores()}"
+								onsuccess="PF('modalFormaDePagamento').show()"
+								rendered="#{!compra.status and compra.autorizado == null}">
+								<f:setPropertyActionListener target="#{baixaCompraBean.compra}"
+									value="#{compra}" />
+							</p:commandButton>
+						</p:column>
+
+						<p:column style="width:120px;">
+							<p:commandButton
+								action="#{baixaCompraBean.prepararDetalhesCompra()}"
+								value="Detalhes" icon="ui-icon-zoomin">
+								<f:param name="cp" value="#{compra.id}" />
+								<f:setPropertyActionListener target="#{baixaCompraBean.compra}"
+									value="#{compra}" />
+							</p:commandButton>
+						</p:column>
+
+						<p:column style="width:100px;" rendered="false">
+							<p:commandButton value="Autorizar"
+								rendered="#{usuariosessionbean.getUsuario().perfil.descricao.equals('Admin') and (compra.autorizado != null and !compra.autorizado)}"
+								action="#{baixaCompraBean.prepararAutorizarCompra()}"
+								onsuccess="PF('modalAutorizacao').show();"
+								update=":formModalAutorizacao:panelAutorizacao">
+								<f:setPropertyActionListener target="#{baixaCompraBean.compra}"
+									value="#{compra}" />
+							</p:commandButton>
+						</p:column>
+
+					</p:dataTable>
+
+				</p:fieldset>
+
+			</h:form>
+		</div>
+	</ui:define>
+
+</ui:composition>
+

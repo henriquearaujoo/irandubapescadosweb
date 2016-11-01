@@ -1,0 +1,64 @@
+	<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:p="http://primefaces.org/ui">
+
+
+
+<h:head>
+	<title>IRANDUBA | PESCADOS</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+        
+    <h:outputScript name="js/layout.js" library="sentinel-layout" />
+    <h:outputStylesheet name="css/font-icon-layout.css" library="sentinel-layout" />
+    <h:outputStylesheet name="css/sentinel-layout.css" library="sentinel-layout" />
+    <h:outputStylesheet name="css/core-layout.css" library="sentinel-layout" />
+</h:head>
+
+<h:body class="fontRegular login-back white-back">
+
+    <div class="Container80 MaxWid500 Fnone MarAuto TexAlCenter PaddingTopPercent10">
+
+        <div class="EmptyBox10"></div>
+    </div>
+    
+    <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+ 
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false" style="background-color:#FFFFFF">
+	    <p:graphicImage url="/images/aguarde.gif"/>
+	</p:dialog>
+    
+    <!-- LOGIN BOX COVER START -->
+    <h:form id="frmLogin">
+     
+    <div class="Container80 MaxWid500 white-back Fnone MarAuto BordRad10" id="login-box">
+        <div class="Container100">
+
+            <div class="Container100 TexAlCenter Animated05 BoxSizeBorder TabBtn left TabBtnActiveLeft">
+                <div class="Container80 Fnone MarAuto FontBold"><i class="icon-lock"></i> Login</div>
+            </div>
+
+            <div class="Container100 TexAlCenter Animated05 BoxSizeBorder TabBtn left TabBtnActiveLeft">
+                <p:graphicImage url="/images/logo_iranduba.jpg"/>
+            </div>
+            
+            <div class="Container90 Fnone MarAuto TexAlCenter TabContent" id="TAB1">
+                <div class="EmptyBox50"></div>
+                <p:inputText value="#{loginBean.nomeUsuario}" placeholder="Usuário" styleClass="Container80 Fnone MarAuto Fs18"/>
+                <div class="EmptyBox10"></div>
+                <p:password value="#{loginBean.senhaUsuario}" placeholder="Senha" styleClass="Container80 Fnone MarAuto Fs18" feedback="false"/>
+                <div class="EmptyBox20"></div>
+                <p:messages id="messages" showDetail="false" autoUpdate="true" closable="true" />
+                <div class="EmptyBox30"></div>
+                <p:commandButton  value="Log In" styleClass="Fs16" action="#{loginBean.logar()}"></p:commandButton>
+                <div class="EmptyBox50"></div>
+            </div>
+        </div>
+    </div>
+    </h:form>
+    
+</h:body>
+
+</html>

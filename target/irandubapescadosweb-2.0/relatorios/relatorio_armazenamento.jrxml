@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorio_armazenamento" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c1c4761e-b10a-4b69-852e-8539431c51b8">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="periodo" class="java.lang.String"/>
+	<parameter name="filtro" class="java.lang.String">
+		<defaultValueExpression><![CDATA["where p.id != 0"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="filtro_armazenamento" class="java.lang.String"/>
+	<parameter name="filtro_retirada" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select p.descricao, tp.descricao as tipo,
+(select coalesce(sum(arm.peso),0) from armazenamento arm where arm.peixe_id = p.id and arm.tipopeixe_id = tp.id and arm.status = 'AUTORIZADO' $P!{filtro_armazenamento})
+-
+(select coalesce(sum(ret.peso),0) from retirada ret where ret.peixe_id = p.id and ret.tipopeixe_id = tp.id and ret.status = 'AUTORIZADO' $P!{filtro_retirada}) as total_by_peixe
+from  peixe p
+join armazenamento arm1 on p.id = arm1.peixe_id
+join tipopeixe tp on tp.id = arm1.tipopeixe_id
+where arm1.status = 'AUTORIZADO' $P!{filtro}
+group by p.id, p.descricao, tp.id
+order by p.descricao asc]]>
+	</queryString>
+	<field name="descricao" class="java.lang.String"/>
+	<field name="tipo" class="java.lang.String"/>
+	<field name="total_by_peixe" class="java.math.BigDecimal"/>
+	<variable name="total_by_peixe_1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{total_by_peixe}]]></variableExpression>
+	</variable>
+	<variable name="total_by_peixe_2" class="java.math.BigDecimal" resetType="Group" resetGroup="Peixe" calculation="Sum">
+		<variableExpression><![CDATA[$F{total_by_peixe}]]></variableExpression>
+	</variable>
+	<variable name="total_by_peixe_3" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{total_by_peixe}]]></variableExpression>
+	</variable>
+	<group name="Peixe">
+		<groupExpression><![CDATA[$F{descricao}]]></groupExpression>
+		<groupHeader>
+			<band height="21">
+				<textField>
+					<reportElement x="4" y="1" width="100" height="20" uuid="5b99517c-21e2-4708-a728-abcffb54c830"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" size="11"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{descricao}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="Peixe" pattern="#,##0.00" isBlankWhenNull="true">
+					<reportElement x="378" y="0" width="100" height="20" uuid="4fdbee84-e080-4608-a585-de82d697e2fb"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" size="11" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{total_by_peixe_2}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="123" splitType="Stretch">
+			<staticText>
+				<reportElement x="130" y="0" width="284" height="79" uuid="accff30e-f33b-45d8-89d5-4ae5da45dd61"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="22" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Relatório de armazenamento]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="122" height="20" uuid="7e76ba1c-60bf-4e28-bed9-23d1b42c1ebb"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Iranduba Pescados]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy HH:mm:ss">
+				<reportElement x="455" y="0" width="100" height="20" uuid="6a7b0230-21c7-49e4-84ad-7b44da4c01c6"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="4" y="103" width="118" height="20" uuid="45233b10-8d87-4bec-ab30-3a36590c7dff"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total em estoque (kg):]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="4" y="83" width="52" height="20" uuid="ac8c87e9-845c-4b35-819c-fc125157337b"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Período:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="56" y="83" width="265" height="20" uuid="3854a2c9-d194-4151-bbea-c5f213282337"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{periodo}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="130" y="103" width="100" height="20" uuid="31929622-a194-4983-af55-ce483e5c98d3"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_by_peixe_3}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="21" splitType="Stretch">
+			<staticText>
+				<reportElement x="4" y="0" width="39" height="20" uuid="cb12019f-8da9-4e82-9cf1-400adf129d88"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Peixe]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="378" y="1" width="100" height="20" uuid="ee4038df-e6f6-4518-a9fb-038561adf5a4"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Peso (kg)]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="39" y="0" width="339" height="20" uuid="9c479550-1094-49e3-808f-dd9111a63f3c"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tipo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="378" y="0" width="100" height="20" uuid="2ffb2d73-4e12-4055-a2c6-3ca598e7c2c0"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total_by_peixe}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="25" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="21" splitType="Stretch">
+			<textField>
+				<reportElement x="219" y="0" width="80" height="20" uuid="9c9d41ca-aac9-4ced-8695-f89ea242fbaa"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="299" y="0" width="40" height="20" uuid="db0694d0-c712-43a2-807a-606dc99f6682"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -1,0 +1,53 @@
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ps="http://primefaces.org/sentinel"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui">
+    
+    <div id="layout-menubar" class="Unselectable fontRegular">
+        <div class="layout-menubarinner-box" id="buttonArea">
+            <a href="#" id="layout-menubar-resize" class="BordRad3" title="Menu Resize"><i class="icon-th-list-2"></i></a>
+            <a href="#" id="layout-menubar-resize2" class="BordRad3" title="Open Menu"><i class="icon-menu"></i></a>
+        </div>
+
+        <h:form>
+            <ps:menu id="sm_leftmenu">
+                <p:menuitem id="sm_dashboard" value="Home" icon="icon-home-outline" action="index.xhtml?faces-redirect=true" containerStyleClass="layout-menubar-active"/>
+                <p:submenu id="sm_cadastros" label="Cadastros" icon="icon-edit" >
+                    <p:menuitem id="sm_camara" value="Camaras"  action="#{layoutBean.iniciarTelaCamaras()}" icon="icon-building" ajax="false" immediate="true"/>
+                    <p:menuitem id="sm_cliente" value="Cliente"  action="#{layoutBean.iniciarTelaCliente()}" icon="icon-user" ajax="false" immediate="true"/>
+                    <p:menuitem id="sm_embalagem" value="Embalagem"  action="#{layoutBean.iniciarTelaEmbalagem()}" icon="icon-box" ajax="false" immediate="true"/>
+                    <p:menuitem id="sm_fornecedor" value="Fornecedores" action="#{layoutBean.iniciarTelaFornec()}"  icon="icon-truck" ajax="false" immediate="true"/>
+                    <p:menuitem id="sm_peixe" value="Peixe"  action="#{layoutBean.iniciarTelaPeixes()}" icon="icon-angle-circled-right" ajax="false" immediate="true"/>
+                    <p:menuitem id="sm_tamanho_peixe" value="Tamanho Peixe"  action="#{layoutBean.iniciarTelaTamanhoPeixe()}" icon="icon-resize-horizontal" ajax="false" immediate="true"/>
+                    <p:menuitem id="sm_tipo_peixe" value="Tipos Peixe"  action="#{layoutBean.iniciarTelaTipoPeixe()}" icon="icon-tag-1" ajax="false" immediate="true"/>
+                    <p:menuitem id="sm_transportadora" value="Transportadora"  action="#{layoutBean.iniciarTelaTransportadora()}" icon="icon-truck" ajax="false" immediate="true"/>
+                    <p:menuitem id="sm_usuario" value="Usuário" action="#{layoutBean.iniciarTelaUsuarios()}" icon="icon-user" ajax="false" immediate="true"/>
+                    <p:menuitem id="sm_vendedor" value="Vendedor"  action="#{layoutBean.iniciarTelaVendedor()}" icon="icon-user" ajax="false" immediate="true"/>
+                </p:submenu>
+                <p:submenu id="sm_compra" label="Compra" icon="icon-basket" >
+                    <p:menuitem id="sm_pag_compra" value="Pagamento. de compras"  action="#{layoutBean.iniciarTelaBaixaCompras}"  icon="icon-dollar" ajax="true" immediate="true"/>
+                    <p:menuitem id="sm_compras_finalizadas" value="Compras finalizadas" action="#{layoutBean.iniciarTelaComprasFinalizadas}"  icon="icon-ok" ajax="true" immediate="true"/>
+                    <p:menuitem id="sm_pagamentos_pendentes" value="Pagamentos pendentes" action="#{layoutBean.iniciarTelaPagamentosPendentes()}"  icon="icon-bank" ajax="true" immediate="true"/>
+                </p:submenu>
+                <p:submenu id="sm_estoque" label="  Estoque" icon="icon-cubes">
+                    <p:menuitem id="sm_v_estoque" value="Visualizar Estoque" ajax="false" action="#{layoutBean.iniciarTelaEstoque()}" icon="icon-right-bold"/>
+                    <p:menuitem id="sm_entradas" value="Entradas" ajax="false" action="#{layoutBean.iniciarTelaArmazenamento()}" icon="icon-right-bold"/>
+                    <p:menuitem id="sm_saidas" value="Retiradas" ajax="false" action="#{layoutBean.iniciarTelaRetirada()}" icon="icon-left-bold"/>
+                </p:submenu>
+                <p:submenu id="sm_espedicao" label="  Expedição" icon="icon-export-1">
+                    <p:menuitem id="sm_pedido" value="Pedido" ajax="false" action="#{layoutBean.iniciarTelaPedido()}" icon="icon-check-1"/>
+                </p:submenu>
+                <p:submenu id="sm_relatorios" label="Relatórios" icon="icon-doc">
+                    <p:menuitem id="sm_rel_compras" value="Compras" ajax="false" action="#{layoutBean.iniciarTelaRelatoriCompras}" icon="icon-doc-text"/>
+                    <p:menuitem id="sm_rel_hist_compra" value="Histórico compra" ajax="false" action="#{layoutBean.iniciarTelaRelatorioHistoricoCompras}" icon="icon-doc-text" rendered="false"/>
+                    <p:menuitem id="sm_rel_esp_compra" value="Espelho de compra" ajax="false" action="#{layoutBean.iniciarTelaRelatorioCompraDetalhada}" icon="icon-doc-text"/>
+                    <p:menuitem id="sm_rel_perda_arm" value="Perda em armazenamento" ajax="false" action="#{layoutBean.iniciarTelaRelatorioPerdaArmazenamento}" icon="icon-doc-text"/>
+                    <p:menuitem id="sm_rel_estoque" value="Estoque" ajax="false" action="#{layoutBean.iniciarTelaRelatorioArmazenamento}" icon="icon-doc-text"/>
+                </p:submenu>
+            </ps:menu>
+        </h:form>
+    </div>
+</ui:composition>

@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<h:form id="formtable">
+					<p:fieldset legend="Compras finalizadas">
+						<h:panelGrid columns="10">
+							<span style="font-weight:bold">Fornecedor: </span>
+							<p:inputText id="nome" value="#{compraFinalizadaBean.filtro.nome}" size="50"/>
+							<p:watermark value="Nome" for="nome" />
+							<span style="font-weight:bold">Período: </span>
+							<p:calendar id="dataInicio" value="#{compraFinalizadaBean.filtro.dataInicio}" pattern="dd/MM/yyy"/>
+							<p:watermark value="Data inicial" for="dataInicio" />
+							<p:calendar id="dataFinal" value="#{compraFinalizadaBean.filtro.dataFinal}" pattern="dd/MM/yyy"/>
+							<p:watermark value="Data final" for="dataFinal" />
+							<p:commandButton action="#{compraFinalizadaBean.carregarCompras()}"
+								icon="ui-icon-search" update="tableCompras"
+								style="margin-left:5px" />
+							<p:commandButton action="#{compraFinalizadaBean.limparFiltro()}"
+								icon="ui-icon-close" style="margin-left:5px"
+								update="nome dataInicio dataFinal" />
+						</h:panelGrid>
+
+						<br />
+
+						<div class="Container100 Responsive100">
+						<p:dataTable id="tableCompras" var="compra"
+							value="#{compraFinalizadaBean.model}" lazy="true" paginator="true"
+							paginatorPosition="bottom" rows="15" sortBy="#{compra.id}" sortOrder="DESCENDING">
+							<f:facet name="header">
+								Relação de compras
+							</f:facet>
+
+							<p:column>
+								<f:facet name="header">
+							  Código
+							</f:facet>
+								<h:outputText value="#{compra.codigo}" />
+							</p:column>
+							<p:column>
+								<f:facet name="header">
+							  Data
+							</f:facet>
+								<h:outputText value="#{compra.dataCompra}">
+									<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+										timeZone="America/Manaus" />
+								</h:outputText>
+							</p:column>
+
+							<p:column>
+								<f:facet name="header">
+							  Fornecedor
+							</f:facet>
+								<h:outputText value="#{compra.fornecedor.nome}" />
+							</p:column>
+
+							<p:column>
+								<f:facet name="header">
+							  Valor
+							</f:facet>
+								<h:outputText value="#{compra.valorTotal}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</h:outputText>
+							</p:column>
+
+							<p:column>
+								<f:facet name="header">
+									Nº Nota Fiscal
+								</f:facet>
+								<h:outputText value="#{compra.notaFiscal}" />
+							</p:column>
+
+							<p:column>
+								<f:facet name="header">
+							  Status
+							</f:facet>
+								<h:outputText value="Pendente" rendered="#{!compra.status}" />
+								<h:outputText value="Paga" rendered="#{compra.status}" />
+							</p:column>
+
+							<p:column style="width:120px;">
+								<p:commandButton
+									action="#{compraFinalizadaBean.prepararDetalhesCompra()}" icon="ui-icon-zoomin"
+									value="Detalhes">
+									<f:setPropertyActionListener target="#{compraFinalizadaBean.compra}"
+										value="#{compra}" />
+								</p:commandButton>
+							</p:column>
+						</p:dataTable>
+						</div>
+					</p:fieldset>
+			</h:form>
+		</div>
+	</ui:define>
+	
+	<ui:define name="adicionais">
+	
+		<p:dialog header="Nota fiscal de Entrada"
+			widgetVar="modalNotaFiscal" modal="true" closable="true"
+			closeOnEscape="true"  >
+			<h:form id="formNotaFiscal">
+				<p:messages id="messages" showDetail="true" autoUpdate="true" closable="true" />
+				<h:panelGrid id="panelNota" columns="2">
+					<p:outputLabel value="Número: *" />
+					<p:inputText value="#{compraFinalizadaBean.compra.notaFiscal}" size="50"/>
+				</h:panelGrid>
+				<br />
+				<h:panelGrid columns="2">
+					<p:commandButton value="Salvar" action="#{compraFinalizadaBean.salvarCompra}" icon="ui-icon-disk" update=":formtable:tableCompras"/>
+					<p:commandButton value="Fechar" onclick="PF('modalNotaFiscal').hide()" icon="ui-icon-close"/>
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+		
+	</ui:define>
+	
+</ui:composition>
+

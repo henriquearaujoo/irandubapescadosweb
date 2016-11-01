@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+				xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui"
+				xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+	<ui:define name="miolo">
+
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+
+			<f:metadata>
+				<f:viewParam name="arm" value="#{armazenamentoBean.armazenamento}" />
+			</f:metadata>
+
+			<h:form id="mensagem">
+				<p:spacer height="0"></p:spacer>
+				<p:effect type="fade" for="msgs" event="load" speed="10000">
+					<p:messages id="msgs" showDetail="true" showSummary="true"
+								globalOnly="true" closable="true"/>
+				</p:effect>
+			</h:form>
+
+			<h:form id="formModalDetalhes">
+				<h:panelGrid id="panelDetalhes">
+
+					<p:fieldset legend="Dados Armazenamento" toggleable="true"
+						toggleSpeed="500" >
+
+						<h:panelGrid id="panelDetailArm" columns="2">
+
+							<h:panelGrid columnClasses="label, value" columns="2">
+								<span style="font-weight: bold">Data: </span>
+								<h:outputText value="#{armazenamentoBean.armazenamento.data}">
+									<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+													   timeZone="America/Manaus" />
+								</h:outputText>
+
+								<span style="font-weight: bold">Peixe: </span>
+								<h:outputText value="#{armazenamentoBean.armazenamento.peixe.descricao}">
+								</h:outputText>
+
+								<span style="font-weight: bold">Peso: </span>
+								<h:outputText value="#{armazenamentoBean.armazenamento.peso} kg">
+								</h:outputText>
+
+								<span style="font-weight: bold">Tamanho: </span>
+								<h:outputText value="#{armazenamentoBean.armazenamento.tamanhoPeixe.descricao}" rendered="#{armazenamentoBean.armazenamento.tamanhoPeixe != null}"/>
+								<h:outputText value="Sem tamanho" rendered="#{armazenamentoBean.armazenamento.tamanhoPeixe == null}"/>
+
+								<span style="font-weight: bold">Embalagem: </span>
+								<h:outputText value="#{armazenamentoBean.armazenamento.embalagem.descricao}" rendered="#{armazenamentoBean.armazenamento.embalagem != null}"/>
+								<h:outputText value="Sem embalagem" rendered="#{armazenamentoBean.armazenamento.embalagem == null}"/>
+
+
+								<span style="font-weight: bold">Tipo: </span>
+								<h:outputText value="#{armazenamentoBean.armazenamento.tipoPeixe.descricao}">
+								</h:outputText>
+
+								<span style="font-weight: bold">Camara: </span>
+								<h:outputText value="#{armazenamentoBean.armazenamento.camara.descricao}">
+								</h:outputText>
+
+								<span style="font-weight: bold">Posicao: </span>
+								<h:outputText value="#{armazenamentoBean.armazenamento.posicaoCamara.descricao}">
+								</h:outputText>
+
+								<span style="font-weight: bold">Usuario: </span>
+								<h:outputText value="#{armazenamentoBean.armazenamento.usuario.nome}">
+								</h:outputText>
+
+								<span style="font-weight: bold">Status: </span>
+								<h:outputText value="#{armazenamentoBean.armazenamento.status.status}">
+								</h:outputText>
+
+							</h:panelGrid>
+
+							<h:panelGrid columns="1" cellpadding="4" cellspacing="4">
+								<img jsf:value="/foto?produto=#{armazenamentoBean.armazenamento.peixe.id}" width="400" height="200" />
+								<span style="font-weight: bold">#{armazenamentoBean.armazenamento.peixe.descricao}</span>
+							</h:panelGrid>
+
+						</h:panelGrid>
+
+					</p:fieldset>
+				</h:panelGrid>
+
+				<br/>
+
+				<h:panelGrid>
+					<p:fieldset legend="Observações"
+								toggleable="true" toggleSpeed="500" >
+						<br />
+						<p:dataTable id="tableObservacao" var="obs"
+									 value="#{armazenamentoBean.armazenamento.observacoes}"
+									 emptyMessage="Não há itens" rows="5" paginator="true"
+									 paginatorPosition="bottom"
+									 sortBy="#{obs.id}" sortOrder="DESCENDING">
+
+							<p:column headerText="Data">
+								<p:outputLabel value="#{obs.data}">
+									<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" timeZone="America/Manaus"/>
+								</p:outputLabel>
+
+							</p:column>
+
+							<p:column headerText="Usuário">
+								<p:outputLabel value="#{obs.usuario.nome}" />
+							</p:column>
+
+							<p:column headerText="Observações">
+								<p:outputLabel value="#{obs.observacao}" />
+							</p:column>
+
+						</p:dataTable>
+					</p:fieldset>
+				</h:panelGrid>
+
+				<br/>
+
+				<h:panelGrid>
+					<p:panel id="obs">
+						<br />
+						<div align="left">
+							<h:panelGrid columns="2">
+								<span style="font-weight: bold">Observação: </span>
+								<p:inputTextarea value="#{armazenamentoBean.observacao.observacao}"
+												 cols="100"
+										/>
+							</h:panelGrid>
+						</div>
+						<br />
+					</p:panel>
+				</h:panelGrid>
+
+				<br/>
+
+				<div align="left">
+					<h:panelGrid columns="3">
+						<p:commandButton value="Autorizar" icon="ui-icon-unlocked" onclick="PF('confirmacaoAutorizacao').show()"  rendered="#{armazenamentoBean.armazenamento.status.status.equalsIgnoreCase('ENVIADO')}"/>
+
+						<p:commandButton value="Retornar" icon="ui-icon-arrowreturnthick-1-w" onclick="PF('confirmacaoRetorno').show()"  rendered="#{armazenamentoBean.armazenamento.status.status.equalsIgnoreCase('ENVIADO')}"/>
+
+						<p:commandButton id="Cancelar" icon="ui-icon-close" action="armazenamento?faces-redirect=true" value="Cancelar"></p:commandButton>
+					</h:panelGrid>
+
+				</div>
+				<br />
+				<br />
+
+			</h:form>
+
+		</div>
+	</ui:define>
+
+	<ui:define name="adicionais">
+		<p:confirmDialog widgetVar="confirmacaoAutorizacao" header="Confirmação"
+						 message="Ao autorizar estará confirmando a entrada ao estoque. Deseja autorizar o armazenamento?">
+			<h:form id="formAutorizacao">
+				<p:commandButton value="Sim"
+								 action="#{armazenamentoBean.autorizar()}"
+								 onsuccess="PF('confirmacaoAutorizacao').hide()"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 update=":mensagem"/>
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoAutorizacao').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoRetorno" header="Confirmação"
+						 message="Confirma o retorno do armazenamento para correção?">
+			<h:form id="formRetorno">
+				<p:commandButton value="Sim"
+								 action="#{armazenamentoBean.retornar()}"
+								 onsuccess="PF('confirmacaoRetorno').hide()"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 update=":mensagem"/>
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoRetorno').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+	</ui:define>
+
+</ui:composition>
+

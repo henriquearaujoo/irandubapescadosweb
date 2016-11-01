@@ -1,0 +1,19 @@
+package com.irandubamodulo01.dao;
+
+import java.util.List;
+
+import com.irandubamodulo01.model.Peixe;
+import com.irandubamodulo01.model.Usuario;
+import com.irandubamodulo01.util.Filtro;
+
+public interface PeixeDAO extends DAO<Peixe, Long> {
+
+	
+	public List<Peixe> filtrar(String s);
+	public List<Peixe> filtrados(Filtro filtro);
+	public int quantidadeFiltrados(Filtro filtro);
+	public Boolean verificarVendasEmProduto(Peixe peixe);
+	public List<Peixe> getPeixesComplete();
+	public Peixe getPeixePorDescricao(String descricao);
+	public List<Peixe> getPeixesCompleteVenda();
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="miolo">
+
+		<f:metadata>
+			<f:viewAction action="#{relatorioComprasDetalhadasBean.carregarListas()}" />
+		</f:metadata>
+
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<h:form id="formtable">
+				<p:fieldset legend="Espelho de compra">
+					<h:panelGrid columns="3">
+						<span style="font-weight:bold">Compra: </span>
+						<p:inputText id="ccodigo" value="#{relatorioComprasDetalhadasBean.codigo}"/>
+						<p:watermark value="Código da compra" for="ccodigo" />
+						<span style="font-weight:bold">Fornecedor: </span>
+						<p:autoComplete id="cfornecedor" value="#{relatorioComprasDetalhadasBean.nomeFornecedor}" completeMethod="#{relatorioComprasDetalhadasBean.completeFornecedores}" size="50"
+										maxResults="20" >
+							<p:ajax event="itemSelect" listener="#{relatorioComprasDetalhadasBean.selecionaFornecedor}" />
+						</p:autoComplete>
+						<p:watermark value="Nome do fornecedor" for="cfornecedor" />
+						<span style="font-weight:bold">Peixe: </span>
+						<p:autoComplete id="cpeixe" value="#{relatorioComprasDetalhadasBean.nomePeixe}" completeMethod="#{relatorioComprasDetalhadasBean.completePeixes}" size="50"
+										maxResults="20" >
+							<p:ajax event="itemSelect" listener="#{relatorioComprasDetalhadasBean.selecionaPeixe}" />
+						</p:autoComplete>
+						<p:watermark value="Nome do peixe" for="cpeixe" />
+					</h:panelGrid>
+					<h:panelGrid columns="5">
+						<span style="font-weight:bold">Período: </span>
+						<p:calendar id="dataInicio" value="#{relatorioComprasDetalhadasBean.filtro.dataInicio}" pattern="dd/MM/yyy"/>
+						<p:watermark value="Data inicial" for="dataInicio" />
+						<p:calendar id="dataFinal" value="#{relatorioComprasDetalhadasBean.filtro.dataFinal}" pattern="dd/MM/yyy"/>
+						<p:watermark value="Data final" for="dataFinal" />
+
+					</h:panelGrid>
+
+					<h:panelGrid columns="4">
+						<p:selectBooleanCheckbox value="#{relatorioComprasDetalhadasBean.detalhado}"/>
+						<span style="font-weight:bold">Detalhado</span>
+						<p:commandButton action="#{relatorioComprasDetalhadasBean.imprimir}" icon="ui-icon-print" style="margin-left:5px" ajax="false" />
+						<p:commandButton action="#{relatorioComprasDetalhadasBean.limparFiltro()}" icon="ui-icon-close" style="margin-left:5px" update="cfornecedor cpeixe dataInicio dataFinal"/>
+					</h:panelGrid>
+				</p:fieldset>
+			</h:form>
+		</div>
+	</ui:define>
+	
+</ui:composition>
+

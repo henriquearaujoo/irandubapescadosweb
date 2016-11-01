@@ -1,0 +1,23 @@
+package com.irandubamodulo01.enumerated;
+
+public enum StatusCompra {
+
+	ENVIADO("Enviado primeiro posto"),
+	PAGO("Pago"),
+	AUTORIZADO("Autorizado"),
+	AGUARDA_AUTORIZACAO("Aguardando autorizacao"),
+	RETORNADO("Retorno para correcao"),
+	RETORNADO_INICIO("Retorno para o primeiro posto"),
+	REABERTA("Compra reaberta");
+
+	private String status;
+	
+	private StatusCompra(String status) {
+		this.status = status;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+}

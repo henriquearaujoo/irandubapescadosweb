@@ -1,0 +1,1373 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<f:metadata>
+				<f:viewParam name="cp" value="#{baixaCompraBean.compra}" />
+				<f:viewAction action="#{baixaCompraBean.carregarDetalhesCompra()}" />
+			</f:metadata>
+
+			<h:form id="mensagem">
+				<p:spacer height="0"></p:spacer>
+				<p:effect type="fade" for="msgs" event="load" speed="10000">
+					<p:messages id="msgs" showDetail="true" showSummary="true"
+								globalOnly="true" closable="true"/>
+				</p:effect>
+			</h:form>
+
+			<h:form id="formModalDetalhes">
+				<h:panelGrid id="panelDetalhes">
+
+					<p:fieldset legend="Dados da Compra" toggleable="true"
+						toggleSpeed="500" >
+						<h:panelGrid columns="4" cellpadding="5">
+							<span style="font-weight: bold">Código: </span>
+							<p:outputLabel value=" #{baixaCompraBean.compra.codigo}" />
+							<span style="font-weight: bold">Data: </span>
+							<p:outputLabel value="#{baixaCompraBean.compra.dataCompra}">
+								<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+												   timeZone="America/Manaus" />
+							</p:outputLabel>
+
+							<span style="font-weight: bold">Fornecedor: </span>
+							<h:panelGroup id="panelFornecedorCompra">
+								<h:panelGrid columns="2">
+									<p:outputLabel value=" #{baixaCompraBean.compra.fornecedor.nome}" rendered="#{!baixaCompraBean.compra.fornecedor.nome.toLowerCase().equals('outro')}"/>
+									<h:panelGrid rendered="#{baixaCompraBean.compra.fornecedor.nome.toLowerCase().equals('outro')}">
+										<p:autoComplete id="cfornecedor" value="#{baixaCompraBean.nomeFornecedor}" completeMethod="#{baixaCompraBean.completeFornecedores}" size="50"
+														maxResults="20" >
+											<p:ajax event="itemSelect" listener="#{baixaCompraBean.selecionaFornecedor}" update="panelBarcoCompra" />
+										</p:autoComplete>
+									</h:panelGrid>
+
+								</h:panelGrid>
+							</h:panelGroup>
+
+							<span style="font-weight: bold">Transporte: </span>
+							<h:panelGroup id="panelBarcoCompra">
+								<h:panelGrid columns="2">
+									<p:outputLabel value=" #{baixaCompraBean.compra.barco.nome}" rendered="#{!baixaCompraBean.compra.barco.nome.toLowerCase().equals('outro')}"/>
+									<h:panelGrid columns="2" rendered="#{baixaCompraBean.compra.barco.nome.toLowerCase().equals('outro')}">
+										<p:autoComplete id="cbarco" value="#{baixaCompraBean.nomeBarco}" completeMethod="#{baixaCompraBean.completeBarcos}" size="50"
+														maxResults="20" >
+										</p:autoComplete>
+										<p:commandButton value="Atualizar Compra" action="#{baixaCompraBean.atualizarBarcoEFornecedor}" update=":mensagem panelFornecedorCompra panelBarcoCompra"/>
+									</h:panelGrid>
+								</h:panelGrid>
+							</h:panelGroup>
+						</h:panelGrid>
+						<br />
+
+						<p:treeTable id="treeTab" value="#{baixaCompraBean.compra.treeNode}" var="item" emptyMessage="Não ha itens" >
+							<f:facet name="header">
+								Pesagens
+							</f:facet>
+							<p:column headerText="Peixe" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<h:outputText value="#{item.codigo}" style="font-weight: bold"/>
+							</p:column>
+							<p:column headerText="Valor Tabela" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<p:outputLabel value="#{item.peixe.valor}" rendered="#{(item.acrescimo.doubleValue() > 0 or item.desconto.doubleValue() > 0) and !item.nohPai}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+								<p:outputLabel value="--" rendered="#{(item.acrescimo.doubleValue() == 0 and item.desconto.doubleValue() == 0) and !item.nohPai}">
+								</p:outputLabel>
+
+								<h:outputText value="#{item.peixe.valor}" rendered="#{item.nohPai}" style="font-weight: bold">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</h:outputText>
+							</p:column>
+							<p:column headerText="Valor KG" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<p:outputLabel value="#{item.valorUnitarioPeixe}" rendered="#{!item.nohPai}" style="color: #{item.isPrecoDiferenciado ? '#00AEEF' : null}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+
+								<h:outputText value="#{item.valorUnitarioPeixe}" rendered="#{item.nohPai}" style="font-weight: bold" >
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</h:outputText>
+							</p:column>
+							<p:column headerText="Peso bruto" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<p:outputLabel value="#{item.peso}" rendered="#{!item.nohPai}"/>
+								<h:outputText value="#{item.totalPesoBruto}" rendered="#{item.nohPai}" style="font-weight: bold"/>
+							</p:column>
+							<p:column headerText="Peso líquido" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<p:outputLabel value="#{item.pesoLiquido}" rendered="#{!item.nohPai}"/>
+								<h:outputText value="#{item.totalPesoLiquido}" rendered="#{item.nohPai}" style="font-weight: bold"/>
+							</p:column>
+							<p:column headerText="Qtde. caçapas" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<p:outputLabel value="#{item.qtdCaixas}" rendered="#{!item.nohPai}"/>
+								<h:outputText value="#{item.totalCaixas}" rendered="#{item.nohPai}" style="font-weight: bold"/>
+							</p:column>
+							<p:column headerText="Valor total" style="background-color: #{item.nohPai and item.isPrecoDiferenciado ? '#00AEEF' : item.nohPai ? '#C0C5C7' : null}; color:  #{item.nohPai ? '#000000' : null}">
+								<p:outputLabel value="#{item.valorSemAcrescimoEDesconto}" rendered="#{!item.nohPai}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+								<h:outputText value="#{item.totalValor}" rendered="#{item.nohPai}" style="font-weight: bold">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</h:outputText>
+								<p:outputLabel value=" - " rendered="#{item.desconto.doubleValue() > 0 and !item.nohPai}"
+									style="color: red;" />
+								<p:outputLabel value="#{item.desconto}"
+									rendered="#{item.desconto.doubleValue() > 0 and !item.nohPai}" style="color: red;">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+								<p:outputLabel value=" + " rendered="#{item.acrescimo.doubleValue() > 0 and !item.nohPai}"
+									style="color: blue;" />
+								<p:outputLabel value="#{item.acrescimo}"
+									rendered="#{item.acrescimo.doubleValue() > 0 and !item.nohPai}" style="color: blue;">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+								<p:outputLabel value=" = " rendered="#{(item.acrescimo.doubleValue() > 0 or item.desconto.doubleValue() > 0) and !item.nohPai}" />
+								<p:outputLabel value="#{item.valor}" rendered="#{(item.acrescimo.doubleValue() > 0 or item.desconto.doubleValue() > 0) and !item.nohPai}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+							</p:column>
+
+							<p:column headerText="Opções" rendered="#{!baixaCompraBean.compra.status and baixaCompraBean.compra.autorizado == null and item.nohPai}">
+								<p:commandButton value="Acréscimo / Desconto" title="Desconto ou Acréscimo" rendered="#{(item.totalDesconto.doubleValue() == 0 and item.totalAcrescimo.doubleValue() == 0)}"
+												 action="#{baixaCompraBean.prepararAlteracaoValor}" icon="ui-icon-carat-2-n-s"
+												 onsuccess="PF('modalAlteracaoValorItens').show()"
+												 update=":formModalAlteracaoValorItens">
+									<f:setPropertyActionListener target="#{baixaCompraBean.lote}"
+																 value="#{item}" />
+								</p:commandButton>
+
+								<p:commandButton value="Cancelar" title="Cancelar Alteração" rendered="#{item.totalDesconto.doubleValue() > 0 || item.totalAcrescimo.doubleValue() > 0}"
+												 onclick="PF('confirmacaoCancelamentoAlteracaoItens').show()" icon="ui-icon-close">
+									<f:setPropertyActionListener target="#{baixaCompraBean.lote}"
+																 value="#{item}" />
+								</p:commandButton>
+
+
+							</p:column>
+
+							<p:column
+								rendered="false">
+								<p:commandButton value="Acréscimo / Desconto" title="Desconto ou Acréscimo" rendered="#{item.desconto.intValue() == 0  and item.acrescimo.intValue() == 0}"
+									action="#{baixaCompraBean.prepararAlteracaoValor}" icon="ui-icon-carat-2-n-s"
+									onsuccess="PF('modalAlteracaoValor').show()"
+									update=":formModalAlteracaoValor">
+									<f:setPropertyActionListener target="#{baixaCompraBean.lote}"
+										value="#{item}" />
+								</p:commandButton>
+
+								<p:commandButton value="Cancelar" title="Cancelar Alteração" rendered="#{item.desconto > 0 || item.acrescimo > 0}"
+									onclick="PF('confirmacaoCancelamentoAlteracao').show()" icon="ui-icon-close">
+									<f:setPropertyActionListener target="#{baixaCompraBean.lote}"
+										value="#{item}" />
+								</p:commandButton>
+
+
+							</p:column>
+
+						</p:treeTable>
+
+						<br/>
+						<table >
+							<tr ><td style="width: 20px; background-color: #00AEEF"></td><td style="padding-left: 10px">Valor do KG diferenciado definido pelo administrador.</td></tr>
+						</table>
+					</p:fieldset>
+					<br />
+					<p:fieldset legend="Totais/Valores" toggleable="true"
+						toggleSpeed="500">
+						<h:panelGrid columns="3">
+							<h:panelGrid id="panelValores" columns="2" cellpadding="5">
+								<span style="font-weight: bold">Total Peso Bruto: </span>
+								<p:outputLabel value="#{baixaCompraBean.totalPesoBruto}" />
+								<span style="font-weight: bold">Total Peso Liquido: </span>
+								<p:outputLabel value="#{baixaCompraBean.totalPesoLiquido}" />
+								<span style="font-weight: bold">Total Qtde. Caçapas: </span>
+								<p:outputLabel value="#{baixaCompraBean.totalQtdeCacapa}" />
+								<span style="font-weight: bold">Total Descontos: </span>
+								<p:outputLabel value="#{baixaCompraBean.totalDescontos}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+								<span style="font-weight: bold">Total Acréscimos: </span>
+								<p:outputLabel value="#{baixaCompraBean.totalAcrescimos}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+
+							</h:panelGrid>
+							<h:panelGrid columns="2" cellpadding="5">
+
+								<span style="font-weight: bold">Valor Total: </span>
+								<p:outputLabel value="#{baixaCompraBean.totalCompra}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+
+								<span style="font-weight: bold">Pago em dinheiro: </span>
+								<p:outputLabel value="#{baixaCompraBean.pagDinheiro}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+
+								<span style="font-weight: bold">Pago via tranferência: </span>
+								<p:outputLabel value="#{baixaCompraBean.pagTransferencia}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+
+								<span style="font-weight: bold">Pago em cheque: </span>
+								<p:outputLabel value="#{baixaCompraBean.pagCheque}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+
+								<p:outputLabel value="--"/>
+								<p:outputLabel value="--"/>
+							</h:panelGrid>
+							<h:panelGrid columns="2" cellpadding="5">
+								<span style="font-weight: bold">Adiantamento em dinheiro: </span>
+								<p:outputLabel value="#{baixaCompraBean.pagAdiantamentoDinheiro}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+								<span style="font-weight: bold">Adiantamento em cheque: </span>
+								<p:outputLabel value="#{baixaCompraBean.pagAdiantamentoCheque}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+								<span style="font-weight: bold">Adiantamento via transferência: </span>
+								<p:outputLabel value="#{baixaCompraBean.pagAdiantamentoTransferencia}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+
+								<p:outputLabel value="--"/>
+								<p:outputLabel value="--"/>
+
+								<p:outputLabel value="--"/>
+								<p:outputLabel value="--"/>
+							</h:panelGrid>
+						</h:panelGrid>
+						<h:panelGrid >
+							<p:dataTable id="tablePagamentosValores" var="p"
+										 value="#{baixaCompraBean.pagamentos}"  paginator="true" paginatorPosition="bottom" rows="5"
+										 emptyMessage="Não há pagamentos">
+								<p:column>
+									<f:facet name="header">
+										Tipo
+									</f:facet>
+									<h:outputText value="Dinheiro" rendered="#{p.tipoDoPagamento == 'DINHEIRO'}"/>
+									<h:outputText value="Cheque" rendered="#{p.tipoDoPagamento == 'CHEQUE'}"/>
+									<h:outputText value="Transferência" rendered="#{p.tipoDoPagamento == 'TRANSFERENCIA'}"/>
+									<h:outputText value="Adiantamento" rendered="#{p.tipoDoPagamento == 'ADIANTAMENTO'}"/>
+								</p:column>
+
+								<p:column style="width:110px;">
+									<f:facet name="header">
+										Valor
+									</f:facet>
+									<h:outputText value="#{p.valor}">
+										<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+									</h:outputText>
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										Cheque
+									</f:facet>
+									<h:outputText value="#{p.numeroCheque} - #{p.nomeCheque}" rendered="#{p.tipoDoPagamento == 'CHEQUE'}"/>
+									<h:outputText value="#{p.adiantamento.numeroCheque} - #{p.adiantamento.nomeCheque}" rendered="#{p.tipoDoPagamento == 'ADIANTAMENTO' and p.adiantamento != null and p.adiantamento.tipo == 'CHEQUE'}"/>
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										Conta
+									</f:facet>
+									<h:outputText value="#{p.conta.beneficiado} - #{p.conta.agencia}/#{p.conta.conta}" rendered="#{p.tipoDoPagamento == 'TRANSFERENCIA'}"/>
+									<h:outputText value="#{p.adiantamento.conta.beneficiado} - #{p.adiantamento.conta.agencia}/#{p.adiantamento.conta.conta}" rendered="#{p.tipoDoPagamento == 'ADIANTAMENTO' and p.adiantamento != null and p.adiantamento.tipo == 'TRANSFERENCIA'}"/>
+								</p:column>
+							</p:dataTable>
+						</h:panelGrid>
+					</p:fieldset>
+					<br />
+
+					<p:fieldset legend="Histórico de alterações de valores"
+						toggleable="true" toggleSpeed="500" collapsed="true">
+						<br />
+						<p:dataTable id="tableObsHistorico" var="obs"
+							value="#{baixaCompraBean.compra.historicos}"
+							emptyMessage="Não há itens" rows="5" paginator="true"
+							paginatorPosition="bottom"
+							sortBy="#{obs.id}" sortOrder="descending">
+
+
+								<p:column headerText="Data">
+									<p:outputLabel value="#{obs.data}">
+										<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" timeZone="America/Manaus" />
+									</p:outputLabel>
+
+								</p:column>
+
+								<p:column headerText="Usuário">
+									<p:outputLabel value="#{obs.usuario.nome}" />
+								</p:column>
+
+								<p:column headerText="Tipo">
+									<p:outputLabel rendered="#{obs.tipo.equals('ACRESCIMO')}" value="Acréscimo" />
+									<p:outputLabel rendered="#{!obs.tipo.equals('ACRESCIMO')}" value="Desconto" />
+								</p:column>
+
+								<p:column headerText="Valor">
+									<p:outputLabel value="#{obs.valor}">
+										<f:convertNumber type="currency" maxFractionDigits="2" />
+									</p:outputLabel>
+								</p:column>
+
+								<p:column headerText="Observações">
+									<p:outputLabel value="#{obs.observacao}" />
+								</p:column>
+
+
+
+							</p:dataTable>
+
+
+					</p:fieldset>
+					<br />
+					<p:fieldset legend="Histórico observações do sistema"
+						toggleable="true" toggleSpeed="500" collapsed="true">
+						<br />
+
+						<p:dataTable id="tableObsSistema" var="obs"
+								value="#{baixaCompraBean.compra.observacoesSistema}"
+								emptyMessage="Não há itens" rows="5" paginator="true"
+								paginatorPosition="bottom">
+
+								<p:column headerText="Observações">
+									<p:outputLabel value="#{obs}" />
+								</p:column>
+
+
+								</p:dataTable>
+
+					</p:fieldset>
+					<br />
+					<p:fieldset legend="Histórico observações dos usuários"
+						toggleable="true" toggleSpeed="500" collapsed="false" >
+						<br />
+
+							<p:dataTable id="tableObs" var="obs"
+								value="#{baixaCompraBean.compra.observacoes}"
+								emptyMessage="Não há itens" rows="5" paginator="true"
+								paginatorPosition="bottom"
+								sortBy="#{obs.id}" sortOrder="descending">
+
+								<p:column headerText="Data" sortBy="#{obs.data}">
+									<p:outputLabel value="#{obs.data}">
+										<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" timeZone="America/Manaus" />
+									</p:outputLabel>
+
+								</p:column>
+
+								<p:column headerText="Usuário">
+									<p:outputLabel value="#{obs.usuario.nome}" />
+								</p:column>
+
+								<p:column headerText="Observações">
+									<p:outputLabel value="#{obs.observacao}" />
+								</p:column>
+
+							</p:dataTable>
+
+					</p:fieldset>
+
+					<br/>
+
+					<p:panel id="obsAdmin">
+						<br />
+						<div align="left">
+							<h:panelGrid columns="2">
+								<span style="font-weight: bold">Observação: </span>
+								<p:inputTextarea value="#{baixaCompraBean.observacao.observacao}"
+									cols="100"
+									/>
+							</h:panelGrid>
+						</div>
+						<br />
+					</p:panel>
+
+					<div align="center">
+						<h:panelGrid columns="5">
+							<p:commandButton value="Pagar a Compra" update=":formModalFormaDePag"
+								action="#{baixaCompraBean.prepararValores()}" icon="ui-icon-cart"
+								onsuccess="PF('modalFormaDePagamento').show()"
+								rendered="#{baixaCompraBean.compra.statusCompra == 'ENVIADO' or baixaCompraBean.compra.statusCompra == 'RETORNADO' or baixaCompraBean.compra.statusCompra == 'REABERTA'}" />
+
+							<p:commandButton value="Autorizar a Compra"
+								onclick="PF('confirmacaoAutorizacao').show()" icon="ui-icon-unlocked"
+								rendered="#{loginBean.usuarioSession.usuario.perfil.descricao.equals('Admin') and baixaCompraBean.compra.statusCompra == 'AGUARDA_AUTORIZACAO'}">
+							</p:commandButton>
+
+							<p:commandButton value="Retornar a Compra"
+								onclick="PF('confirmacaoRetorno').show()" icon="ui-icon-arrowreturnthick-1-w"
+								rendered="#{loginBean.usuarioSession.usuario.perfil.descricao.equals('Admin') and baixaCompraBean.compra.statusCompra == 'AGUARDA_AUTORIZACAO'}">
+							</p:commandButton>
+
+							<p:commandButton value="Concluir a Compra"
+								onclick="PF('confirmacaoConclusao').show()" icon="ui-icon-check"
+								rendered="#{!baixaCompraBean.compra.status and baixaCompraBean.compra.statusCompra == 'AUTORIZADO'}">
+							</p:commandButton>
+
+							<p:commandButton value="Acréscimo / Desconto"
+								action="#{baixaCompraBean.prepararAlteracaoTotalDoValor}"
+								onsuccess="PF('modalAlteracaoValor').show()" icon="ui-icon-carat-2-n-s"
+								update=":formModalAlteracaoValor"
+								rendered="#{baixaCompraBean.compra.statusCompra == 'ENVIADO' or baixaCompraBean.compra.statusCompra == 'RETORNADO' or baixaCompraBean.compra.statusCompra == 'REABERTA' and ((baixaCompraBean.compra.desconto.intValue() == 0 or baixaCompraBean.compra.desconto == null) and (baixaCompraBean.compra.acrescimo.intValue() == 0 or baixaCompraBean.compra.acrescimo == null))}" />
+
+							<p:commandButton value="Cancelar Alteração Total" rendered="#{(baixaCompraBean.compra.statusCompra == 'ENVIADO' or baixaCompraBean.compra.statusCompra == 'RETORNADO' or baixaCompraBean.compra.statusCompra == 'REABERTA') and (baixaCompraBean.compra.desconto.doubleValue() > 0 || baixaCompraBean.compra.acrescimo.doubleValue() > 0)}"
+									onclick="PF('confirmacaoCancelamentoAlteracaoTotal').show()" icon="ui-icon-close">
+							</p:commandButton>
+
+							<p:commandButton value="Retornar a Compra"
+											 onclick="PF('confirmacaoRetornoInicio').show()" icon="ui-icon-arrowreturnthick-1-w"
+											 rendered="#{baixaCompraBean.compra.statusCompra == 'ENVIADO' or baixaCompraBean.compra.statusCompra == 'RETORNADO' or baixaCompraBean.compra.statusCompra == 'REABERTA'}">
+							</p:commandButton>
+
+							<p:commandButton value="Fechar" action="#{baixaCompraBean.cancelar()}" icon="ui-icon-close"/>
+
+							<br/>
+							<br/>
+
+						</h:panelGrid>
+					</div>
+				</h:panelGrid>
+			</h:form>
+
+		</div>
+	</ui:define>
+
+	<ui:define name="adicionais">
+
+		<p:confirmDialog widgetVar="confirmacaoAutorizacao" header="Confirmação"
+						 message="Confirma a autorização da compra??">
+			<h:form id="formAutorizacao">
+				<p:commandButton value="Sim"
+								 action="#{baixaCompraBean.autorizarCompra()}"
+								 onsuccess="PF('confirmacaoAutorizacao').hide()"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 update=":mensagem"/>
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoAutorizacao').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoRetorno" header="Confirmação"
+						 message="Confirma o retorno da compra?">
+			<h:form id="formRetorno">
+				<p:commandButton value="Sim"
+								 action="#{baixaCompraBean.retornarCompra()}"
+								 onsuccess="PF('confirmacaoRetorno').hide()"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 update=":mensagem"/>
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoRetorno').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoRetornoInicio" header="Confirmação"
+						 message="Confirma o retorno da compra para o primeiro posto para correção?">
+			<h:form id="formRetornoInicio">
+				<p:commandButton value="Sim"
+								 action="#{baixaCompraBean.retornarCompraInicio}"
+								 onsuccess="PF('confirmacaoRetornoInicio').hide()"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 update=":mensagem"/>
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoRetornoInicio').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoConclusao" header="Confirmação"
+						 message="Confirma a conclusão da compra?">
+			<h:form id="formConclusao">
+				<p:commandButton value="Sim"
+								 action="#{baixaCompraBean.concluirCompra()}"
+								 onsuccess="PF('confirmacaoConclusao').hide()"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 update=":mensagem"/>
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoConclusao').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoCancelamentoAlteracaoTotal" header="Confirmação"
+						 message="Confirma o cancelamento da alteração do valor?">
+			<h:form id="formCancelamento">
+				<p:commandButton value="Sim"
+								 action="#{baixaCompraBean.cancelarAlteracaoTotal()}"
+								 onsuccess="PF('confirmacaoCancelamentoAlteracaoTotal').hide()"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 update=":mensagem :formModalDetalhes:panelDetalhes :formModalDetalhes:panelValores  :formModalDetalhes:tableObsHistorico"/>
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoCancelamentoAlteracaoTotal').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:dialog header="Forma de Pagamento"
+			widgetVar="modalFormaDePagamento" modal="true" closable="true"
+			closeOnEscape="false" resizable="true" width="1300">
+
+			<h:form id="formModalFormaDePag">
+
+				<p:fieldset  id="formasPagamento" legend="Formas de Pagamento" >
+					<p:messages id="messagesFormaPagamento" showDetail="true" autoUpdate="true" closable="true" />
+					<h:panelGrid id="panelPagamentos" columns="10" >
+						<p:outputLabel value="Tipo:"/>
+						<p:selectOneMenu value="#{baixaCompraBean.tipoDoPagamento}">
+							<f:selectItem itemLabel="Dinheiro" itemValue="DINHEIRO"/>
+							<f:selectItem itemLabel="Cheque" itemValue="CHEQUE"/>
+							<f:selectItem itemLabel="Transferência" itemValue="TRANSFERENCIA"/>
+							<f:selectItem itemLabel="Adiantamento" itemValue="ADIANTAMENTO"/>
+							<p:ajax update="panelPagamentoTransferencia panelPagamentoCheque panelPagamentoAdiantamento"/>
+						</p:selectOneMenu>
+
+						<p:outputLabel value="Valor:" style="margin-left: 10px"/>
+						<p:inputText id="valorPagamento" value="#{baixaCompraBean.pagamento.valor}"
+									 onkeypress="return formatarNumero(this,event,18,2);" size="10"
+									 converter="MoedaBigDecimalConverter">
+						</p:inputText>
+
+						<h:panelGrid id="panelPagamentoCheque" columns="4">
+							<p:outputLabel style="margin-left:4px" value="Nome:" rendered="#{baixaCompraBean.tipoDoPagamento == 'CHEQUE'}"/>
+							<p:inputText value="#{baixaCompraBean.pagamento.nomeCheque}" rendered="#{baixaCompraBean.tipoDoPagamento == 'CHEQUE'}"
+										 style="margin-left:4px" size="38" />
+
+							<p:outputLabel style="margin-left:4px" value="Número:" rendered="#{baixaCompraBean.tipoDoPagamento == 'CHEQUE'}"/>
+							<p:inputText value="#{baixaCompraBean.pagamento.numeroCheque}" rendered="#{baixaCompraBean.tipoDoPagamento == 'CHEQUE'}"
+										 style="margin-left:4px" size="38"/>
+						</h:panelGrid>
+
+						<h:panelGrid id="panelPagamentoTransferencia" columns="2">
+							<p:outputLabel value="Contas:" rendered="#{baixaCompraBean.tipoDoPagamento == 'TRANSFERENCIA'}"/>
+							<p:selectOneMenu value="#{baixaCompraBean.pagamento.conta}" rendered="#{baixaCompraBean.tipoDoPagamento == 'TRANSFERENCIA'}">
+								<f:selectItem itemLabel="Selecione a conta"/>
+								<f:selectItems value="#{baixaCompraBean.listaDecontas}"/>
+								<f:converter converterId="SelectOneMenuConverter"/>
+							</p:selectOneMenu>
+						</h:panelGrid>
+
+						<h:panelGrid id="panelPagamentoAdiantamento" columns="4">
+							<p:outputLabel value="Tipo do Adiantamento: " rendered="#{baixaCompraBean.tipoDoPagamento == 'ADIANTAMENTO'}"/>
+							<p:selectOneMenu id="comboTipoAdiantamento" value="#{baixaCompraBean.tipoAdiantamentoPagamento}" rendered="#{baixaCompraBean.tipoDoPagamento == 'ADIANTAMENTO'}">
+								<f:selectItems value="#{baixaCompraBean.tiposAdiantamento}" var="t" itemValue="#{t}" itemLabel="#{t.tipo}"/>
+								<p:ajax update="panelPagamentoAdiantamentoTransferencia panelPagamentoAdiantamentoCheque"/>
+							</p:selectOneMenu>
+
+							<h:panelGrid id="panelPagamentoAdiantamentoTransferencia" columns="2">
+								<p:outputLabel value="Conta:" rendered="#{baixaCompraBean.tipoDoPagamento == 'ADIANTAMENTO' and baixaCompraBean.tipoAdiantamentoPagamento == 'TRANSFERENCIA'}" />
+								<p:selectOneMenu value="#{baixaCompraBean.adiantamentoPagamento}" rendered="#{baixaCompraBean.tipoDoPagamento == 'ADIANTAMENTO' and baixaCompraBean.tipoAdiantamentoPagamento == 'TRANSFERENCIA'}">
+									<f:selectItem itemLabel="Selecione uma conta"/>
+									<f:selectItems value="#{baixaCompraBean.contasAdiantamento}"/>
+									<f:converter converterId="SelectOneMenuConverter"/>
+								</p:selectOneMenu>
+							</h:panelGrid>
+
+							<h:panelGrid id="panelPagamentoAdiantamentoCheque" columns="2">
+								<p:outputLabel value="Cheque:" rendered="#{baixaCompraBean.tipoDoPagamento == 'ADIANTAMENTO' and baixaCompraBean.tipoAdiantamentoPagamento == 'CHEQUE'}"/>
+								<p:selectOneMenu value="#{baixaCompraBean.adiantamentoPagamento}" rendered="#{baixaCompraBean.tipoDoPagamento == 'ADIANTAMENTO' and baixaCompraBean.tipoAdiantamentoPagamento == 'CHEQUE'}">
+									<f:selectItem itemLabel="Selecione um cheque"/>
+									<f:selectItems value="#{baixaCompraBean.chequesAdiantamento}"/>
+									<f:converter converterId="SelectOneMenuConverter"/>
+								</p:selectOneMenu>
+							</h:panelGrid>
+						</h:panelGrid>
+
+						<p:commandButton icon="ui-icon-plus" action="#{baixaCompraBean.adicionarPagamento}" value="Adicionar" update="messagesFormaPagamento panelPagamentos tablePagamentos :formModalFormaDePag:panelGTotais" process="panelPagamentos panelPagamentoAdiantamento" style="margin-left:5px"/>
+					</h:panelGrid>
+
+					<h:panelGrid >
+						<p:dataTable id="tablePagamentos" var="p"
+									 value="#{baixaCompraBean.pagamentos}"  paginator="true" paginatorPosition="bottom" rows="5"
+										emptyMessage="Não há pagamentos">
+							<p:column>
+								<f:facet name="header">
+									Tipo
+								</f:facet>
+								<h:outputText value="Dinheiro" rendered="#{p.tipoDoPagamento == 'DINHEIRO'}"/>
+								<h:outputText value="Cheque" rendered="#{p.tipoDoPagamento == 'CHEQUE'}"/>
+								<h:outputText value="Transferência" rendered="#{p.tipoDoPagamento == 'TRANSFERENCIA'}"/>
+								<h:outputText value="Adiantamento" rendered="#{p.tipoDoPagamento == 'ADIANTAMENTO'}"/>
+							</p:column>
+
+							<p:column style="width:110px;">
+								<f:facet name="header">
+									Valor
+								</f:facet>
+								<h:outputText value="#{p.valor}">
+									<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+								</h:outputText>
+							</p:column>
+
+							<p:column>
+								<f:facet name="header">
+									Cheque
+								</f:facet>
+								<h:outputText value="#{p.numeroCheque} - #{p.nomeCheque}" rendered="#{p.tipoDoPagamento == 'CHEQUE'}"/>
+								<h:outputText value="#{p.adiantamento.numeroCheque} - #{p.adiantamento.nomeCheque}" rendered="#{p.tipoDoPagamento == 'ADIANTAMENTO' and p.adiantamento != null and p.adiantamento.tipo == 'CHEQUE'}"/>
+							</p:column>
+
+							<p:column>
+								<f:facet name="header">
+									Conta
+								</f:facet>
+								<h:outputText value="#{p.conta.beneficiado} - #{p.conta.agencia}/#{p.conta.conta}" rendered="#{p.tipoDoPagamento == 'TRANSFERENCIA'}"/>
+								<h:outputText value="#{p.adiantamento.conta.beneficiado} - #{p.adiantamento.conta.agencia}/#{p.adiantamento.conta.conta}" rendered="#{p.tipoDoPagamento == 'ADIANTAMENTO' and p.adiantamento != null and p.adiantamento.tipo == 'TRANSFERENCIA'}"/>
+							</p:column>
+
+							<p:column style="width:120px;" >
+								<f:facet name="header">
+									Excluir
+								</f:facet>
+								<p:commandButton value="Excluir" icon="ui-icon-trash" action="#{baixaCompraBean.excluirPagamento}" update=":formModalFormaDePag:panelPagamentos tablePagamentos :formModalFormaDePag:panelGTotais">
+									<f:setPropertyActionListener target="#{baixaCompraBean.pagamento}"
+																 value="#{p}" />
+								</p:commandButton>
+							</p:column>
+
+						</p:dataTable>
+					</h:panelGrid>
+				</p:fieldset>
+
+				<p:separator />
+
+				<p:fieldset legend="Resumo">
+
+					<div align="left">
+
+						<h:panelGrid columns="2">
+
+							<span style="font-weight: bold">Fornecedor: </span>
+							<p:outputLabel value="#{baixaCompraBean.compra.fornecedor.nome}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</p:outputLabel>
+
+							<span style="font-weight: bold; color: red;">Adiantamento Total: </span>
+							<p:outputLabel style="color: red;"
+								value="#{baixaCompraBean.totalAdiantamento}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</p:outputLabel>
+							
+							<span style="font-weight: bold; color: red;">Valor mínimo:</span>
+							<p:outputLabel style="color: red;"
+								value="#{baixaCompraBean.valorMinimoAdiantamento}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</p:outputLabel>
+
+						</h:panelGrid>
+
+						<p:separator />
+
+						<h:panelGrid id="panelGTotais" columns="2">
+
+							<span style="font-weight: bold">Total da Compra: </span>
+							<p:outputLabel value="#{baixaCompraBean.compra.valorTotal}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</p:outputLabel>
+
+							<span style="font-weight: bold">Total Pago: </span>
+							<p:outputLabel value="#{baixaCompraBean.totalPago}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</p:outputLabel>
+
+							<span style="font-weight: bold">Falta pagar: </span>
+							<p:outputLabel value="#{baixaCompraBean.faltaPagar}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</p:outputLabel>
+
+						</h:panelGrid>
+
+					</div>
+
+				</p:fieldset>
+
+				<div align="center">
+					<h:panelGrid columns="2" cellpadding="3" cellspacing="3">
+						<p:commandButton value="Pagar" icon="ui-icon-cart"
+							onsuccess="PF('confirmacaoPagamento').show()"
+							update=":formConfirmacao :frmPrenchimentoCampo"
+							action="#{baixaCompraBean.gerarResumoDeCompra()}" />
+						<p:commandButton value="Cancelar" icon="ui-icon-close"
+							onclick="PF('modalFormaDePagamento').hide()"
+							 />
+					</h:panelGrid>
+				</div>
+
+			</h:form>
+		</p:dialog>
+
+
+		<p:dialog header="Autorização de compra" widgetVar="modalAutorizacao"
+			modal="true" closeOnEscape="true" resizable="false" width="1000">
+			<h:form id="formModalAutorizacao">
+				<h:panelGrid id="panelAutorizacao">
+
+					<p:fieldset legend="Itens da compra">
+						<h:panelGrid columns="4" cellpadding="5">
+							<span style="font-weight: bold">Código: </span>
+							<p:outputLabel value=" #{baixaCompraBean.compra.codigo}" />
+							<span style="font-weight: bold">Data: </span>
+							<p:outputLabel value="#{baixaCompraBean.compra.dataCompra}">
+								<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+									timeZone="America/Manaus" />
+							</p:outputLabel>
+							<span style="font-weight: bold">Fornecedor: </span>
+							<p:outputLabel value=" #{baixaCompraBean.compra.fornecedor.nome}" />
+							<span style="font-weight: bold">Barco: </span>
+							<p:outputLabel value=" #{baixaCompraBean.compra.barco.nome}" />
+						</h:panelGrid>
+						<br />
+						<p:dataTable id="tableItensCompra2" var="item"
+							value="#{baixaCompraBean.compra.lotes}"
+							emptyMessage="Não há itens" rows="5" paginator="true"
+							paginatorPosition="bottom">
+							<p:column headerText="Peixe">
+								<p:outputLabel value="#{item.peixe.descricao}" />
+							</p:column>
+							<p:column headerText="Valor KG">
+								<p:outputLabel value="#{item.valorUnitarioPeixe}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+							</p:column>
+							<p:column headerText="Peso bruto">
+								<p:outputLabel value="#{item.peso}" />
+							</p:column>
+							<p:column headerText="Peso líquido">
+								<p:outputLabel value="#{item.pesoLiquido}" />
+							</p:column>
+							<p:column headerText="Qtde. caçapas">
+								<p:outputLabel value="#{item.qtdCaixas}" />
+							</p:column>
+							<p:column headerText="Valor total">
+								<p:outputLabel value="#{item.valor}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+								<p:outputLabel value=" - " rendered="#{item.desconto != null}"
+									style="color: red;" />
+								<p:outputLabel value="#{item.desconto}"
+									rendered="#{item.desconto != null}" style="color: red;">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+								<p:outputLabel value=" + " rendered="#{item.acrescimo != null}"
+									style="color: blue;" />
+								<p:outputLabel value="#{item.acrescimo}"
+									rendered="#{item.acrescimo != null}" style="color: blue;">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+							</p:column>
+
+						</p:dataTable>
+					</p:fieldset>
+					<br />
+					<p:fieldset legend="Totais/Valores">
+						<h:panelGrid columns="2">
+							<h:panelGrid id="panelValoresAutCompra" columns="2" cellpadding="5">
+								<span style="font-weight: bold">Total Peso Bruto: </span>
+								<p:outputLabel value="#{baixaCompraBean.totalPesoBruto}" />
+								<span style="font-weight: bold">Total Peso Liquido: </span>
+								<p:outputLabel value="#{baixaCompraBean.totalPesoLiquido}" />
+								<span style="font-weight: bold">Total Qtde. Caçapas: </span>
+								<p:outputLabel value="#{baixaCompraBean.totalQtdeCacapa}" />
+								<span style="font-weight: bold">Total Descontos: </span>
+								<p:outputLabel value="#{baixaCompraBean.totalDescontos}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+								<span style="font-weight: bold">Total Acréscimos: </span>
+								<p:outputLabel value="#{baixaCompraBean.totalAcrescimos}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+
+							</h:panelGrid>
+							<h:panelGrid columns="2" cellpadding="5">
+
+								<span style="font-weight: bold">Valor Total: </span>
+								<p:outputLabel value="#{baixaCompraBean.totalCompra}">
+									<f:convertNumber type="currency" locale="pt_BR" />
+								</p:outputLabel>
+
+								<span style="font-weight: bold">Pago em dinheiro: </span>
+								<p:outputLabel value="#{baixaCompraBean.pagDinheiro}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+
+								<span style="font-weight: bold">Pago em tranferencia: </span>
+								<p:outputLabel value="#{baixaCompraBean.pagTransferencia}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+
+								<span style="font-weight: bold">Pago em cheque: </span>
+								<p:outputLabel value="#{baixaCompraBean.pagCheque}">
+									<f:convertNumber type="currency" maxFractionDigits="2" />
+								</p:outputLabel>
+
+							</h:panelGrid>
+						</h:panelGrid>
+					</p:fieldset>
+					<br />
+					<p:fieldset legend="Observações">
+						<h:panelGrid columns="1">
+							<p:outputLabel
+								value="#{baixaCompraBean.observacaoAdiantamentoZero}"
+								rendered="#{!empty baixaCompraBean.observacaoAdiantamentoZero}" />
+							<p:outputLabel
+								value="#{baixaCompraBean.observacaoAcrescimoValor}"
+								rendered="#{!empty baixaCompraBean.observacaoAcrescimoValor}" />
+							<p:outputLabel value="#{baixaCompraBean.observacaoAcrescimoPeso}"
+								rendered="#{!empty baixaCompraBean.observacaoAcrescimoPeso}" />
+						</h:panelGrid>
+					</p:fieldset>
+					<br />
+
+					<div align="center">
+						<h:panelGrid columns="3">
+							<p:commandButton value="Autorizar" icon="ui-icon-unlocked"
+								action="#{baixaCompraBean.autorizarCompra()}"
+								onsuccess="PF('modalAutorizacao').hide()" />
+							<p:commandButton value="Cancelar" icon="ui-icon-close"
+								onclick="PF('modalAutorizacao').hide()" />
+						</h:panelGrid>
+					</div>
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Alteração de valor" widgetVar="modalAlteracaoValor"
+			modal="true" closeOnEscape="true" resizable="false" width="500">
+			<h:form id="formModalAlteracaoValor">
+				<p:fieldset legend="Informações do item"
+					rendered="#{!baixaCompraBean.alteracaoTotalCompra}">
+					<h:panelGrid columns="2">
+						<span style="font-weight: bold">Peixe: </span>
+						<p:outputLabel value="#{baixaCompraBean.lote.peixe.descricao}" />
+						<span style="font-weight: bold">Valor KG: </span>
+						<p:outputLabel value="#{baixaCompraBean.lote.valorUnitarioPeixe}">
+							<f:convertNumber type="currency" locale="pt_BR" />
+						</p:outputLabel>
+						<span style="font-weight: bold">Peso bruto: </span>
+						<p:outputLabel value="#{baixaCompraBean.lote.peso}" />
+						<span style="font-weight: bold">Peso líquido: </span>
+						<p:outputLabel value="#{baixaCompraBean.lote.pesoLiquido}" />
+						<span style="font-weight: bold">Qtde. caçapas: </span>
+						<p:outputLabel value="#{baixaCompraBean.lote.qtdCaixas}" />
+						<span style="font-weight: bold">Valor total: </span>
+						<p:outputLabel value="#{baixaCompraBean.lote.valor}">
+							<f:convertNumber type="currency" locale="pt_BR" />
+						</p:outputLabel>
+
+					</h:panelGrid>
+				</p:fieldset>
+				<br />
+				<p:fieldset legend="Alteração de valores">
+
+					<h:panelGrid columns="2">
+						<span style="font-weight: bold">Tipo de alteração: </span>
+						<p:selectOneMenu value="#{baixaCompraBean.tipoAlteracaoValor}"
+							rendered="#{!baixaCompraBean.alteracaoTotalCompra}">
+							<f:selectItem itemLabel="-- Selecione um tipo --" itemValue="" />
+							<f:selectItem itemLabel="Desconto no valor total" itemValue="1" />
+							<f:selectItem itemLabel="Acréscimo no valor total" itemValue="2" />
+							<f:selectItem itemLabel="Alteração no valor do kg do peixe"	itemValue="3" />
+							<p:ajax
+								update="panelTipoAlteracao panelValorKGPeixe panelTipoValor1 panelTipoValor2" />
+						</p:selectOneMenu>
+
+						<p:selectOneMenu value="#{baixaCompraBean.tipoAlteracaoValor}"
+							rendered="#{baixaCompraBean.alteracaoTotalCompra}">
+							<f:selectItem itemLabel="-- Selecione um tipo --" itemValue="" />
+							<f:selectItem itemLabel="Desconto no valor total" itemValue="1" />
+							<f:selectItem itemLabel="Acréscimo no valor total" itemValue="2" />
+							<p:ajax
+								update="panelTipoAlteracao panelValorKGPeixe panelTipoValor1 panelTipoValor2" />
+						</p:selectOneMenu>
+
+					</h:panelGrid>
+
+					<br />
+
+					<h:panelGrid id="panelTipoAlteracao">
+						<h:panelGrid columns="2"
+							rendered="#{baixaCompraBean.tipoAlteracaoValor == 1 or baixaCompraBean.tipoAlteracaoValor == 2}">
+
+							<span style="font-weight: bold">Tipo do valor: </span>
+							<p:selectOneMenu value="#{baixaCompraBean.tipoValor}">
+								<f:selectItem itemLabel="-- Selecione um tipo --" itemValue="" />
+								<f:selectItem itemLabel="Valor" itemValue="1" />
+								<f:selectItem itemLabel="Porcentagem" itemValue="2" />
+								<p:ajax update="panelTipoValor1 panelTipoValor2" />
+							</p:selectOneMenu>
+
+						</h:panelGrid>
+					</h:panelGrid>
+
+					<h:panelGrid id="panelTipoValor1">
+						<h:panelGrid columns="2"
+							rendered="#{baixaCompraBean.tipoAlteracaoValor == 1 and baixaCompraBean.tipoValor == 1}">
+							<span style="font-weight: bold">Valor do desconto: </span>
+							<p:inputText value="#{baixaCompraBean.valorAlterado}"
+								onkeypress="return formatarNumero(this,event,18,2);" size="10"
+								converter="MoedaBigDecimalConverter" />
+						</h:panelGrid>
+
+						<h:panelGrid columns="2"
+							rendered="#{baixaCompraBean.tipoAlteracaoValor == 1 and baixaCompraBean.tipoValor == 2}">
+							<span style="font-weight: bold">Porcentagem do desconto: </span>
+							<p:inputText value="#{baixaCompraBean.valorAlterado}"
+										 onkeypress="return formatarNumero(this,event,18,2);" size="10"
+										 converter="MoedaBigDecimalConverter"/>
+						</h:panelGrid>
+					</h:panelGrid>
+
+					<h:panelGrid id="panelTipoValor2">
+						<h:panelGrid columns="2"
+							rendered="#{baixaCompraBean.tipoAlteracaoValor == 2 and baixaCompraBean.tipoValor == 1}">
+							<span style="font-weight: bold">Valor do acréscimo: </span>
+							<p:inputText value="#{baixaCompraBean.valorAlterado}"
+								onkeypress="return formatarNumero(this,event,18,2);" size="10"
+								converter="MoedaBigDecimalConverter" />
+						</h:panelGrid>
+
+						<h:panelGrid columns="2"
+							rendered="#{baixaCompraBean.tipoAlteracaoValor == 2 and baixaCompraBean.tipoValor == 2}">
+							<span style="font-weight: bold">Porcentagem do acréscimo:
+							</span>
+							<p:inputText value="#{baixaCompraBean.valorAlterado}"
+										 onkeypress="return formatarNumero(this,event,18,2);" size="10"
+										 converter="MoedaBigDecimalConverter"/>
+						</h:panelGrid>
+					</h:panelGrid>
+
+					<h:panelGrid id="panelValorKGPeixe">
+						<h:panelGrid columns="2"
+							rendered="#{baixaCompraBean.tipoAlteracaoValor == 3}">
+							<span style="font-weight: bold">Valor atual: </span>
+							<p:outputLabel value="#{baixaCompraBean.lote.valorUnitarioPeixe}">
+								<f:convertNumber type="currency" locale="pt_BR" />
+							</p:outputLabel>
+							<span style="font-weight: bold">Novo valor: </span>
+							<p:inputText value="#{baixaCompraBean.novoValorKGPeixe}"
+								onkeypress="return formatarNumero(this,event,18,2);" size="10"
+								converter="MoedaBigDecimalConverter" />
+						</h:panelGrid>
+					</h:panelGrid>
+
+				</p:fieldset>
+				<br></br>
+				<h:panelGrid columns="2">
+					<span style="font-weight: bold">Observação: </span>
+					<p:inputTextarea value="#{baixaCompraBean.observacaoHistorico}"
+						cols="40" required="true" />
+				</h:panelGrid>
+
+				<br />
+
+				<div align="center">
+					<h:panelGrid columns="2">
+						<p:commandButton value="Salvar" icon="ui-icon-disk"
+							onclick="PF('confirmacaoAlteracaoValor').show();" />
+						<p:commandButton value="Cancelar" icon="ui-icon-close"
+							onclick="PF('modalAlteracaoValor').hide();" />
+					</h:panelGrid>
+				</div>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Alteração de valor" widgetVar="modalAlteracaoValorItens"
+				  modal="true" closeOnEscape="true" resizable="false" width="500">
+			<h:form id="formModalAlteracaoValorItens">
+				<p:fieldset legend="Informações do item selecionado"
+							rendered="#{!baixaCompraBean.alteracaoTotalCompra}">
+					<h:panelGrid columns="2">
+						<span style="font-weight: bold">Peixe: </span>
+						<p:outputLabel value="#{baixaCompraBean.lote.peixe.descricao}" />
+						<span style="font-weight: bold">Total Valor KG: </span>
+						<p:outputLabel value="#{baixaCompraBean.lote.totalValorKG}">
+							<f:convertNumber type="currency" locale="pt_BR" />
+						</p:outputLabel>
+						<span style="font-weight: bold">Total Peso bruto: </span>
+						<p:outputLabel value="#{baixaCompraBean.lote.totalPesoBruto}" />
+						<span style="font-weight: bold">Total Peso líquido: </span>
+						<p:outputLabel value="#{baixaCompraBean.lote.totalPesoLiquido}" />
+						<span style="font-weight: bold">Total Qtde. caçapas: </span>
+						<p:outputLabel value="#{baixaCompraBean.lote.totalCaixas}" />
+						<span style="font-weight: bold">Valor total: </span>
+						<p:outputLabel value="#{baixaCompraBean.lote.totalValor}">
+							<f:convertNumber type="currency" locale="pt_BR" />
+						</p:outputLabel>
+
+					</h:panelGrid>
+				</p:fieldset>
+				<br />
+				<p:fieldset legend="Alteração de valores">
+
+					<h:panelGrid columns="2">
+						<span style="font-weight: bold">Tipo de alteração: </span>
+						<p:selectOneMenu value="#{baixaCompraBean.tipoAlteracaoValor}"
+										 rendered="#{!baixaCompraBean.alteracaoTotalCompra}">
+							<f:selectItem itemLabel="-- Selecione um tipo --" itemValue="" />
+							<f:selectItem itemLabel="Desconto no valor total" itemValue="1" />
+							<f:selectItem itemLabel="Acréscimo no valor total" itemValue="2" />
+							<f:selectItem itemLabel="Alteração no valor do kg do peixe"	itemValue="3" />
+							<p:ajax
+									update="panelTipoAlteracaoItens panelValorKGPeixeItens panelTipoValor1Itens panelTipoValor2Itens" />
+						</p:selectOneMenu>
+
+						<p:selectOneMenu value="#{baixaCompraBean.tipoAlteracaoValor}"
+										 rendered="#{baixaCompraBean.alteracaoTotalCompra}">
+							<f:selectItem itemLabel="-- Selecione um tipo --" itemValue="" />
+							<f:selectItem itemLabel="Desconto no valor total" itemValue="1" />
+							<f:selectItem itemLabel="Acréscimo no valor total" itemValue="2" />
+							<p:ajax
+									update="panelTipoAlteracaoItens panelValorKGPeixeItens panelTipoValor1Itens panelTipoValor2Itens" />
+						</p:selectOneMenu>
+
+					</h:panelGrid>
+
+					<br />
+
+					<h:panelGrid id="panelTipoAlteracaoItens">
+						<h:panelGrid columns="2"
+									 rendered="#{baixaCompraBean.tipoAlteracaoValor == 1 or baixaCompraBean.tipoAlteracaoValor == 2}">
+
+							<span style="font-weight: bold">Tipo do valor: </span>
+							<p:selectOneMenu value="#{baixaCompraBean.tipoValor}">
+								<f:selectItem itemLabel="-- Selecione um tipo --" itemValue="" />
+								<f:selectItem itemLabel="Valor" itemValue="1" />
+								<f:selectItem itemLabel="Porcentagem" itemValue="2" />
+								<p:ajax update="panelTipoValor1Itens panelTipoValor2Itens" />
+							</p:selectOneMenu>
+
+						</h:panelGrid>
+					</h:panelGrid>
+
+					<h:panelGrid id="panelTipoValor1Itens">
+						<h:panelGrid columns="2"
+									 rendered="#{baixaCompraBean.tipoAlteracaoValor == 1 and baixaCompraBean.tipoValor == 1}">
+							<span style="font-weight: bold">Valor do desconto: </span>
+							<p:inputText value="#{baixaCompraBean.valorAlterado}"
+										 onkeypress="return formatarNumero(this,event,18,2);" size="10"
+										 converter="MoedaBigDecimalConverter" />
+						</h:panelGrid>
+
+						<h:panelGrid columns="2"
+									 rendered="#{baixaCompraBean.tipoAlteracaoValor == 1 and baixaCompraBean.tipoValor == 2}">
+							<span style="font-weight: bold">Porcentagem do desconto: </span>
+							<p:inputText value="#{baixaCompraBean.valorAlterado}"
+										 onkeypress="return formatarNumero(this,event,18,2);" size="10"
+										 converter="MoedaBigDecimalConverter"/>
+						</h:panelGrid>
+					</h:panelGrid>
+
+					<h:panelGrid id="panelTipoValor2Itens">
+						<h:panelGrid columns="2"
+									 rendered="#{baixaCompraBean.tipoAlteracaoValor == 2 and baixaCompraBean.tipoValor == 1}">
+							<span style="font-weight: bold">Valor do acréscimo: </span>
+							<p:inputText value="#{baixaCompraBean.valorAlterado}"
+										 onkeypress="return formatarNumero(this,event,18,2);" size="10"
+										 converter="MoedaBigDecimalConverter" />
+						</h:panelGrid>
+
+						<h:panelGrid columns="2"
+									 rendered="#{baixaCompraBean.tipoAlteracaoValor == 2 and baixaCompraBean.tipoValor == 2}">
+							<span style="font-weight: bold">Porcentagem do acréscimoo:
+							</span>
+							<p:inputText value="#{baixaCompraBean.valorAlterado}"
+										 onkeypress="return formatarNumero(this,event,18,2);" size="10"
+										 converter="MoedaBigDecimalConverter"/>
+						</h:panelGrid>
+					</h:panelGrid>
+
+					<h:panelGrid id="panelValorKGPeixeItens">
+						<h:panelGrid columns="2"
+									 rendered="#{baixaCompraBean.tipoAlteracaoValor == 3}">
+							<span style="font-weight: bold">Valor atual: </span>
+							<p:outputLabel value="#{baixaCompraBean.lote.valorUnitarioPeixe}">
+								<f:convertNumber type="currency" locale="pt_BR" />
+							</p:outputLabel>
+							<span style="font-weight: bold">Novo valor: </span>
+							<p:inputText value="#{baixaCompraBean.novoValorKGPeixe}"
+										 onkeypress="return formatarNumero(this,event,18,2);" size="10"
+										 converter="MoedaBigDecimalConverter" />
+						</h:panelGrid>
+					</h:panelGrid>
+
+				</p:fieldset>
+				<br></br>
+				<h:panelGrid columns="2">
+					<span style="font-weight: bold">Observação: </span>
+					<p:inputTextarea value="#{baixaCompraBean.observacaoHistorico}"
+									 cols="40" required="true" />
+				</h:panelGrid>
+
+				<br />
+
+				<div align="center">
+					<h:panelGrid columns="2">
+						<p:commandButton value="Salvar" icon="ui-icon-disk"
+										 onclick="PF('confirmacaoAlteracaoValorItens').show();" />
+						<p:commandButton value="Cancelar" icon="ui-icon-close"
+										 onclick="PF('modalAlteracaoValorItens').hide();" />
+					</h:panelGrid>
+				</div>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog id="dialogConfirmacao" widgetVar="confirmacaoPagamento"
+			header="Confirmação" modal="true" width="720px">
+
+			<h:form id="frmPrenchimentoCampo">
+				<p:panel rendered="#{baixaCompraBean.mostrarMensagem}">
+					<div align="center">
+						<h:panelGrid columns="1">
+							<p:outputLabel style="color:red"
+								value="#{baixaCompraBean.msgCampoTransferencia}"
+								rendered="#{baixaCompraBean.preencheCampoTransferencia}" />
+							<p:outputLabel style="color:red"
+								value="#{baixaCompraBean.msgCampoCheque}"
+								rendered="#{baixaCompraBean.preencheCampoCheque}" />
+							<p:outputLabel style="color:red"
+										   value="#{baixaCompraBean.msgCampoChequeAdiantamento}"
+										   rendered="#{baixaCompraBean.preencheCampoChequeAdiantamento}" />
+							<p:outputLabel style="color:red"
+										   value="#{baixaCompraBean.msgCampoTransferenciaAdiantamento}"
+										   rendered="#{baixaCompraBean.preencheCampoTranferenciaAdiantamento}" />
+						</h:panelGrid>
+
+						<div align="center">
+							<h:panelGrid columns="1" cellpadding="3" cellspacing="3">
+								<p:commandButton value="Ok" icon="ui-icon-check"
+									onclick="PF('confirmacaoPagamento').hide()" />
+							</h:panelGrid>
+						</div>
+
+					</div>
+				</p:panel>
+			</h:form>
+
+			<h:form id="formConfirmacao">
+
+				<p:panel rendered="#{!baixaCompraBean.mostrarMensagem}">
+
+
+					<h:panelGrid columns="2">
+
+						<h:panelGrid columns="2">
+							<span style="font-weight: bold">Dinheiro: </span>
+							<p:outputLabel value="#{baixaCompraBean.pagDinheiro}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</p:outputLabel>
+
+							<span style="font-weight: bold">Cheque: </span>
+							<p:outputLabel value="#{baixaCompraBean.pagCheque}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</p:outputLabel>
+
+							<span style="font-weight: bold">Tranferencia: </span>
+							<p:outputLabel value="#{baixaCompraBean.pagTransferencia}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</p:outputLabel>
+						</h:panelGrid>
+
+						<h:panelGrid columns="2">
+
+							<span style="font-weight: bold">Adiantamento em Dinheiro: </span>
+							<p:outputLabel value="#{baixaCompraBean.pagAdiantamentoDinheiro}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</p:outputLabel>
+
+							<span style="font-weight: bold">Adiantamento em Cheque: </span>
+							<p:outputLabel value="#{baixaCompraBean.pagAdiantamentoCheque}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</p:outputLabel>
+
+							<span style="font-weight: bold">Adiantamento Via Transferência: </span>
+							<p:outputLabel value="#{baixaCompraBean.pagAdiantamentoTransferencia}">
+								<f:convertNumber type="currency" maxFractionDigits="2" />
+							</p:outputLabel>
+
+						</h:panelGrid>
+					</h:panelGrid>
+					<p:separator />
+					<h:panelGrid columns="2">
+
+						<span style="font-weight: bold">Total da Compra: </span>
+						<p:outputLabel value="#{baixaCompraBean.totalCompra}">
+							<f:convertNumber type="currency" maxFractionDigits="2" />
+						</p:outputLabel>
+
+						<span style="font-weight: bold">Total Pago: </span>
+						<p:outputLabel value="#{baixaCompraBean.totalPago}">
+							<f:convertNumber type="currency" maxFractionDigits="2" />
+						</p:outputLabel>
+
+						<span style="font-weight: bold">Falta pagar: </span>
+						<p:outputLabel value="#{baixaCompraBean.faltaPagar}">
+							<f:convertNumber type="currency" maxFractionDigits="2" />
+						</p:outputLabel>
+
+					</h:panelGrid>
+
+					<p:separator />
+					<div align="center"
+						style="background-color: #{baixaCompraBean.corConfirmacaoPagamento} ; padding: 5px; ">
+						<p:outputLabel style="color:#000000"
+							value="#{baixaCompraBean.mensagemConfirmacaoPagamento}" />
+					</div>
+					<br />
+
+					<h:panelGrid columns="1">
+						<p:outputLabel
+							value="#{baixaCompraBean.observacaoAdiantamentoZero}"
+							rendered="#{!empty baixaCompraBean.observacaoAdiantamentoZero}" />
+						<p:outputLabel value="#{baixaCompraBean.observacaoAcrescimoValor}"
+							rendered="#{!empty baixaCompraBean.observacaoAcrescimoValor}" />
+						<p:outputLabel value="#{baixaCompraBean.observacaoAcrescimoPeso}"
+							rendered="#{!empty baixaCompraBean.observacaoAcrescimoPeso}" />
+					</h:panelGrid>
+					<p:separator />
+					<div align="left">
+						<h:panelGrid columns="2">
+							<span style="font-weight: bold">Observação: </span>
+							<p:inputTextarea value="#{baixaCompraBean.observacao.observacao}"
+								disabled="#{baixaCompraBean.disableButtonPagar}" cols="70"
+								 />
+						</h:panelGrid>
+					</div>
+
+
+					<div align="center">
+						<p:commandButton value="Sim" rendered="#{baixaCompraBean.autorizado}"
+							action="#{baixaCompraBean.pagarCompra}"
+							disabled="#{baixaCompraBean.disableButtonPagar}"
+							styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+							update=":mensagem"
+							onsuccess="PF('confirmacaoPagamento').hide(); PF('modalFormaDePagamento').hide();  PF('confirmacaoImpressaoRecibo').show();" />
+							
+						<p:commandButton value="Sim" rendered="#{!baixaCompraBean.autorizado}"
+							action="#{baixaCompraBean.pagarCompra}"
+							disabled="#{baixaCompraBean.disableButtonPagar}"
+							styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+							update=":mensagem"
+							onsuccess="PF('confirmacaoPagamento').hide(); PF('modalFormaDePagamento').hide();" />
+								
+						<p:commandButton value="Não"
+							onclick="PF('confirmacaoPagamento').hide()" type="button"
+							styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+							immediate="true" />
+
+					</div>
+				</p:panel>
+
+			</h:form>
+		</p:dialog>
+
+		<p:confirmDialog widgetVar="confirmacaoAlteracaoValor"
+			header="Confirmação"
+			message="Confirma a alteração do valor deste item?">
+			<h:form id="formConfirmacaoALteracaoValor">
+				<p:commandButton value="Sim"
+					action="#{baixaCompraBean.alterarValorItem}"
+					styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+					update=":mensagem :formModalDetalhes:panelDetalhes :formModalDetalhes:panelValores  :formModalDetalhes:tableObsHistorico"
+					onsuccess="PF('confirmacaoAlteracaoValor').hide(); PF('modalAlteracaoValor').hide();" />
+				<p:commandButton value="Não"
+					onclick="PF('confirmacaoAlteracaoValor').hide()" type="button"
+					styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+					immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoAlteracaoValorItens"
+						 header="Confirmação"
+						 message="Confirma a alteração do valor dos itens?">
+			<h:form id="formConfirmacaoALteracaoValorItens">
+				<p:commandButton value="Sim"
+								 action="#{baixaCompraBean.alterarValorItens}"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 update=":mensagem :formModalDetalhes:panelDetalhes :formModalDetalhes:panelValores  :formModalDetalhes:tableObsHistorico"
+								 onsuccess="PF('confirmacaoAlteracaoValorItens').hide(); PF('modalAlteracaoValorItens').hide();" />
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoAlteracaoValorItens').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoImpressaoRecibo"
+			header="Confirmação" message="Imprimir recibo?">
+			<h:form id="formConfirmacaoImpressaoRecibo">
+				<p:commandButton value="Sim"  action="baixa_compra"
+					actionListener="#{baixaCompraBean.imprimirRecibo()}"
+					styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+					immediate="true"
+					 ajax="false" />
+				<p:commandButton value="Não" action="baixa_compra" ajax="false"
+					styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+					immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoConclusaoCompra"
+			header="Confirmação" message="Confirma a finalização da compra?">
+			<h:form id="formConfirmacaoConclusao">
+				<p:commandButton value="Sim"
+					action="#{baixaCompraBean.concluirCompra}"
+					styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+					immediate="true"
+					onsuccess="PF('modalDetalhes').hide(); PF('confirmacaoConclusaoCompra').hide(); PF('confirmacaoImpressaoRecibo').show()"
+					update=":mensagem" />
+				<p:commandButton value="Não"
+					onclick="PF('confirmacaoConclusaoCompra').hide()" type="button"
+					styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+					immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoCancelamentoAlteracao"
+						 header="Confirmação" message="Confirma o cancelamento da alteração?">
+			<h:form id="formConfirmacaoCancelamentoAlteracao">
+				<p:commandButton value="Sim"
+								 action="#{baixaCompraBean.cancelarAlteracaoLote()}"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 immediate="true"
+								 onsuccess="PF('confirmacaoCancelamentoAlteracao').hide();"
+								 update=":mensagem :formModalDetalhes:panelDetalhes :formModalDetalhes:panelValores  :formModalDetalhes:tableObsHistorico"/>
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoCancelamentoAlteracao').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoCancelamentoAlteracaoItens"
+						 header="Confirmação" message="Confirma o cancelamento da alteração?">
+			<h:form id="formConfirmacaoCancelamentoAlteracaoItens">
+				<p:commandButton value="Sim"
+								 action="#{baixaCompraBean.cancelarAlteracaoLotes()}"
+								 styleClass="ui-confirmdialog-yes" icon="ui-icon-check"
+								 immediate="true"
+								 onsuccess="PF('confirmacaoCancelamentoAlteracaoItens').hide();"
+								 update=":mensagem :formModalDetalhes:panelDetalhes :formModalDetalhes:panelValores  :formModalDetalhes:tableObsHistorico"/>
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoCancelamentoAlteracaoItens').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+	</ui:define>
+
+
+</ui:composition>
+

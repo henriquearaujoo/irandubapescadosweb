@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <h:outputStylesheet name="css/font-icon-layout.css" library="sentinel-layout" />
+        <h:outputStylesheet name="css/sentinel-layout.css" library="sentinel-layout" />
+        <h:outputStylesheet name="css/core-layout.css" library="sentinel-layout" />
+        <script language="JavaScript1.2" src="#{facesContext.externalContext.request.contextPath}/javascript/mascaras.js" type="text/javascript" charset="UTF-8" />
+
+        <f:facet name="first">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+        </f:facet>
+        <title>Iranduba Pescados</title>
+        <h:outputScript name="js/layout.js" library="sentinel-layout" />
+
+        <h:outputText value="&lt;!--[if gte IE 9]&gt;" escape="false" />
+            <style type="text/css">
+                .ui-tabs-top .ui-tabs-nav li,
+                .ui-tabs .ui-tabs-nav li{margin-bottom: 0px !important;}
+            </style>
+        <h:outputText value="&lt;![endif]--&gt;" escape="false" />
+
+        <script type="text/javascript">
+            function tocarRing() {
+                document.getElementById('audionotificacao').play();
+            }
+
+            function stoprRing() {
+                document.getElementById('audionotificacao').pause();
+            }
+
+            function skinPie() {
+                this.cfg.seriesColors = ['#dae8ef', '#27aae1', '#33ccff', '#9fadb5'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#eaeaea',
+                    gridLineColor: '#e5ebf0',
+                    shadow: false,
+                    borderWidth: 0
+                };
+                this.cfg.seriesDefaults.shadow = false;
+            }
+
+        </script>
+
+        <style type="text/css">
+            .jqplot-target, .jqplot-axis {
+                color: #9fadb5;
+            }
+        </style>
+
+            <ui:insert name="head" />
+    </h:head>
+
+    <h:body>
+
+        <audio  id="audionotificacao" loop="loop">
+            <source src="#{facesContext.externalContext.request.contextPath}/audio/message_gp_hangout.mp3" />
+        </audio>
+
+        <ui:include src="topbar.xhtml" />
+
+        <ui:include src="leftmenu.xhtml" />
+
+        <div id="layout-portlets-cover" class="fontRegular">
+            <ui:insert name="miolo">
+               Template
+            </ui:insert>
+        </div>
+
+        <p:ajaxStatus style="width:32px; height:32px; position:fixed; right:12px; bottom:10px">
+            <f:facet name="start">
+                <p:graphicImage name="images/preloader.gif" library="sentinel-layout"/>
+            </f:facet>
+
+            <f:facet name="complete">
+                <h:outputText value="" />
+            </f:facet>
+        </p:ajaxStatus>
+
+        <ui:insert name="adicionais">
+        </ui:insert>
+    </h:body>
+
+</html>

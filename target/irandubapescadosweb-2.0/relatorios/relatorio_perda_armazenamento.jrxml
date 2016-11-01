@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorio_perda_armazenamento" pageWidth="842" pageHeight="595" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="122eb953-c06b-4eb0-bf2a-2d2333f0edd9">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="periodo" class="java.lang.String"/>
+	<parameter name="filtro" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select
+c.descricao as camara ,p.descricao as peixe,
+(select sum(lo.peso - (lo.pesocacapa * lo.qtdcaixas))
+from lote lo left join compra cp on lo.compra_id = cp.id where cp.autorizado = true and lo.peixe_id =  p.id) as total_comprado,
+
+(select sum(arm1.peso) from  armazenamento arm1 where arm1.peixe_id = p.id and arm1.camara_id = c.id and arm1.status = 'AUTORIZADO') as armazenado ,
+
+(select sum(ret1.peso) from  retirada ret1 where ret1.peixe_id = p.id and ret1.camara_id = c.id and ret1.status = 'AUTORIZADO') as retirado,
+
+(select sum(ret1.peso) from  retirada ret1 where ret1.peixe_id = p.id and ret1.camara_id = c.id and ret1.status = 'AUTORIZADO' and ret1.destino = 'PROCESSO') as retirado_processo,
+
+(select sum(ret1.peso) from  retirada ret1 where ret1.peixe_id = p.id and ret1.camara_id = c.id and ret1.status = 'AUTORIZADO' and ret1.destino = 'DESCARTE') as retirado_descarte,
+
+(select sum(lo.peso - (lo.pesocacapa * lo.qtdcaixas))
+from lote lo  left join compra cp on lo.compra_id = cp.id where cp.autorizado = true and lo.peixe_id =  p.id) -
+((select sum(arm1.peso) from  armazenamento arm1 where arm1.peixe_id = p.id and arm1.camara_id = c.id and arm1.status = 'AUTORIZADO') -  (select sum(ret1.peso) from  retirada ret1 where ret1.peixe_id = p.id and ret1.camara_id = c.id and ret1.status = 'AUTORIZADO')) as perda
+
+from  peixe p
+join armazenamento arm on p.id = arm.peixe_id
+left join camara c on c.id = arm.camara_id
+left join retirada ret on ret.camara_id = c.id
+where arm.status = 'AUTORIZADO' $P!{filtro}]]>
+	</queryString>
+	<field name="camara" class="java.lang.String"/>
+	<field name="peixe" class="java.lang.String"/>
+	<field name="total_comprado" class="java.math.BigDecimal"/>
+	<field name="armazenado" class="java.math.BigDecimal"/>
+	<field name="retirado" class="java.math.BigDecimal"/>
+	<field name="retirado_processo" class="java.math.BigDecimal"/>
+	<field name="retirado_descarte" class="java.math.BigDecimal"/>
+	<field name="perda" class="java.math.BigDecimal"/>
+	<variable name="PERCA" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{total_comprado}.subtract( $F{armazenado}.subtract( $F{retirado} ) )]]></variableExpression>
+	</variable>
+	<variable name="PORCENTAGEM_PERCA" class="java.lang.Double">
+		<variableExpression><![CDATA[(($F{perda} == null ? 0 : $F{perda}.doubleValue())/($F{total_comprado} == null ? 0 : $F{total_comprado}.doubleValue())) * 100]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="CEM" class="java.lang.Integer">
+		<variableExpression><![CDATA[100]]></variableExpression>
+		<initialValueExpression><![CDATA[100]]></initialValueExpression>
+	</variable>
+	<variable name="total_comprado_1" class="java.math.BigDecimal" resetType="Page" calculation="Sum">
+		<variableExpression><![CDATA[$F{total_comprado}]]></variableExpression>
+	</variable>
+	<variable name="perda_1" class="java.math.BigDecimal" resetType="Page" calculation="Sum">
+		<variableExpression><![CDATA[$F{perda}]]></variableExpression>
+	</variable>
+	<group name="camara">
+		<groupExpression><![CDATA[$F{camara}]]></groupExpression>
+		<groupHeader>
+			<band height="57">
+				<staticText>
+					<reportElement x="10" y="10" width="48" height="20" uuid="512b92df-ac5b-4b09-8427-457d9882c8c8"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" size="11" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Camara:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="2" y="37" width="122" height="20" uuid="26bcf3c1-e514-4c31-8cd9-eb237821aa7a"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="11" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Peixe]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="124" y="37" width="108" height="20" uuid="9d7df0ae-e6c6-48d1-b55a-f90364580d35"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="11" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Comprado (kg)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="232" y="37" width="103" height="20" uuid="e6bce4c5-719e-4669-8de0-6ebce0ff21c8"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Armazenado (kg)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="335" y="37" width="103" height="20" uuid="ce5218fb-2aac-4c27-b0c3-7c24ac0accd2"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Retirado (kg)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="618" y="37" width="103" height="20" uuid="d05546ef-5baf-4270-a65d-cfd5d4cd566f"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Perda (kg)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="721" y="37" width="81" height="20" uuid="e0366c83-53cf-47b2-9257-3576443c62b1"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="11" isBold="true"/>
+					</textElement>
+					<text><![CDATA[%Perda]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="58" y="10" width="100" height="20" uuid="e7e77e8e-fd11-4681-9662-2dbb1e3d3b16"/>
+					<textElement verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{camara}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="438" y="37" width="90" height="20" uuid="edf792e9-8c25-483a-85fd-b6656cbbd0f3"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Ret. Processo (kg)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="528" y="37" width="90" height="20" uuid="f11ed41c-3f4e-4803-98b6-fc1d62fbaf2e"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Ret. Descarte (kg)]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="148" splitType="Stretch">
+			<staticText>
+				<reportElement x="275" y="0" width="284" height="79" uuid="f64f2893-68db-4804-95e2-f9efcd06543b"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="22" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Relatório de perdas]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy HH:mm:ss">
+				<reportElement x="702" y="0" width="100" height="20" uuid="7b77d49e-160b-49c2-b589-2f43f1c6c13d"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="2" y="0" width="122" height="20" uuid="4950de27-9638-4939-9929-470581bcf9f7"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Iranduba Pescados]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="87" width="52" height="20" uuid="d4e96771-d4ce-4cd6-8ded-6d7184f2e10b"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Período:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="107" width="118" height="20" uuid="c735c936-f8d2-4bf7-8baa-d2660eefb4c5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total comprado (kg):]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="54" y="87" width="348" height="20" uuid="9c016b71-e0dc-49ac-912a-2dc4ccc59d14"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{periodo}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="2" y="127" width="118" height="20" uuid="034391f7-9e5f-4b77-9342-7af4de58dfc1"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total de perdas (kg):]]></text>
+			</staticText>
+			<textField evaluationTime="Page" pattern="#,##0.00">
+				<reportElement x="120" y="107" width="125" height="20" uuid="660b1d14-f5d8-4bc7-9a40-e625a5735b30"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_comprado_1}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Page" pattern="#,##0.00">
+				<reportElement x="120" y="127" width="125" height="20" uuid="23f2ea36-11ba-4d7b-8a48-f44fc6d5e22a"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{perda_1}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="21" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="2" y="1" width="122" height="20" uuid="86ae0956-bf42-4cfe-900e-e2997ab5d5fd"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{peixe}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="124" y="1" width="108" height="20" uuid="897f8095-b5ff-4629-b7f8-629d2781e7ae"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total_comprado} == null ? "0" : $F{total_comprado}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="232" y="1" width="103" height="20" uuid="2b8100ef-4273-4fe6-9f64-1c4ccc2d3d6a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{armazenado} == null ? "0" : $F{armazenado}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="721" y="1" width="81" height="20" uuid="8cf10061-dd36-4757-b894-45403e4e436c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PORCENTAGEM_PERCA}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="438" y="1" width="90" height="20" uuid="43684e2f-20a9-43ab-924a-ad8f06f1f34d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{retirado_processo} == null ? "0" : $F{retirado_processo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="528" y="1" width="90" height="20" uuid="42f892e5-1c6e-4cba-bede-cb0e86e2ff9a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{retirado_descarte} == null ? "0" : $F{retirado_descarte}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="335" y="1" width="103" height="20" uuid="0f99dfca-2029-40b7-8f04-02c6a6689693"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{retirado} == null ? "0" : $F{retirado}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="618" y="1" width="103" height="20" uuid="a6e686e1-1ac1-4ae5-ad45-24bbe14055d5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{perda} == null  ? "0" : $F{perda}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="20" splitType="Stretch">
+			<textField evaluationTime="Report">
+				<reportElement x="406" y="0" width="40" height="20" uuid="1e45bc86-a1e9-41fd-a9a0-f700ace74b1e"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="326" y="0" width="80" height="20" uuid="0d0e9600-18c0-47f5-bd8d-3a10da5e3968"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

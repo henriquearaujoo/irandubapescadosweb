@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+  	<ui:define name="miolo">
+		<f:metadata>
+			<f:viewAction action="#{dashBoardBean.gerarNotificacoesEAlertas}" />
+		</f:metadata>
+		<div class="Container100">
+			<div class="ContainerIndent">
+				<div class="EmptyBox20"></div>
+
+				<div class="Container30 Responsive">
+					<div class="ContainerIndent">
+						<p:panel id="panelUsuario" style="min-height: 300px;">
+							<i class="icon-user-2 Fs50 Fleft Wid25 hardblue TexAlCenter"></i>
+							<div class="Fs24 Fright MarTop10 leaden Wid70"><span class="hardblue">#{loginBean.usuarioSession.usuario.nome}</span>, Bem vindo(a)</div>
+							<div class="Fs12 Fright leaden Wid70">Você tem <span class="red"> #{dashBoardBean.tarefasUsuario}</span> !</div>
+							<div class="EmptyBox10"></div>
+							<p:separator styleClass="Wid100"></p:separator>
+							<div class="EmptyBox10"></div>
+							<div class="Fs16 Fright">
+								<a href="#" onclick="meusdados()" class="DispInlBlock Fleft Fs16 MarRight20"><i class="icon-sliders hardblue">Meus dados</i></a>
+								<a href="#" onclick="carregarConfiguracoes()" class="DispInlBlock Fleft Fs16 MarRight20"><i class="icon-cog-alt hardblue"> Configurações</i></a>
+							</div>
+							<div class="EmptyBox10"></div>
+							<p:separator styleClass="Wid100"></p:separator>
+							<div class="EmptyBox10"></div>
+							<i class="icon-key softgray MarRight10 Fs14 Fright"> Último login - #{loginBean.usuarioSession.ultimoLogin.dataFormatada}</i>
+							<div class="EmptyBox10"></div>
+							<p:separator styleClass="Wid100"></p:separator>
+
+						</p:panel>
+					</div>
+				</div>
+
+				<div class="Container30 Responsive">
+					<div class="ContainerIndent">
+						<p:panel id="panelRelCompras" style="min-height: 300px;">
+							<i class="icon-basket Fs50 Fleft Wid25 red TexAlCenter"></i>
+							<div class="Fs24 Fright MarTop10 leaden Wid70">Compras do dia</div>
+							<div class="Fs18 Fright leaden Wid70">Total <span class="red">#{dashBoardBean.valorTotalCompras}</span></div>
+							<div class="EmptyBox10"></div>
+							<p:separator styleClass="Wid100"></p:separator>
+							<div class="EmptyBox10"></div>
+							<div class="Fs12 Fright leaden Wid50 TexAlCenter Responsive">Segundo período<br/><span class="Fs20 red">#{dashBoardBean.valorTotalComprasSegundoPeriodo}</span></div>
+							<div class="Fs12 Fright leaden Wid50 TexAlCenter Responsive">Primeiro período<br/><span class="Fs20 hardblue">#{dashBoardBean.valorTotalComprasPrimeiroPeriodo}</span></div>
+							<div class="EmptyBox10"></div>
+							<p:separator styleClass="Wid100"></p:separator>
+							<p:commandLink styleClass="DispInlBlock Fs14 Fright MarRight10 icon-doc-1" value="Relatório completo" onclick="relatorioCompras()" />
+						</p:panel>
+					</div>
+				</div>
+
+				<div class="Container30 Responsive">
+					<div class="ContainerIndent">
+						<p:panel id="panelComprasKG" style="min-height: 300px;">
+							<i class="icon-basket Fs50 Fleft Wid25 orange TexAlCenter"></i>
+							<div class="Fs24 Fright MarTop10 leaden Wid70">Compras do dia em kg</div>
+							<div class="Fs18 Fright leaden Wid70">Total <span class="red">#{dashBoardBean.pesoTotalCompras}</span></div>
+							<div class="EmptyBox10"></div>
+							<p:separator styleClass="Wid100"></p:separator>
+							<div class="EmptyBox10"></div>
+							<div class="Fs12 Fright leaden Wid50 TexAlCenter Responsive">Segundo período<br/><span class="Fs20 red">#{dashBoardBean.pesoTotalComprasSegundoPeriodo}</span></div>
+							<div class="Fs12 Fright leaden Wid50 TexAlCenter Responsive">Primeiro período<br/><span class="Fs20 hardblue">#{dashBoardBean.pesoTotalComprasPrimeiroPeriodo}</span></div>
+							<div class="EmptyBox10"></div>
+							<p:separator styleClass="Wid100"></p:separator>
+							<p:commandLink styleClass="DispInlBlock Fs14 Fright MarRight10 icon-doc-1 orange" value="Relatório completo" onclick="relatorioCompras()" />
+						</p:panel>
+					</div>
+				</div>
+
+				<div class="EmptyBox10"></div>
+			</div>
+		</div>
+
+		<div class="Container100 BorBotLeaden">
+			<div class="ContainerIndent">
+				<div class="EmptyBox10"></div>
+
+				<div class="Container30 Responsive">
+					<div class="ContainerIndent">
+						<p:panel id="panelNotificacoes" style="min-height:300px;">
+							<div class="Container100 Responsive Fs20">
+								<i class="icon-bell-alt"></i> Notificações
+							</div>
+							<div class="Container100">
+								<p:separator styleClass="Wid100"></p:separator>
+								<div class="EmptyBox10"></div>
+								<h:panelGrid rendered="#{dashBoardBean.qtdeComprasAPagar.intValue() == 0 }">
+									<div style="padding-left: 10px"><a href="#" onclick="carregarCompras()"><i class="icon-flag"></i><span class="Fs20 hardblue" style="padding-left: 10px">Não há compras para serem pagas.</span></a></div>
+								</h:panelGrid>
+								<h:panelGrid rendered="#{dashBoardBean.qtdeComprasAPagar.intValue() > 0 }">
+									<div style="padding-left: 10px"><a href="#" onclick="carregarCompras()"><i class="icon-flag red"></i><span class="Fs20 red" style="padding-left: 10px">Há #{dashBoardBean.qtdeComprasAPagar} compras para serem pagas.</span></a></div>
+								</h:panelGrid>
+								<div class="EmptyBox10"></div>
+								<h:panelGrid rendered="#{dashBoardBean.qtdeComprasAAutorizar.intValue() == 0 }">
+									<div style="padding-left: 10px"><a href="#" onclick="carregarCompras()"><i class="icon-flag"></i><span class="Fs20 hardblue" style="padding-left: 10px">Não há compras para serem autorizadas.</span></a></div>
+								</h:panelGrid>
+								<h:panelGrid rendered="#{dashBoardBean.qtdeComprasAAutorizar.intValue() > 0 }">
+									<div style="padding-left: 10px"><a href="#" onclick="carregarCompras()"><i class="icon-flag red"></i><span class="Fs20 red" style="padding-left: 10px">Há #{dashBoardBean.qtdeComprasAAutorizar} compras para serem autorizadas.</span></a></div>
+								</h:panelGrid>
+								<div class="EmptyBox10"></div>
+								<h:panelGrid rendered="#{dashBoardBean.qtdePagamentosPendentes.intValue() == 0 }">
+									<div style="padding-left: 10px"><a href="#" onclick="carregarPagamentos()"><i class="icon-flag"></i><span class="Fs20 hardblue" style="padding-left: 10px">Não há pagamentos pendentes.</span></a></div>
+								</h:panelGrid>
+								<h:panelGrid rendered="#{dashBoardBean.qtdePagamentosPendentes.intValue() > 0 }">
+									<div style="padding-left: 10px"><a href="#" onclick="carregarPagamentos()"><i class="icon-flag red"></i><span class="Fs20 red" style="padding-left: 10px">Há #{dashBoardBean.qtdePagamentosPendentes} pagamentos pendentes.</span></a></div>
+								</h:panelGrid>
+							</div>
+						</p:panel>
+					</div>
+				</div>
+
+				<div class="Container30 Responsive">
+					<div class="ContainerIndent">
+
+						<p:panel id="panelPesoTotal" style="min-height: 300px;" rendered="#{loginBean.usuarioSession.usuario.perfil.descricao.equals('Admin')}">
+							<h:form>
+								<i class=" icon-tasks Fs50 Fleft Wid25 yellow TexAlCenter"></i>
+								<div class="Fs24 Fright MarTop10 leaden Wid70">Pesagens do dia</div>
+								<div class="Fs18 Fright leaden Wid70">Total <span class="red">#{dashBoardBean.pesoTotalComprasNaoFinalizadas}</span></div>
+								<div class="EmptyBox10"></div>
+								<p:separator styleClass="Wid100"></p:separator>
+								<p:dataList value="#{dashBoardBean.peixesRanking}" var="p" type="ordered" emptyMessage="Não há itens">
+									#{p.descricao} - #{p.peso} kg
+								</p:dataList>
+								<p:separator styleClass="Wid100"></p:separator>
+								<p:commandLink styleClass="DispInlBlock Fs14 Fright MarRight10 icon-doc-1 orange" value="Relatório completo" action="#{dashBoardBean.imprimirRelPesagensDia}" ajax="false"
+										rendered="#{dashBoardBean.peixesRanking.size() > 0}">
+								</p:commandLink>
+							</h:form>
+						</p:panel>
+					</div>
+				</div>
+
+				<div class="EmptyBox10"></div>
+			</div>
+		</div>
+  	</ui:define>
+    
+    <ui:define name="adicionais">
+		<h:form id="formPoll">
+			<p:poll interval="30"
+					listener="#{dashBoardBean.gerarNotificacoesEAlertas}"
+					update="panelUsuario panelRelCompras panelComprasKG panelNotificacoes"
+					widgetVar="poll" />
+		</h:form>
+    </ui:define>
+
+</ui:composition>
+

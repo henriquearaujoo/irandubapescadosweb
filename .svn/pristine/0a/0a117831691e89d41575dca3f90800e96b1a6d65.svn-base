@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			<h:form id="formtable">
+				<p:fieldset legend="Relatório de pagamentos">
+					<h:panelGrid columns="12">
+						<span style="font-weight:bold">Fornecedor: </span>
+						<p:inputText id="nome" value="#{relatorioPagamentosPescadoBean.filtro.nome}" size="50"/>
+						<p:watermark value="Nome" for="nome" />
+						<span style="font-weight:bold">Período: </span>
+						<p:calendar id="dataInicio" value="#{relatorioPagamentosPescadoBean.filtro.dataInicio}" pattern="dd/MM/yyy"/>
+						<p:watermark value="Data inicial" for="dataInicio" />
+						<p:calendar id="dataFinal" value="#{relatorioPagamentosPescadoBean.filtro.dataFinal}" pattern="dd/MM/yyy"/>
+						<p:watermark value="Data final" for="dataFinal" />
+						<p:commandButton action="#{relatorioPagamentosPescadoBean.imprimir}" icon="ui-icon-print" style="margin-left:5px" ajax="false" />
+						<p:commandButton action="#{relatorioPagamentosPescadoBean.limparFiltro()}" icon="ui-icon-close" style="margin-left:5px" update="nome dataInicio dataFinal"/>
+					</h:panelGrid>
+				</p:fieldset>
+			</h:form>
+		</div>
+	</ui:define>
+	
+</ui:composition>
+

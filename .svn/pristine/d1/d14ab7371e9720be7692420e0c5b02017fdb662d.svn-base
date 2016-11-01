@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+			  <f:metadata>
+				<f:viewParam name="peix" value="#{peixeBean.peixe}"/>
+			 </f:metadata>
+
+			<h:form id="mensagem">
+				<p:spacer height="0"></p:spacer>
+				<p:effect type="fade" for="msgs" event="load" speed="10000">
+					<p:messages id="msgs" showDetail="true" showSummary="true"
+								globalOnly="true" closable="true"/>
+				</p:effect>
+			</h:form>
+
+			<h:form id="formCadPeixe" enctype="multipart/form-data" acceptcharset="ISO-8859-1">
+				<p:fieldset legend="Informações do Peixe">
+					<h:panelGrid columns="3" cellspacing="5">
+
+						<p:outputLabel value="Descricao: *" />
+						<p:inputText id="descricao" value="#{peixeBean.peixe.descricao}" required="true" requiredMessage="Descrição é um campo obrigatório"/>
+						<p:message for="descricao"/>
+
+						<p:outputLabel value="Valor (R$): *" />
+						<p:inputText  value="#{peixeBean.peixe.valor}" onkeypress="return formatarNumero(this,event,18,2);" required="true" requiredMessage="Valor é um campo obrigatório">
+							 <f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+						</p:inputText>
+						<p:message for="descricao"/>
+
+						<p:outputLabel value="Tipo do Cadastro: *" />
+						<p:selectOneMenu value="#{peixeBean.peixe.tipoCadastro}">
+							<f:selectItems value="#{peixeBean.tiposCadastroPeixe}" var="t" itemValue="#{t}" itemLabel="#{t.tipo}" />
+						</p:selectOneMenu>
+
+					</h:panelGrid>
+
+				</p:fieldset>
+				<br/><br/>
+
+				<p:fieldset legend="Foto" >
+					<h:panelGrid>
+						<img jsf:value="/foto?produto=#{peixeBean.peixe.id}" width="400" height="200" />
+					</h:panelGrid>
+					<br/><br/>
+					<h:panelGrid>
+						<h:inputFile id="file"
+									 label="file"
+									 value="#{peixeBean.arquivo}" required="false">
+						</h:inputFile>
+					</h:panelGrid>
+				</p:fieldset>
+				<br/><br/>
+				<h:panelGrid columns="2">
+					<p:selectBooleanCheckbox value="#{peixeBean.inclusaoContinua}"/>
+					<p:outputLabel value="Inclusão contínua?" />
+				</h:panelGrid>
+				<br/><br/>
+				<p:outputLabel value="Campos obrigatórios *" />
+				<br/><br/>
+
+				<div class="btcentral">
+
+					<p:commandButton icon="ui-icon-disk" value="Salvar" process=":formCadPeixe" ajax="false"
+									 action="#{peixeBean.salvarPeixe()}" update=":mensagem"/>
+					<p:commandButton icon="ui-icon-close" action="#{peixeBean.cancelar()}" value="Cancelar" ajax="false" immediate="true"></p:commandButton>
+				</div>
+
+				<br/><br/>
+			</h:form>
+		</div>
+	</ui:define>
+
+
+</ui:composition>
+
+

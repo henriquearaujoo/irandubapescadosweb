@@ -1,0 +1,548 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="miolo">
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br/>
+				<f:metadata>
+					<f:viewParam name="pedido" value="#{pedidoBean.pedido}" />
+					<f:viewAction action="#{pedidoBean.inicializarPedido()}" />
+				</f:metadata>
+
+				<h:form id="mensagem">
+					<p:effect type="fade" for="msgs" event="load" speed="50000">
+						<p:messages id="msgs" showDetail="true" showSummary="true"
+									globalOnly="true" closable="true"/>
+					</p:effect>
+				</h:form>
+
+				<h:form id="formPedido">
+
+					<p:fieldset legend="Dados do pedido">
+						<h:panelGrid  id="panelDadosPedido" columns="3" cellspacing="5">
+
+							<p:outputLabel value="Código: " />
+							<p:outputLabel id="codigo" value="#{pedidoBean.pedido.codigo}"/>
+							<p:message for="codigo"/>
+
+							<p:outputLabel value="Data: *" />
+							<p:calendar id="data" value="#{pedidoBean.pedido.data}" pattern="dd/MM/yyy"
+										 required="true"
+										 requiredMessage="Data é um campo obrigatório."
+										 disabled="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}">
+								<p:ajax event="dateSelect" update=" panelParcelas" />
+							</p:calendar>
+							<p:message for="data"/>
+
+							<p:outputLabel value="Data da Entrega: *" />
+							<p:calendar id="dataEntrega" value="#{pedidoBean.pedido.dataEntrega}" pattern="dd/MM/yyy"
+										required="true"
+										requiredMessage="Data da Entrega é um campo obrigatório."
+										disabled="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}">
+								<p:ajax event="dateSelect" update=" panelParcelas" />
+							</p:calendar>
+							<p:message for="data"/>
+
+							<p:outputLabel value="Cliente: *" />
+							<p:autoComplete id="cliente" value="#{pedidoBean.nomeCliente}" completeMethod="#{pedidoBean.completeCliente}" size="50"
+									required="true" requiredMessage="Cliente é um campo obrigatório." maxResults="20"
+									readonly="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}">
+								<p:ajax event="itemSelect" listener="#{pedidoBean.selecionaCliente}" update="formPedido panelParcelas" />
+							</p:autoComplete>
+							<p:message for="cliente"/>
+
+							<p:outputLabel value="Vendedor: *" />
+							<p:autoComplete id="vendedor" value="#{pedidoBean.nomeVendedor}" completeMethod="#{pedidoBean.completeVendedor}" size="50"
+									required="true" requiredMessage="Vendedor é um campo obrigatório." maxResults="20"
+									readonly="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}">
+								<p:ajax event="itemSelect" listener="#{pedidoBean.selecionaVendedor}" update="formPedido panelParcelas" />
+							</p:autoComplete>
+							<p:message for="vendedor"/>
+
+							<p:outputLabel value="Transportadora: " rendered="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}"/>
+							<p:outputLabel id="transportadora" value="#{pedidoBean.pedido.transportadora.nome}" rendered="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}"/>
+							<p:message for="transportadora" rendered="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}"/>
+
+							<p:outputLabel value="Placa do carro: " rendered="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}"/>
+							<p:outputLabel id="placaCarro" value="#{pedidoBean.pedido.placaCarro}" rendered="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}"/>
+							<p:message for="placaCarro" rendered="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}"/>
+
+							<p:outputLabel value="Valor (R$): *" />
+							<p:inputText id="valor" value="#{pedidoBean.pedido.valor}" onkeypress="return formatarNumero(this,event,18,2);" required="true" requiredMessage="Valor é um campo obrigatório"
+										 readonly="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}">
+								<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+								<p:ajax event="keyup" update="panelParcelas"/>
+							</p:inputText>
+							<p:message for="valor"/>
+
+							<!--
+							<p:outputLabel value="Qtde. de parcelas: *" />
+							<p:inputText id="parcelas" value="#{pedidoBean.pedido.qtdeParcelas}" onkeypress="return somenteNumeros(event);" size="10" required="true" requiredMessage="Qtde. de parcelas é um campo obrigatório">
+								<p:ajax event="keyup" update="panelParcelas"/>
+							</p:inputText>
+							<p:message for="parcelas"/>
+							-->
+						</h:panelGrid>
+
+					</p:fieldset>
+					<br />
+
+					<p:fieldset legend="Estoque" toggleable="true" collapsed="true">
+						<h:panelGrid id="panelProdutos">
+							<p:effect type="fade" for="msgspr" event="load" speed="50000">
+								<p:messages id="msgspr" showDetail="true" showSummary="true"
+											closable="true"/>
+							</p:effect>
+
+							<h:panelGrid id="panelFiltroEstoque" columns="10">
+								<p:outputLabel value="Peixe: " />
+								<p:autoComplete id="epeixe" value="#{pedidoBean.nomePeixe}" completeMethod="#{pedidoBean.completePeixe}" size="50" maxResults="20"/>
+								<p:message for="epeixe"/>
+
+								<p:outputLabel value="Tipo: " />
+								<p:selectOneMenu id="etipo" value="#{pedidoBean.tipoPeixe}">
+									<f:selectItem itemLabel="Selecione o tipo" />
+									<f:selectItems value="#{pedidoBean.listaTipos}"/>
+									<f:converter converterId="SelectOneMenuConverter"/>
+								</p:selectOneMenu>
+								<p:message for="etipo"/>
+
+								<p:outputLabel value="Câmara: " />
+								<p:selectOneMenu id="ecamara" value="#{pedidoBean.camara}">
+									<f:selectItem itemLabel="Selecione a câmara" itemValue="null"/>
+									<f:selectItems value="#{pedidoBean.listaCamaras}"/>
+									<f:converter converterId="SelectOneMenuConverter"/>
+								</p:selectOneMenu>
+								<p:message for="ecamara"/>
+
+								<p:commandButton icon="ui-icon-search" action="#{pedidoBean.buscarEstoque}" value="Buscar no estoque" update="tableEstoque msgspr" style="margin-left:5px" process="panelFiltroEstoque"/>
+							</h:panelGrid>
+
+							<br/>
+
+							<p:fieldset legend="Itens do estoque" >
+								<p:treeTable id="tableEstoque" value="#{pedidoBean.root}" var="p" selectionMode="checkbox"
+											 selection="#{pedidoBean.itensSelecionados}" scrollHeight="500" emptyMessage="Não há itens">
+									<f:facet name="header">
+										Produtos
+									</f:facet>
+									<p:column headerText="Local">
+										<h:outputText value="#{p.descricaoCamaraPeixe}" />
+
+										<h:outputText value=" - #{p.pesoTotal} kg" rendered="#{p.pesoTotal != null}"/>
+									</p:column>
+									<p:column headerText="Produto">
+										<h:outputText value="#{p.descricao}" />
+									</p:column>
+								</p:treeTable>
+							</p:fieldset>
+
+						</h:panelGrid>
+					</p:fieldset>
+
+					<br/>
+
+					<p:fieldset legend="Produtos">
+						<h:panelGrid id="panelProduto">
+
+							<p:effect type="fade" for="msgprod" event="load" speed="50000">
+								<p:messages id="msgprod" showDetail="true" showSummary="true"
+											closable="true"/>
+							</p:effect>
+
+							<br/>
+
+							<h:panelGrid id="panelDadosProduto" columns="7">
+								<p:outputLabel value="Peixe: " />
+								<p:autoComplete id="ppeixe" value="#{pedidoBean.nomePeixeProduto}" completeMethod="#{pedidoBean.completePeixe}" size="50" maxResults="20"/>
+
+								<p:outputLabel value="Tipo: " />
+								<p:selectOneMenu id="ptipo" value="#{pedidoBean.produto.tipoPeixe}">
+									<f:selectItem itemLabel="Selecione o tipo" />
+									<f:selectItems value="#{pedidoBean.listaTipos}"/>
+									<f:converter converterId="SelectOneMenuConverter"/>
+								</p:selectOneMenu>
+
+								<p:outputLabel value="Peso: " />
+								<p:inputText id="ppeso" value="#{pedidoBean.produto.peso}" onkeypress="return formatarNumero(this,event,18,2);" >
+									<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+								</p:inputText>
+
+								<p:commandButton icon="ui-icon-cart" action="#{pedidoBean.adicionarProdutos}" value="Adicionar ao pedido" update="tableProdutos panelPesoTotal msgprod" style="margin-left:5px" process="panelDadosProduto"
+													 disabled="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}"/>
+
+							</h:panelGrid>
+
+							<br/>
+
+							<p:dataTable id="tableProdutos" var="p"
+										 value="#{pedidoBean.pedido.produtos}" paginator="true"
+										 paginatorPosition="bottom" rows="10" emptyMessage="Não há itens">
+								<f:facet name="header">
+									Produtos
+								</f:facet>
+
+								<p:column>
+									<h:outputText value="#{p.descricao}">
+									</h:outputText>
+								</p:column>
+
+								<p:column style="width:100px;">
+									<f:facet name="header">
+										Excluir
+									</f:facet>
+									<p:commandButton value="Excluir" oncomplete="PF('confirmacaoDeleteProduto').show()" icon="ui-icon-trash" process="tableProdutos">
+										<f:setPropertyActionListener target="#{pedidoBean.produto}" value="#{p}" rendered="#{!pedidoBean.pedido.status.status.equals('Finalizado')}"/>
+									</p:commandButton>
+								</p:column>
+
+								<p:column style="width:130px;" rendered="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}">
+									<f:facet name="header">
+										Romaneio
+									</f:facet>
+									<p:commandButton value="Romaneio" icon="ui-icon-zoomin" action="#{pedidoBean.prepararRomaneiosProduto}" onsuccess="PF('modalRomaneio').show()"
+													update=":formRomaneio" process="tableProdutos">
+										<f:setPropertyActionListener target="#{pedidoBean.produto}" value="#{p}" />
+									</p:commandButton>
+								</p:column>
+
+							</p:dataTable>
+
+							<br />
+
+							<h:panelGrid id="panelPesoTotal" columns="3">
+								<p:outputLabel value="Peso total de produtos: " />
+								<p:outputLabel value="#{pedidoBean.pedido.pesoTotalProdutos.toString()}" />
+								<p:outputLabel value=" KG" />
+							</h:panelGrid>
+						</h:panelGrid>
+					</p:fieldset>
+
+					<br />
+
+					<p:fieldset legend="Parcelas" rendered="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}">
+						<h:panelGrid id="panelParcelas">
+							<p:effect type="fade" for="msgsp" event="load" speed="50000">
+								<p:messages id="msgsp" showDetail="true" showSummary="true"
+											closable="true"/>
+							</p:effect>
+
+							<h:panelGrid id="panelVencimentoCliente" columns="3">
+								<p:outputLabel value="Vencimento das Parcelas do Cliente: " />
+								<p:outputLabel value="#{pedidoBean.pedido.cliente.vencimentoParcelas}" />
+								<p:outputLabel value=" dias" />
+							</h:panelGrid>
+
+							<br />
+
+							<p:commandButton icon="ui-icon-plus" action="#{pedidoBean.gerarParcelas}" value="Gerar Parcelas" update="panelParcelas" style="margin-left:5px" process="@this"
+									disabled="#{pedidoBean.pedido.vendedor == null or pedidoBean.pedido.valor == null or pedidoBean.pedido.data == null or pedidoBean.pedido.cliente == null or pedidoBean.pedido.transportadora == null}"/>
+							<p:dataTable id="tableParcelas" var="parcela"
+										 value="#{pedidoBean.pedido.parcelas}" paginator="true"
+										 paginatorPosition="bottom" rows="10" emptyMessage="Não há itens" >
+								<f:facet name="header">
+									Parcelas
+								</f:facet>
+
+								<p:column>
+									<f:facet name="header">
+										Número
+									</f:facet>
+									<h:outputText value="#{parcela.numeroParcela}"/>
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										Data do pagamento
+									</f:facet>
+									<h:outputText value="#{parcela.dataPagamento}">
+										<f:convertDateTime pattern="dd/MM/yyyy"
+														   timeZone="America/Manaus" />
+									</h:outputText>
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										Valor (R$)
+									</f:facet>
+									<h:outputText value="#{parcela.valor}">
+										<f:convertNumber pattern="#,##0.00" minFractionDigits="2"/>
+									</h:outputText>
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										Comissão (%)
+									</f:facet>
+									<h:outputText value="#{parcela.porcentagemComissao}">
+										<f:convertNumber pattern="#,##0.00" minFractionDigits="2"/>
+									</h:outputText>
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										Valor Comissão (R$)
+									</f:facet>
+									<h:outputText value="#{parcela.valorComissao}">
+										<f:convertNumber pattern="#,##0.00" minFractionDigits="2"/>
+									</h:outputText>
+								</p:column>
+
+								<p:column style="width:100px;">
+									<f:facet name="header">
+										Editar
+									</f:facet>
+									<p:commandButton value="Editar" icon="ui-icon-pencil" action="#{pedidoBean.prepararEditarParcela}" oncomplete="PF('modalParcela').show()" update=":formParcela:panelParcela"
+											process="tableParcelas">
+										<f:setPropertyActionListener target="#{pedidoBean.parcela}" value="#{parcela}" />
+									</p:commandButton>
+								</p:column>
+
+							</p:dataTable>
+						</h:panelGrid>
+					</p:fieldset>
+					<br />
+					<p:fieldset legend="Nota Fiscal" rendered="#{pedidoBean.pedido.status.status.equals('Embarcado') or pedidoBean.pedido.status.status.equals('Finalizado')}">
+						<br />
+						<p:commandLink value="Nota FIscal: #{pedidoBean.arquivo.nome}" action="#{pedidoBean.downloadNotaFiscal}" rendered="#{pedidoBean.arquivo != null and pedidoBean.arquivo.id != null}"
+									   style="color: blue" ajax="false">
+						</p:commandLink>
+						<br />
+						<br />
+						<p:commandButton value="Adicionar Nota Fiscal" onclick="PF('modalNotaFiscal').show()" type="button"/>
+					</p:fieldset>
+					<br />
+					<p:outputLabel value="Campos obrigatórios *" />
+					<br />
+					<br />
+
+					<div class="btcentral">
+
+						<p:commandButton value="Salvar" icon="ui-icon-disk" action="#{pedidoBean.salvarPedido()}" update="formPedido :mensagem" ajax="false"
+										 rendered="#{!pedidoBean.pedido.status.status.equals('Finalizado')}"/>
+						<p:commandButton value="Retornar Pedido" icon="ui-icon-arrowreturnthick-1-w" rendered="#{!pedidoBean.pedido.status == 'RETORNADO'}"
+										 onclick="PF('confirmacaoRetornoPedido').show()" />
+						<p:commandButton value="Fechar" icon="ui-icon-close"
+							action="#{pedidoBean.cancelar()}" immediate="true" ajax="false" />
+					</div>
+					<br />
+				</h:form>
+
+			</div>
+		</ui:define>
+
+	<ui:define name="adicionais">
+
+		<p:confirmDialog widgetVar="confirmacaoDeleteProduto" header="Remoção" message="Confirma a exclusão do produto?">
+			<h:form id="formConfirmacaoExclusaoProduto">
+				<p:commandButton value="Sim"
+								 action="#{pedidoBean.excluirProduto()}"
+								 onsuccess="PF('confirmacaoDeleteProduto').hide()"
+								 styleClass="ui-confirmacaoDeleteProduto-yes" icon="ui-icon-check"
+								 update=":formPedido:msgprod :formPedido:panelProduto"/>
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoDeleteProduto').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:confirmDialog widgetVar="confirmacaoRetornoPedido" header="Confirmação" message="Confirma o retorno do pedido?">
+			<h:form id="formConfirmacaoRetornoPedido">
+				<p:commandButton value="Sim"
+								 action="#{pedidoBean.retornarPedido()}"
+								 onsuccess="PF('confirmacaoRetornoPedido').hide()"
+								 styleClass="ui-confirmacaoDeleteProduto-yes" icon="ui-icon-check"/>
+				<p:commandButton value="Não"
+								 onclick="PF('confirmacaoRetornoPedido').hide()" type="button"
+								 styleClass="ui-confirmdialog-no" icon="ui-icon-close"
+								 immediate="true" />
+			</h:form>
+		</p:confirmDialog>
+
+		<p:dialog header="Adição de produto" widgetVar="modalProduto"
+				  closable="true" modal="true" closeOnEscape="true" resizable="true"
+				  width="590px">
+			<div class="Container96 white-back Fnone MarAuto BordRad10">
+				<h:form id="formProduto">
+					<p:messages id="messages" showDetail="true"
+								autoUpdate="true" closable="true" />
+					<h:panelGrid id="panelProdutoo">
+						<p:fieldset legend="Dados do produto">
+							<h:panelGrid columns="3" >
+								<p:outputLabel value="Peixe: *" />
+								<p:autoComplete id="peixe" value="#{pedidoBean.nomePeixe}" completeMethod="#{pedidoBean.completePeixe}" size="50"
+												required="true" requiredMessage="Peixe é um campo obrigatório.">
+									<p:ajax event="itemSelect" listener="#{pedidoBean.selecionarPeixe}" update="panelProdutoo" />
+								</p:autoComplete>
+								<p:message for="peixe"/>
+
+								<p:outputLabel value="Tipo: *" />
+								<p:selectOneMenu id="tipo" value="#{pedidoBean.produto.tipoPeixe}">
+									<f:selectItem itemLabel="Selecione o tipo" />
+									<f:selectItems value="#{pedidoBean.listaTipos}"/>
+									<f:converter converterId="SelectOneMenuConverter"/>
+								</p:selectOneMenu>
+								<p:message for="tipo"/>
+
+								<p:outputLabel value="Peso disponível (KG): " />
+								<p:outputLabel id="pesod" value="#{pedidoBean.pesoDisponivel}" style="color: #F23030" >
+									<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+								</p:outputLabel>
+								<p:message for="pesod"/>
+
+								<p:outputLabel value="Peso (KG): *" />
+								<p:inputText id="peso" value="#{pedidoBean.produto.peso}" onkeypress="return formatarNumero(this,event,18,2);" required="true" requiredMessage="Peso é um campo obrigatório">
+									<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+									<p:ajax event="keyup" update="panelLabelPeso panelBotoesProduto"/>
+								</p:inputText>
+								<p:message for="peso"/>
+							</h:panelGrid>
+							<h:panelGrid id="panelLabelPeso">
+								<p:outputLabel id="labelPeso" value="O peso do produto deve ser menor ou igual ao peso disponível." style="color: #F23030" rendered="#{!pedidoBean.podeAlterarOuAdcionarProduto}" />
+							</h:panelGrid>
+						</p:fieldset>
+						<br />
+						<h:panelGrid id="panelBotoesProduto" columns="3">
+							<p:commandButton value="Salvar" icon="ui-icon-disk" disabled="#{!pedidoBean.podeAlterarOuAdcionarProduto}" action="#{pedidoBean.adicionarProduto()}" onsuccess="PF('modalProduto').hide()" update=":formPedido:panelProdutos" ajax="true" rendered="#{!pedidoBean.editandoProduto}"/>
+							<p:commandButton value="Editar" disabled="#{!pedidoBean.podeAlterarOuAdcionarProduto}" onsuccess="PF('modalProduto').hide()" update=":formPedido:panelProdutos" ajax="true" rendered="#{pedidoBean.editandoProduto}"/>
+							<p:commandButton value="Fechar" onclick="PF('modalProduto').hide()" immediate="true" />
+						</h:panelGrid>
+					</h:panelGrid>
+				</h:form>
+			</div>
+		</p:dialog>
+
+		<p:dialog header="Parcela" widgetVar="modalParcela"
+				  closable="true" modal="true" closeOnEscape="true" resizable="true"
+				  width="500px">
+			<div class="Container96 white-back Fnone MarAuto BordRad10">
+				<h:form id="formParcela">
+					<p:messages id="messagesParcela" showDetail="true"
+								autoUpdate="true" closable="true" />
+					<h:panelGrid id="panelParcela">
+						<p:fieldset legend="Dados da parcela">
+							<h:panelGrid columns="3">
+								<p:outputLabel value="Data do Pagamento: *" />
+								<p:calendar id="dataPagamento" value="#{pedidoBean.parcela.dataPagamento}" pattern="dd/MM/yyy"
+											required="true"
+											requiredMessage="Data do Pagamento é um campo obrigatório.">
+								</p:calendar>
+								<p:message for="dataPagamento"/>
+
+								<p:outputLabel value="Valor (R$): *" />
+								<p:inputText id="valorParcela" value="#{pedidoBean.parcela.valor}" onkeypress="return formatarNumero(this,event,18,2);" required="true" requiredMessage="Valor é um campo obrigatório">
+									<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+									<p:ajax event="keyup" update="valorComissao"/>
+								</p:inputText>
+								<p:message for="valorParcela"/>
+
+								<p:outputLabel value="Comissão (%): *" />
+								<p:inputText id="comissao" value="#{pedidoBean.parcela.porcentagemComissao}" onkeypress="return formatarNumero(this,event,18,2);" required="true" requiredMessage="Comissão é um campo obrigatório">
+									<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+									<p:ajax event="keyup" update="valorComissao"/>
+								</p:inputText>
+								<p:message for="comissao"/>
+
+								<p:outputLabel value="Valor Comissão (R$): " />
+								<p:outputLabel id="valorComissao" value="#{pedidoBean.parcela.valorComissao}">
+									<f:convertNumber minFractionDigits="2" maxFractionDigits="2" locale="pt_BR"/>
+								</p:outputLabel>
+								<p:message for="valorComissao"/>
+							</h:panelGrid>
+						</p:fieldset>
+						<br />
+						<h:panelGrid columns="2">
+							<p:commandButton value="Salvar" icon="ui-icon-disk" onsuccess="PF('modalParcela').hide()" update=":formPedido:panelParcelas :mensagem" ajax="true" rendered="#{pedidoBean.editandoParcela}"/>
+							<p:commandButton value="Fechar" icon="ui-icon-close" onclick="PF('modalParcela').hide()" immediate="true" />
+						</h:panelGrid>
+
+					</h:panelGrid>
+				</h:form>
+			</div>
+		</p:dialog>
+
+		<p:dialog header="Romaneio" widgetVar="modalRomaneio"
+				  closable="true" modal="true" closeOnEscape="true" resizable="true"
+				  width="560px">
+			<div class="Container96 white-back Fnone MarAuto BordRad10">
+				<h:form id="formRomaneio">
+
+					<p:messages id="messagesRomaneio" showDetail="true"
+								autoUpdate="true" closable="true" />
+
+					<h:panelGrid columns="1">
+						<p:dataTable id="tableRomaneios" var="r"
+									 value="#{pedidoBean.produto.romaneios}" paginator="true"
+									 paginatorPosition="bottom" rows="10" emptyMessage="Não há itens">
+							<f:facet name="header">
+								Romaneios
+							</f:facet>
+
+							<p:column>
+								<f:facet name="header">
+									Lote
+								</f:facet>
+								<h:outputText value="#{r.lote}" />
+							</p:column>
+
+							<p:column>
+								<f:facet name="header">
+									Qtde. de Embalagens
+								</f:facet>
+								<h:outputText value="#{r.qtdeEmbalagens}" />
+							</p:column>
+
+						</p:dataTable>
+					</h:panelGrid>
+				</h:form>
+			</div>
+		</p:dialog>
+
+		<p:dialog header="Nota Fiscal" widgetVar="modalNotaFiscal"
+				  closable="true" modal="true" closeOnEscape="true" resizable="true"
+				  width="560px">
+			<div class="Container96 white-back Fnone MarAuto BordRad10">
+				<h:form id="formNotaFiscal" enctype="multipart/form-data">
+					<p:fieldset legend="Dados da Nota Fiscal" >
+						<p:outputLabel value="Ao inserir os dados da nota fiscal o pedido será finalizado." style="color: #F23030"/>
+						<br /><br />
+						<h:panelGrid columns="3">
+							<p:outputLabel value="Número Nota Fiscal: " />
+							<p:inputText id="numeroNF" value="#{pedidoBean.pedido.notaFiscal}" size="50"/>
+							<p:message for="numeroNF"/>
+
+							<p:outputLabel value="Nota Fiscal: " />
+							<h:inputFile id="notaFiscal" label="notaFiscal" value="#{pedidoBean.notaFiscal}" />
+							<p:message for="notaFiscal"/>
+						</h:panelGrid>
+					</p:fieldset>
+					<br />
+					<div class="btcentral">
+						<p:commandButton value="Salvar" icon="ui-icon-disk" action="#{pedidoBean.salvarNotaFiscal}" ajax="false"/>
+						<p:commandButton value="Fechar" icon="ui-icon-close" onclick="PF('modalNotaFiscal').hide()" immediate="true" />
+					</div>
+				</h:form>
+			</div>
+		</p:dialog>
+
+		<p:dialog header="Estoque" widgetVar="modalEstoque"
+				  closable="true" modal="false" closeOnEscape="true" resizable="true"
+				  width="990px">
+			<div class="Container96 white-back Fnone MarAuto BordRad10">
+				<h:form id="formEstoque" >
+
+				</h:form>
+			</div>
+		</p:dialog>
+
+	</ui:define>
+
+</ui:composition>
+
+

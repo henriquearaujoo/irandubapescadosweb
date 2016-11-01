@@ -1,0 +1,166 @@
+package com.irandubamodulo01.bean;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
+import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import com.irandubamodulo01.dao.ObservacaoArmazenamentoDAO;
+import com.irandubamodulo01.model.ObservacaoArmazenamento;
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
+
+import com.irandubamodulo01.dao.ArmazenamentoDAO;
+import com.irandubamodulo01.enumerated.StatusArmazenamento;
+import com.irandubamodulo01.model.Armazenamento;
+import com.irandubamodulo01.model.Usuario;
+import com.irandubamodulo01.util.Filtro;
+
+@Named(value = "armazenamentoBean")
+@ViewScoped
+public class ArmazenamentoBean implements Serializable{
+
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private @Inject ArmazenamentoDAO armazenamentoDao;
+	private @Inject Armazenamento armazenamento;
+	private @Inject ObservacaoArmazenamentoDAO observacaoArmazenamentoDAO;
+	private Filtro filtro =  new Filtro();
+	private LazyDataModel<Armazenamento> model;
+	private Usuario usuario;
+    private List<SelectItem> listaStatus;
+	private ObservacaoArmazenamento observacao = new ObservacaoArmazenamento();
+
+
+
+	public ArmazenamentoBean(){
+		usuario = getUsuarioSession().getUsuario();
+		carregarFiltroStatus();
+		model = new LazyDataModel<Armazenamento>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public List<Armazenamento> load(int first, int pageSize, String sortField,
+					SortOrder sortOrder, Map<String, Object> filters) {
+				filtro.setPrimeiroRegistro(first);
+				filtro.setQuantidadeRegistros(pageSize);
+				filtro.setAscendente(SortOrder.ASCENDING.equals(sortOrder));
+				filtro.setPropriedadeOrdenacao(sortField);
+				filtro.setUsuario(usuario);
+				setRowCount(armazenamentoDao.quantidadeFiltrados(filtro));
+				return armazenamentoDao.filtrados(filtro);
+			}
+		};
+		
+	}
+	
+	public void carregarFiltroStatus() {
+		listaStatus = new ArrayList<SelectItem>();
+		for (StatusArmazenamento status : StatusArmazenamento.values()) {
+			if (!usuario.getPerfil().getDescricao().equals("Admin") && status.getStatus().equalsIgnoreCase("RETORNADO")) 
+			 {continue;}
+			 listaStatus.add(new SelectItem(status,status.getStatus()));
+		}
+	}
+
+	public String redirecionarDetalhes(){
+		return  "detalhes_armazenamento?faces-redirect=true&amp;includeViewParams=true";
+	}
+
+	public String retornar(){
+		try {
+		 observacao.setData(new Date());
+	     observacao.setUsuario(getUsuarioSession().getUsuario());
+	     observacao.setArmazenamento(armazenamento);
+		 armazenamento.setStatus(StatusArmazenamento.RETORNADO);
+		 armazenamentoDao.save(armazenamento);
+		 observacaoArmazenamentoDAO.save(observacao);
+		 addMessage("Retornado", "Armazenamento retornado para correção", FacesMessage.SEVERITY_INFO);
+		 return "armazenamento?faces-redirect=true";
+		} catch (Exception e) {
+		 e.printStackTrace();	
+	     addMessage("Erro", "Erro ao estornar entre em contato com suporte técnico", FacesMessage.SEVERITY_ERROR);
+		 return null;
+		}
+	}
+	
+	public String autorizar(){
+		try {
+		 observacao.setData(new Date());
+		 observacao.setUsuario(getUsuarioSession().getUsuario());
+		 observacao.setArmazenamento(armazenamento);
+		 armazenamento.setStatus(StatusArmazenamento.AUTORIZADO);
+		 armazenamentoDao.save(armazenamento);
+		 observacaoArmazenamentoDAO.save(observacao);
+		 // o armazenamento ja � o pr�prio estoque ??? ou ser� necess�rio outra tabela ??? tamb�m n�o tenho a tabela retirada
+		 addMessage("Autorizado", "Armazenamento em estoque", FacesMessage.SEVERITY_INFO);
+		 return "armazenamento?faces-redirect=true";
+		} catch (Exception e) {
+	     addMessage("Erro", "Erro ao autorizar entre em contato com suporte técnico", FacesMessage.SEVERITY_INFO);
+		 return  null;
+		}
+	}
+
+	public UsuarioSessionBean getUsuarioSession(){
+		UsuarioSessionBean usuarioSession = (UsuarioSessionBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuariologado");
+		return usuarioSession;
+	}
+	
+	public void addMessage(String summary, String detail, Severity severity) {
+        FacesMessage message = new FacesMessage(severity, summary, detail);
+        FacesContext.getCurrentInstance().addMessage(null, message);
+    }
+
+	public Armazenamento getArmazenamento() {
+		return armazenamento;
+	}
+
+	public void setArmazenamento(Armazenamento armazenamento) {
+		this.armazenamento = armazenamento;
+	}
+
+	public Filtro getFiltro() {
+		return filtro;
+	}
+
+	public void setFiltro(Filtro filtro) {
+		this.filtro = filtro;
+	}
+
+	public LazyDataModel<Armazenamento> getModel() {
+		return model;
+	}
+
+	public void setModel(LazyDataModel<Armazenamento> model) {
+		this.model = model;
+	}
+
+	public List<SelectItem> getListaStatus() {
+		return listaStatus;
+	}
+
+	public void setListaStatus(List<SelectItem> listaStatus) {
+		this.listaStatus = listaStatus;
+	}
+
+	public ObservacaoArmazenamento getObservacao() {
+		return observacao;
+	}
+
+	public void setObservacao(ObservacaoArmazenamento observacao) {
+		this.observacao = observacao;
+	}
+		
+}

@@ -1,0 +1,171 @@
+package com.irandubamodulo01.bean;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
+import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import com.irandubamodulo01.dao.ObservacaoArmazenamentoDAO;
+import com.irandubamodulo01.dao.RetiradaDAO;
+import com.irandubamodulo01.model.ObservacaoArmazenamento;
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
+import com.irandubamodulo01.enumerated.StatusArmazenamento;
+import com.irandubamodulo01.model.Retirada;
+import com.irandubamodulo01.model.Usuario;
+import com.irandubamodulo01.util.Filtro;
+
+@Named(value = "retiradaBean")
+@ViewScoped
+public class RetiradaBean implements Serializable{
+
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private @Inject RetiradaDAO retiradaDao;
+	private @Inject Retirada retirada;
+	private @Inject
+	ObservacaoArmazenamentoDAO observacaoArmazenamentoDAO;
+	private Filtro filtro =  new Filtro();
+	private LazyDataModel<Retirada> model;
+	private Usuario usuario;
+    private List<SelectItem> listaStatus;
+	private ObservacaoArmazenamento observacao = new ObservacaoArmazenamento();
+
+	public UsuarioSessionBean getUsuarioSession(){
+		UsuarioSessionBean usuarioSession = (UsuarioSessionBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuariologado");
+		return usuarioSession;
+	}
+
+	public RetiradaBean(){
+		usuario = getUsuarioSession().getUsuario();
+		carregarFiltroStatus();
+		model = new LazyDataModel<Retirada>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public List<Retirada> load(int first, int pageSize, String sortField,
+					SortOrder sortOrder, Map<String, Object> filters) {
+				filtro.setPrimeiroRegistro(first);
+				filtro.setQuantidadeRegistros(pageSize);
+				filtro.setAscendente(SortOrder.ASCENDING.equals(sortOrder));
+				filtro.setPropriedadeOrdenacao(sortField);
+				filtro.setUsuario(usuario);
+				setRowCount(retiradaDao.quantidadeFiltrados(filtro));
+				return retiradaDao.filtrados(filtro);
+			}
+		 };
+		
+	}
+	
+	public void carregarFiltroStatus() {
+		listaStatus = new ArrayList<SelectItem>();
+		for (StatusArmazenamento status : StatusArmazenamento.values()) {
+			if (!usuario.getPerfil().getDescricao().equals("Admin") && status.getStatus().equalsIgnoreCase("RETORNADO")) 
+			 {continue;}
+			 listaStatus.add(new SelectItem(status,status.getStatus()));
+		}
+	}
+
+	public String retornar(){
+		try {
+
+		 observacao.setData(new Date());
+		 observacao.setUsuario(getUsuarioSession().getUsuario());
+		 observacao.setRetirada(retirada);
+		 retirada.setStatus(StatusArmazenamento.RETORNADO);
+		 retiradaDao.save(retirada);
+		 observacaoArmazenamentoDAO.save(observacao);
+		 addMessage("Retornado", "Armazenamento retornado para corre��o", FacesMessage.SEVERITY_INFO);
+			return "retirada?faces-redirect=true";
+		} catch (Exception e) {
+		 e.printStackTrace();	
+	     addMessage("Erro", "Erro ao estornar entre em contato com suporte t�cnico", FacesMessage.SEVERITY_ERROR);
+			return null;
+		}
+	}
+	
+	public String autorizar(){
+		try {
+		 observacao.setData(new Date());
+		 observacao.setUsuario(getUsuarioSession().getUsuario());
+		 observacao.setRetirada(retirada);
+		 retirada.setStatus(StatusArmazenamento.AUTORIZADO);
+		 retiradaDao.save(retirada);
+		 observacaoArmazenamentoDAO.save(observacao);
+
+		 addMessage("Autorizado", "Retirada em estoque", FacesMessage.SEVERITY_INFO);
+		 return "retirada?faces-redirect=true";
+		} catch (Exception e) {
+	     addMessage("Erro", "Erro ao autorizar entre em contato com suporte t�cnico", FacesMessage.SEVERITY_INFO);
+			return null;
+		}
+	}
+	
+	public void addMessage(String summary, String detail, Severity severity) {
+        FacesMessage message = new FacesMessage(severity, summary, detail);
+        FacesContext.getCurrentInstance().addMessage(null, message);
+    }
+
+	public String redirecionarDetalhes(){
+		return  "detalhes_retirada?faces-redirect=true&amp;includeViewParams=true";
+	}
+
+	public Filtro getFiltro() {
+		return filtro;
+	}
+
+	public void setFiltro(Filtro filtro) {
+		this.filtro = filtro;
+	}
+
+	public Retirada getRetirada() {
+		return retirada;
+	}
+
+	public void setRetirada(Retirada retirada) {
+		this.retirada = retirada;
+	}
+
+	public LazyDataModel<Retirada> getModel() {
+		return model;
+	}
+
+	public void setModel(LazyDataModel<Retirada> model) {
+		this.model = model;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public List<SelectItem> getListaStatus() {
+		return listaStatus;
+	}
+
+	public void setListaStatus(List<SelectItem> listaStatus) {
+		this.listaStatus = listaStatus;
+	}
+
+	public ObservacaoArmazenamento getObservacao() {
+		return observacao;
+	}
+
+	public void setObservacao(ObservacaoArmazenamento observacao) {
+		this.observacao = observacao;
+	}
+}
