@@ -83,7 +83,7 @@ public class RelatorioPagamentosPescadoBean implements Serializable{
 			jd = JRXmlLoader.load(path + "relatorios/relatorio_pagamentos_pescado.jrxml");
 
 			JasperReport report = JasperCompileManager.compileReport(jd);
-			ReportUtil.openReportCon("Relatório", nomeRel + new SimpleDateFormat("HHmmssddMMyyyy").format(new Date()), report, parametros, compraDAO.getConnection());
+			ReportUtil.openReportCon("Relatório", nomeRel + new SimpleDateFormat("HHmmssddMMyyyy").format(new Date()), report, parametros, compraDAO.getConnection(), "PDF");
 
 			addMessage("Informação: ", "Relatório exportado com sucesso.");
 		} catch (Exception e) {

@@ -11,23 +11,50 @@
 			<br/>
 			<h:form id="formtable" acceptcharset="ISO-8859-1">
 				<p:fieldset legend="Relatório de compras">
-					<h:panelGrid columns="14">
+					<h:panelGrid columns="3" cellspacing="10">
 						<span style="font-weight:bold">Fornecedor: </span>
 						<p:autoComplete id="nome" value="#{relatorioComprasBean.nomeFornecedor}" completeMethod="#{relatorioComprasBean.completeFornecedor}" size="50" maxResults="20"/>
 						<p:watermark value="Nome" for="nome" />
-						<span style="font-weight:bold">Período: </span>
-						<p:calendar id="dataInicio" value="#{relatorioComprasBean.filtro.dataInicio}" pattern="dd/MM/yyy"/>
-						<p:watermark value="Data inicial" for="dataInicio" />
-						<p:calendar id="dataFinal" value="#{relatorioComprasBean.filtro.dataFinal}" pattern="dd/MM/yyy"/>
-						<p:watermark value="Data final" for="dataFinal" />
+						
+						<span style="font-weight:bold; padding-top: 100px;">Período: </span>
+						<h:panelGroup>
+							<h:panelGrid columns="5" cellspacing="5">
+								<p:calendar id="dataInicio" value="#{relatorioComprasBean.filtro.dataInicio}" pattern="dd/MM/yyy"/>
+								<p:watermark value="Data inicial" for="dataInicio" />
+								<span style="font-weight:bold">Até </span>
+								<p:calendar id="dataFinal" value="#{relatorioComprasBean.filtro.dataFinal}" pattern="dd/MM/yyy"/>
+								<p:watermark value="Data final" for="dataFinal" />
+							</h:panelGrid>
+						</h:panelGroup>
+						<p:outputLabel value=""/>
+						
 						<span style="font-weight:bold">Tipo de Relatório: </span>
 						<p:selectOneMenu id="tipo" value="#{relatorioComprasBean.filtroStatus}" >
 							<f:selectItem itemLabel="Pela Data da Compra/Envio" itemValue="1"/>
 							<f:selectItem itemLabel="Por Fornecedor" itemValue="2" />
 							<f:selectItem itemLabel="Pela Data da Compra/Produto" itemValue="3"/>
 						</p:selectOneMenu>
-						<p:selectBooleanCheckbox value="#{relatorioComprasBean.finalizadas}"/>
-						<span style="font-weight:bold">Somente compras finalizadas</span>
+						<p:outputLabel value=""/>
+						
+						<span style="font-weight:bold">Tipo do Arquivo: </span>
+						<p:selectOneMenu id="tipoArquivo" value="#{relatorioComprasBean.tipoArquivo}" >
+							<f:selectItem itemLabel="PDF" itemValue="1"/>
+							<f:selectItem itemLabel="Excel" itemValue="2" />
+						</p:selectOneMenu>
+						<p:outputLabel value=""/>
+						
+						<h:panelGroup>
+							<h:panelGrid columns="2">
+								<p:selectBooleanCheckbox value="#{relatorioComprasBean.finalizadas}"/>
+								<span style="font-weight:bold">Somente compras finalizadas</span>
+							</h:panelGrid>
+						</h:panelGroup>
+						
+					</h:panelGrid>
+					
+					<br />
+					
+					<h:panelGrid columns="2">
 						<p:commandButton action="#{relatorioComprasBean.imprimir}" icon="ui-icon-print" style="margin-left:5px" ajax="false" />
 						<p:commandButton action="#{relatorioComprasBean.limparFiltro()}" icon="ui-icon-close" style="margin-left:5px" update="nome dataInicio dataFinal tipo"/>
 					</h:panelGrid>

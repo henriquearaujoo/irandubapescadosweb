@@ -246,7 +246,7 @@ public class EstoqueBean implements Serializable{
             JasperDesign jd = null;
             jd = JRXmlLoader.load(path + "relatorios/relatorio_armazenamento.jrxml");
             JasperReport report = JasperCompileManager.compileReport(jd);
-            ReportUtil.openReportCon("Relatório", "relatorio_armazenamento" + new SimpleDateFormat("HHmmssddMMyyyy").format(new Date()), report, parametros, armazenamentoDAO.getConnection());
+            ReportUtil.openReportCon("Relatório", "relatorio_armazenamento" + new SimpleDateFormat("HHmmssddMMyyyy").format(new Date()), report, parametros, armazenamentoDAO.getConnection(), "PDF");
 
         }catch (Exception e){
             e.printStackTrace();

@@ -20,48 +20,63 @@
 		  </h:form>
 
 		  <h:form id="formtable">
-		   <p:inputText value="#{camarabean.filtro.descricao}" size="50"/>
-			<p:commandButton icon="ui-icon-search"  update=":formtable:tablecamara" process="@form"  style="margin-left:5px"/>
-			<p:commandButton icon="ui-icon-plus" value="Novo" action="#{camarabean.pageCadastro()}" update="@this" style="margin-left:5px"/>
+			  <p:inputText value="#{camarabean.filtro.descricao}" size="50"/>
+			  <p:commandButton icon="ui-icon-search"  update=":formtable:tablecamara" process="@form"  style="margin-left:5px"/>
+			  <p:commandButton icon="ui-icon-plus" value="Novo" action="#{camarabean.pageCadastro()}" update="@this" style="margin-left:5px"/>
 
-		  <br/>
-			   <br/>
+			  	<br/>
+				<br/>
+				
+				<h:panelGrid columns="3" style="float: right;">
+					<p:selectOneMenu value="#{layoutBean.tipoExport}">
+						<f:selectItem itemLabel="Todos" itemValue="false"/>
+						<f:selectItem itemLabel="Atual" itemValue="true"/>
+					</p:selectOneMenu>
+					<h:commandLink style="padding-left: 5px">
+		                <p:graphicImage url="/images/pdf.png" width="28" title="Exportar pdf"/>
+		                <p:dataExporter type="pdf" target="tablecamara" fileName="camaras" pageOnly="#{layoutBean.tipoExport}"/>
+		            </h:commandLink>
+		            <h:commandLink style="padding-left: 5px">
+		                <p:graphicImage url="/images/excel.png" width="28" title="Exportar excel"/>
+		                <p:dataExporter type="xls" target="tablecamara" fileName="camaras" pageOnly="#{layoutBean.tipoExport}"/>
+		            </h:commandLink>
+	            </h:panelGrid>
 
+				<br />
+				<br />
+		
 				<p:dataTable id="tablecamara" var="c" sortBy="#{c.descricao}" sortOrder="ASCENDING"
-					value="#{camarabean.model}" lazy="true" paginator="true" paginatorPosition="bottom" rows="15">
+					paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+					value="#{camarabean.model}" lazy="true" paginator="true" rows="15">
 					<f:facet name="header">
 					Listagem de Camaras
 				</f:facet>
-
+		
 					<p:column>
 						<f:facet name="header">
 					  Descricao
 					</f:facet>
 						<h:outputText value="#{c.descricao}" />
 					</p:column>
-
-					<p:column style="width:100px;">
+		
+					<p:column style="width:10%;" exportable="false">
 						<f:facet name="header">
-						  Editar
+						  Ações
 						</f:facet>
-						<p:commandButton action="#{camarabean.editar()}" icon="ui-icon-pencil"
-							value="Editar">
-							<f:param name="cam" value="#{c.id}"/>
-							<f:setPropertyActionListener target="#{camarabean.camara}"
-								value="#{c}" />
-						</p:commandButton>
+						<h:panelGrid columns="2" style="float: inherit;">
+							<p:commandButton action="#{camarabean.editar()}" icon="ui-icon-pencil"
+								title="Editar">
+								<f:param name="cam" value="#{c.id}"/>
+								<f:setPropertyActionListener target="#{camarabean.camara}"
+									value="#{c}" />
+							</p:commandButton>
+							<p:commandButton title="Excluir" oncomplete="PF('confirmacaoDelete').show()" icon="ui-icon-trash" >
+								<f:setPropertyActionListener target="#{camarabean.camara}"
+									value="#{c}" />
+							</p:commandButton>
+						</h:panelGrid>
 					</p:column>
-
-					<p:column style="width:100px;">
-						<f:facet name="header">
-						  Excluir
-						</f:facet>
-						<p:commandButton value="Excluir" oncomplete="PF('confirmacaoDelete').show()" icon="ui-icon-trash" >
-							<f:setPropertyActionListener target="#{camarabean.camara}"
-								value="#{c}" />
-						</p:commandButton>
-					</p:column>
-
+		
 				</p:dataTable>
 
 			</h:form>

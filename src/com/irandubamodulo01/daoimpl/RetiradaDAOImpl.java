@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import com.irandubamodulo01.dao.RetiradaDAO;
 import org.hibernate.Criteria;
@@ -76,5 +77,10 @@ public class RetiradaDAOImpl extends DAOimpl<Retirada, Long> implements Retirada
 		return criteria;
 	}
 
-	
+	@Override
+	public Retirada obterRetiradaPorId(Long id){
+		String hql = "from Retirada where id = " + id;
+		Query query = em.createQuery(hql);
+		return (Retirada) query.getSingleResult();
+	}
 }

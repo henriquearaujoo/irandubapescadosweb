@@ -342,7 +342,7 @@
 
 							<p:commandButton value="Reabrir a Compra"
 											 onclick="PF('confirmacaoReabertura').show()" icon="ui-icon-arrowreturnthick-1-w"
-											 rendered="#{loginBean.usuarioSession.usuario.perfil.descricao.equals('Admin') and loginBean.usuarioSession.usuario.login == 'alexis'}">
+											 rendered="#{loginBean.usuarioSession.usuario.perfil.descricao.equals('Admin')}">
 							</p:commandButton>
 
 							<p:commandButton value="Fechar" action="#{compraFinalizadaBean.cancelar()}" icon="ui-icon-close"/>

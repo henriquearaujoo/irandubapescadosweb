@@ -15,7 +15,7 @@
 			<property name="javax.persistence.jdbc.user" value="postgres" />
 			<property name="javax.persistence.jdbc.password" value="s3nh@root" />
 			<property name="javax.persistence.jdbc.url"
-				value="jdbc:postgresql://localhost:5432/iranduba_pescados" />
+				value="jdbc:postgresql://localhost:5435/iranduba_pescados" />
 		</properties>
 
 		<!--

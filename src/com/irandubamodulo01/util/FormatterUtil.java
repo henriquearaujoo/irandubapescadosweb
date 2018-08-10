@@ -31,16 +31,16 @@ public class FormatterUtil {
 	       return("zero");
 	 
 	    long inteiro = (long)Math.abs(vlr); // parte inteira do valor
-	    double resto = vlr - inteiro;       // parte fracionária do valor
+	    double resto = vlr - inteiro;       // parte fracionï¿½ria do valor
 	 
 	    String vlrS = String.valueOf(inteiro);
 	    if (vlrS.length() > 15)
-	       return("Erro: valor superior a 999 trilhões.");
+	       return("Erro: valor superior a 999 trilhÃµes.");
 	 
 	    String s = "", saux, vlrP;
 	    String centavos = String.valueOf((int)Math.round(resto * 100));
 	 
-	    String[] unidade = {"", "um", "dois", "três", "quatro", "cinco",
+	    String[] unidade = {"", "um", "dois", "trÃªs", "quatro", "cinco",
 	             "seis", "sete", "oito", "nove", "dez", "onze",
 	             "doze", "treze", "quatorze", "quinze", "dezesseis",
 	             "dezessete", "dezoito", "dezenove"};
@@ -49,8 +49,8 @@ public class FormatterUtil {
 	             "setecentos", "oitocentos", "novecentos"};
 	    String[] dezena = {"", "", "vinte", "trinta", "quarenta", "cinquenta",
 	             "sessenta", "setenta", "oitenta", "noventa"};
-	    String[] qualificaS = {"", "mil", "milhão", "bilhão", "trilhão"};
-	    String[] qualificaP = {"", "mil", "milhões", "bilhões", "trilhões"};
+	    String[] qualificaS = {"", "mil", "milhÃµo", "bilhÃµo", "trilhÃµo"};
+	    String[] qualificaP = {"", "mil", "milhÃµes", "bilhÃµes", "trilhÃµes"};
 	 
 	// definindo o extenso da parte inteira do valor
 	    int n, unid, dez, cent, tam, i = 0;
@@ -60,12 +60,12 @@ public class FormatterUtil {
 	// retira do valor a 1a. parte, 2a. parte, por exemplo, para 123456789:
 	// 1a. parte = 789 (centena)
 	// 2a. parte = 456 (mil)
-	// 3a. parte = 123 (milhões)
+	// 3a. parte = 123 (milhï¿½es)
 	      if (tam > 3) {
 	         vlrP = vlrS.substring(tam-3, tam);
 	         vlrS = vlrS.substring(0, tam-3);
 	      }
-	      else { // última parte do valor
+	      else { // ï¿½ltima parte do valor
 	        vlrP = vlrS;
 	        vlrS = "0";
 	      }
@@ -109,7 +109,7 @@ public class FormatterUtil {
 	      }
 	      if (((i == 0) || (i == 1)) && s.length() != 0)
 	         tem = true; // tem centena ou mil no valor
-	      i = i + 1; // próximo qualificador: 1- mil, 2- milhão, 3- bilhão, ...
+	      i = i + 1; // prï¿½ximo qualificador: 1- mil, 2- milhï¿½o, 3- bilhï¿½o, ...
 	    }
 	 
 	    if (s.length() != 0) {
@@ -122,7 +122,7 @@ public class FormatterUtil {
 	 
 	// definindo o extenso dos centavos do valor
 	    if (!centavos.equals("0")) { // valor com centavos
-	       if (s.length() != 0) // se não é valor somente com centavos
+	       if (s.length() != 0) // se nï¿½o ï¿½ valor somente com centavos
 	          s = s + " e ";
 	       if (centavos.equals("1"))
 	          s = s + "um centavo";

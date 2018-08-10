@@ -41,6 +41,7 @@ public class RelatorioComprasBean implements Serializable{
 	private Filtro filtro = new Filtro();
 	private List<Compra> listaCompras;
 	private Integer filtroStatus = 1;
+	private Integer tipoArquivo = 1;
 	private String nomeFornecedor;
 	private List<Fornecedor> fornecedores;
 	private Boolean finalizadas;
@@ -132,17 +133,29 @@ public class RelatorioComprasBean implements Serializable{
 
 			if (filtroStatus.intValue() == 1) {
 				nomeRel = "relatorio_compras_";
-				jd = JRXmlLoader.load(path + "relatorios/relatorio_compras.jrxml");
+				if (tipoArquivo == 1)
+					jd = JRXmlLoader.load(path + "relatorios/relatorio_compras.jrxml");
+				else
+					jd = JRXmlLoader.load(path + "relatorios/relatorio_compras_xls.jrxml");
 			}else if (filtroStatus.intValue() == 2) {
 				nomeRel = "relatorio_compras_por_fornecedor_";
-				jd = JRXmlLoader.load(path + "relatorios/relatorio_compras_por_fornecedor.jrxml");
+				if (tipoArquivo == 1)
+					jd = JRXmlLoader.load(path + "relatorios/relatorio_compras_por_fornecedor.jrxml");
+				else
+					jd = JRXmlLoader.load(path + "relatorios/relatorio_compras_por_fornecedor_xls.jrxml");
 			}else {
 				nomeRel = "relatorio_compras_por_produto_";
-				jd = JRXmlLoader.load(path + "relatorios/relatorio_compras_por_peixe.jrxml");
+				if (tipoArquivo == 1)
+					jd = JRXmlLoader.load(path + "relatorios/relatorio_compras_por_peixe.jrxml");
+				else
+					jd = JRXmlLoader.load(path + "relatorios/relatorio_compras_por_peixe_xls.jrxml");
 			}
 
 			JasperReport report = JasperCompileManager.compileReport(jd);
-			ReportUtil.openReportCon("Relatório", nomeRel + new SimpleDateFormat("HHmmssddMMyyyy").format(new Date()), report, parametros, compraDAO.getConnection());
+			if (tipoArquivo == 1)
+				ReportUtil.openReportCon("Relatório", nomeRel + new SimpleDateFormat("HHmmssddMMyyyy").format(new Date()), report, parametros, compraDAO.getConnection(), "PDF");
+			else
+				ReportUtil.openReportCon("Relatório", nomeRel + new SimpleDateFormat("HHmmssddMMyyyy").format(new Date()), report, parametros, compraDAO.getConnection(), "XLS");
 
 			addMessage("Informação: ", "Relatório exportado com sucesso.");
 		} catch (Exception e) {
@@ -231,4 +244,14 @@ public class RelatorioComprasBean implements Serializable{
 	public void setFinalizadas(Boolean finalizadas) {
 		this.finalizadas = finalizadas;
 	}
+
+	public Integer getTipoArquivo() {
+		return tipoArquivo;
+	}
+
+	public void setTipoArquivo(Integer tipoArquivo) {
+		this.tipoArquivo = tipoArquivo;
+	}
+	
+	
 }

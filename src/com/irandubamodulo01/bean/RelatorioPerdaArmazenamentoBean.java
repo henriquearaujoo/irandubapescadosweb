@@ -67,7 +67,7 @@ public class RelatorioPerdaArmazenamentoBean implements Serializable{
             JasperDesign jd = null;
             jd = JRXmlLoader.load(path + "relatorios/relatorio_perda_armazenamento.jrxml");
             JasperReport report = JasperCompileManager.compileReport(jd);
-            ReportUtil.openReportCon("Relatório", "relatorio_perda_armazenamento" + new SimpleDateFormat("HHmmssddMMyyyy").format(new Date()), report, parametros, compraDAO.getConnection());
+            ReportUtil.openReportCon("Relatório", "relatorio_perda_armazenamento" + new SimpleDateFormat("HHmmssddMMyyyy").format(new Date()), report, parametros, compraDAO.getConnection(), "PDF");
 
         }catch (Exception e){
             e.printStackTrace();

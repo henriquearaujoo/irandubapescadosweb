@@ -49,6 +49,10 @@ public class Retirada implements Serializable{
 	@ManyToOne
 	@JoinColumn(name="tamanhopeixe_id")
 	private TamanhoPeixe tamanhoPeixe;
+	
+	@ManyToOne
+	@JoinColumn(name="embalagem_id")
+	private Embalagem embalagem;
 
 	@ManyToOne
 	@JoinColumn(name="camara_id")
@@ -168,4 +172,13 @@ public class Retirada implements Serializable{
 	public void setTamanhoPeixe(TamanhoPeixe tamanhoPeixe) {
 		this.tamanhoPeixe = tamanhoPeixe;
 	}
+
+	public Embalagem getEmbalagem() {
+		return embalagem;
+	}
+
+	public void setEmbalagem(Embalagem embalagem) {
+		this.embalagem = embalagem;
+	}
+	
 }

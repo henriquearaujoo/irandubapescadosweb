@@ -31,7 +31,7 @@ public class UsuarioDAOImpl extends DAOimpl<Usuario, Long> implements UsuarioDAO
 	
 	@Override
 	public Usuario logar(String login, String senha){
-		String jpql = "select u from Usuario u where u.login = :login and u.senha = :senha";
+		String jpql = "select u from Usuario u where u.login = :login and u.senha = :senha and (ativo is null or ativo = true )";
 		//em = JPAUtil.getEntityManager();
 		Query query = em.createQuery(jpql);  
 		query.setParameter("login", login);

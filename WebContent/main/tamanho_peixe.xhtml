@@ -28,9 +28,29 @@
 
 				<br/>
 			   <br/>
+			   
+			   <h:panelGrid columns="3" style="float: right;">
+					<p:selectOneMenu value="#{layoutBean.tipoExport}">
+						<f:selectItem itemLabel="Todos" itemValue="false"/>
+						<f:selectItem itemLabel="Atual" itemValue="true"/>
+					</p:selectOneMenu>
+					<h:commandLink style="padding-left: 5px">
+		                <p:graphicImage url="/images/pdf.png" width="28" title="Exportar pdf"/>
+		                <p:dataExporter type="pdf" target="table" fileName="tamanhos_peixe" pageOnly="#{layoutBean.tipoExport}"/>
+		            </h:commandLink>
+		            <h:commandLink style="padding-left: 5px">
+		                <p:graphicImage url="/images/excel.png" width="28" title="Exportar excel"/>
+		                <p:dataExporter type="xls" target="table" fileName="tamanhos_peixe" pageOnly="#{layoutBean.tipoExport}"/>
+		            </h:commandLink>
+	            </h:panelGrid>
+
+				<br />
+				<br />
+				
 				<p:dataTable id="table" var="tp" lazy="true" sortBy="#{tp.descricao}" sortOrder="ASCENDING"
 							value="#{tamanhoPeixeBean.model}" paginator="true"
-							paginatorPosition="bottom" rows="15">
+							paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+							rows="15">
 							<f:facet name="header">
 								Tamanhos de peixe
 							</f:facet>
@@ -42,25 +62,21 @@
 								<h:outputText value="#{tp.descricao}" />
 							</p:column>
 
-							<p:column style="width:100px;">
+							<p:column style="width:10%;" exportable="false">
 								<f:facet name="header">
-									  Editar
+									  Ações
 								</f:facet>
-								<p:commandButton value="Editar" icon="ui-icon-pencil"
-									oncomplete="PF('modalCad').show()" update=":formCad">
-									<f:setPropertyActionListener target="#{tamanhoPeixeBean.tamanhoPeixe}"
-										value="#{tp}" />
-								</p:commandButton>
-							</p:column>
-
-							<p:column style="width:100px;">
-								<f:facet name="header">
-									 Excluir
-								</f:facet>
-								<p:commandButton value="Excluir" oncomplete="PF('confirmacaoDelete').show()" icon="ui-icon-trash" >
-									<f:setPropertyActionListener target="#{tamanhoPeixeBean.tamanhoPeixe}"
-										value="#{tp}" />
-								</p:commandButton>
+								<h:panelGrid columns="2" style="float: inherit;">
+									<p:commandButton title="Editar" icon="ui-icon-pencil"
+										oncomplete="PF('modalCad').show()" update=":formCad">
+										<f:setPropertyActionListener target="#{tamanhoPeixeBean.tamanhoPeixe}"
+											value="#{tp}" />
+									</p:commandButton>
+									<p:commandButton title="Excluir" oncomplete="PF('confirmacaoDelete').show()" icon="ui-icon-trash" >
+										<f:setPropertyActionListener target="#{tamanhoPeixeBean.tamanhoPeixe}"
+											value="#{tp}" />
+									</p:commandButton>
+								</h:panelGrid>
 							</p:column>
 
 						</p:dataTable>

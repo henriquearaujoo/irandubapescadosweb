@@ -109,29 +109,29 @@ order by p.descricao]]>
 				</textElement>
 				<text><![CDATA[Iranduba Pescados]]></text>
 			</staticText>
-			<textField evaluationTime="Report" pattern="¤ #,##0.00">
-				<reportElement x="264" y="85" width="100" height="20" uuid="5fe30133-6889-46ec-adcf-00053082afd9"/>
+			<textField evaluationTime="Report" pattern="#,##0.00">
+				<reportElement x="288" y="85" width="100" height="20" uuid="5fe30133-6889-46ec-adcf-00053082afd9"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Arial"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{valortotal_1}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="193" y="85" width="71" height="20" uuid="48bc1d28-8a4c-495b-8273-299b82e48940"/>
+				<reportElement x="193" y="85" width="95" height="20" uuid="48bc1d28-8a4c-495b-8273-299b82e48940"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Arial" size="11" isBold="true" isItalic="false"/>
 				</textElement>
-				<text><![CDATA[Valor Total:]]></text>
+				<text><![CDATA[Valor Total (R$):]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="85" width="67" height="20" uuid="9a51b4b3-7242-4536-821b-ae57fd142f76"/>
+				<reportElement x="0" y="85" width="93" height="20" uuid="9a51b4b3-7242-4536-821b-ae57fd142f76"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Arial" size="11" isBold="true" isItalic="false"/>
 				</textElement>
-				<text><![CDATA[Peso Total:]]></text>
+				<text><![CDATA[Peso Total (kg):]]></text>
 			</staticText>
 			<textField evaluationTime="Report" pattern="#,##0.00">
-				<reportElement x="67" y="85" width="100" height="20" uuid="9dbcb7a8-2090-41c5-a3e5-c046eae8cc85"/>
+				<reportElement x="93" y="85" width="100" height="20" uuid="9dbcb7a8-2090-41c5-a3e5-c046eae8cc85"/>
 				<textElement verticalAlignment="Middle">
 					<font fontName="Arial"/>
 				</textElement>
@@ -172,21 +172,21 @@ order by p.descricao]]>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Arial" size="11" isBold="true" isItalic="false"/>
 				</textElement>
-				<text><![CDATA[Peso Total]]></text>
+				<text><![CDATA[Peso Total (kg)]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="355" y="0" width="100" height="20" uuid="d9b4472e-4ac9-4b1a-a19f-888f560ce6d1"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Arial" size="11" isBold="true" isItalic="false"/>
 				</textElement>
-				<text><![CDATA[Valor Médio]]></text>
+				<text><![CDATA[Valor Médio (R$)]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="455" y="0" width="100" height="20" uuid="6fe26b27-0670-47a3-92c2-6e3accecea71"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Arial" size="11" isBold="true" isItalic="false"/>
 				</textElement>
-				<text><![CDATA[Valor Total]]></text>
+				<text><![CDATA[Valor Total (R$)]]></text>
 			</staticText>
 			<rectangle>
 				<reportElement x="0" y="0" width="40" height="20" backcolor="#3399FF" uuid="c835ed21-4e6c-445d-ad22-96ddc1524272"/>
@@ -201,7 +201,7 @@ order by p.descricao]]>
 		</band>
 	</pageHeader>
 	<detail>
-		<band height="22" splitType="Immediate">
+		<band height="21" splitType="Immediate">
 			<textField>
 				<reportElement x="40" y="1" width="224" height="19" uuid="6a24d414-241c-423f-933a-de0abf7900fe"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
@@ -211,7 +211,7 @@ order by p.descricao]]>
 			</textField>
 			<textField pattern="#,##0.00">
 				<reportElement x="264" y="1" width="91" height="19" uuid="8d33698b-540c-4a44-86b6-d78534e137b3"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Arial" size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{pesoliquido}]]></textFieldExpression>
@@ -223,16 +223,16 @@ order by p.descricao]]>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{seq}]]></textFieldExpression>
 			</textField>
-			<textField pattern="¤ #,##0.00">
+			<textField pattern="#,##0.00">
 				<reportElement x="355" y="1" width="100" height="19" uuid="f728140e-602e-4726-8aa9-40a97f0b69a4"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Arial" size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{valor_kg}]]></textFieldExpression>
 			</textField>
-			<textField pattern="¤ #,##0.00">
+			<textField pattern="#,##0.00">
 				<reportElement x="455" y="1" width="100" height="19" uuid="e548eeaa-10a6-44a9-b438-2a516950d498"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Arial" size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{valor_total}]]></textFieldExpression>

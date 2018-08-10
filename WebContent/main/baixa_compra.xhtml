@@ -44,18 +44,32 @@
 
 					<p:dataTable id="tableCompras" var="compra"
 						value="#{baixaCompraBean.model}" lazy="true" paginator="true"
-						paginatorPosition="bottom" rows="15" sortBy="#{compra.id}" sortOrder="DESCENDING">
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+						rows="15" sortBy="#{compra.id}" sortOrder="DESCENDING">
 						<f:facet name="header">
 							Relação de compras
 						</f:facet>
+						
+						<f:facet name="{Exporters}">
+							<div style="float: right; margin-top: 15px">
+								<h:commandLink style="padding-left: 5px">
+					                <p:graphicImage url="/images/pdf.png" width="28" title="Exportar pdf"/>
+					                <p:dataExporter type="pdf" target="tableCompras" fileName="compras" pageOnly="true"/>
+					            </h:commandLink>
+					            <h:commandLink style="padding-left: 5px">
+					                <p:graphicImage url="/images/excel.png" width="28" title="Exportar excel"/>
+					                <p:dataExporter type="xls" target="tableCompras" fileName="compras" pageOnly="true"/>
+					            </h:commandLink>
+							</div>
+						</f:facet>
 
-						<p:column>
+						<p:column style="width:10%;">
 							<f:facet name="header">
 						  Código
 						</f:facet>
 							<h:outputText value="#{compra.codigo}" />
 						</p:column>
-						<p:column>
+						<p:column style="width:15%;">
 							<f:facet name="header">
 						  Data
 						</f:facet>
@@ -65,37 +79,42 @@
 							</h:outputText>
 						</p:column>
 
-						<p:column>
+						<p:column style="width:35%;">
 							<f:facet name="header">
 						  Fornecedor
 						</f:facet>
 							<h:outputText value="#{compra.fornecedor.nome}" />
 						</p:column>
 
-						<p:column>
+						<p:column style="width:10%;">
 							<f:facet name="header">
-						  Valor
+						  Valor (R$)
 						</f:facet>
 							<h:outputText value="#{compra.valorTotal}">
-								<f:convertNumber type="currency" maxFractionDigits="2" />
+								<f:convertNumber minFractionDigits="2" locale="PT-BR"/>
 							</h:outputText>
 						</p:column>
 
-						<p:column>
+						<p:column style="width:15%;">
 							<f:facet name="header">
-						  Status
-						</f:facet>
+							  Status
+							</f:facet>
 							<h:outputText value="#{compra.statusCompra.status}" />
 						</p:column>
-
-						<p:column style="width:120px;">
-							<p:commandButton
-								action="#{baixaCompraBean.prepararDetalhesCompra()}"
-								value="Detalhes" icon="ui-icon-zoomin">
-								<f:param name="cp" value="#{compra.id}" />
-								<f:setPropertyActionListener target="#{baixaCompraBean.compra}"
-									value="#{compra}" />
-							</p:commandButton>
+	
+						<p:column style="width: 5%;" exportable="false">
+							<f:facet name="header">
+							  Detalhes
+							</f:facet>
+							<h:panelGrid columns="1"> 
+								<p:commandButton
+									action="#{baixaCompraBean.prepararDetalhesCompra()}"
+									title="Detalhes" icon="ui-icon-zoomin">
+									<f:param name="cp" value="#{compra.id}" />
+									<f:setPropertyActionListener target="#{baixaCompraBean.compra}"
+										value="#{compra}" />
+								</p:commandButton>
+							</h:panelGrid>
 						</p:column>
 
 					</p:dataTable>

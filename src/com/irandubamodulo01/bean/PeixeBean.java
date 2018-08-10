@@ -227,8 +227,6 @@ public class PeixeBean implements Serializable {
 		this.file = file;
 	}
 
-	
-
 	public void setFoto(StreamedContent foto) {
 		this.foto = foto;
 	}
@@ -252,4 +250,6 @@ public class PeixeBean implements Serializable {
 	public void setInclusaoContinua(Boolean inclusaoContinua) {
 		this.inclusaoContinua = inclusaoContinua;
 	}
+	
+	
 }

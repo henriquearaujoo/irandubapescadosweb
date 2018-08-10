@@ -71,6 +71,9 @@
 								<f:selectItems value="#{usuariobean.perfis}" />
 								<f:converter converterId="SelectOneMenuConverter"/>
 							</p:selectOneMenu>
+							
+							<p:selectBooleanCheckbox id="ativo" value="#{usuariobean.usuario.ativo}" />
+							<p:outputLabel value="Ativo?" />
 						</h:panelGrid>
 					</p:fieldset>
 					<br/><br/>

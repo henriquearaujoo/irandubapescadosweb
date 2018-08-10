@@ -3,6 +3,7 @@ package com.irandubamodulo01.util;
 import java.awt.BorderLayout;
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
@@ -16,19 +17,25 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.export.JRXlsExporter;
+import net.sf.jasperreports.engine.export.JRXlsExporterParameter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimpleXlsExporterConfiguration;
+import net.sf.jasperreports.export.SimpleXlsReportConfiguration;
 import net.sf.jasperreports.swing.JRViewer;
 
 public class ReportUtil {
 	
 	/**
-     * Abre um relatório usando um datasource genérico.
+     * Abre um relatï¿½rio usando um datasource genï¿½rico.
      *
-     * @param titulo Título usado na janela do relatório.
-     * @param inputStream InputStream que contém o relatório.
-     * @param parametros Parâmetros utilizados pelo relatório.
-     * @param dataSource Datasource a ser utilizado pelo relatório.
+     * @param titulo Tï¿½tulo usado na janela do relatï¿½rio.
+     * @param inputStream InputStream que contï¿½m o relatï¿½rio.
+     * @param parametros Parï¿½metros utilizados pelo relatï¿½rio.
+     * @param dataSource Datasource a ser utilizado pelo relatï¿½rio.
      * 
-     * @throws JRException Caso ocorra algum problema na execução do relatório
+     * @throws JRException Caso ocorra algum problema na execuï¿½ï¿½o do relatï¿½rio
 	 * @throws IOException 
      */
     public static void openReport(
@@ -48,8 +55,8 @@ public class ReportUtil {
 		ServletOutputStream out = resp.getOutputStream();
 		
         /*
-         * Cria um JasperPrint, que é a versão preenchida do relatório,
-         * usando um datasource genérico.
+         * Cria um JasperPrint, que ï¿½ a versï¿½o preenchida do relatï¿½rio,
+         * usando um datasource genï¿½rico.
          */
         JasperPrint print = JasperFillManager.fillReport(
                 report, parametros, dataSource );
@@ -77,53 +84,65 @@ public class ReportUtil {
             String nome,
             JasperReport report,
             Map parametros,
-            Connection conn) throws JRException, IOException {
+            Connection conn, String tipo) throws JRException, IOException {
  
     	FacesContext fctx = FacesContext.getCurrentInstance();
 
 		HttpServletResponse resp = (HttpServletResponse) fctx.getExternalContext().getResponse();
 
-		resp.setContentType( "application/pdf" );
-		resp.setHeader( "Content-Disposition", "atachment;filename=" + nome + ".pdf" );
+		if (tipo.equals("PDF")){
+			resp.setContentType( "application/pdf" );
+			resp.setHeader( "Content-Disposition", "atachment;filename=" + nome + ".pdf" );
+		}else{
+			resp.setContentType( "application/vnd.ms-excel" );
+			resp.setHeader( "Content-Disposition", "atachment;filename=" + nome + ".xls" );
+		}
 
 		ServletOutputStream out = resp.getOutputStream();
 		
         /*
-         * Cria um JasperPrint, que é a versão preenchida do relatório,
-         * usando um datasource genérico.
+         * Cria um JasperPrint, que ï¿½ a versï¿½o preenchida do relatï¿½rio,
+         * usando um datasource genï¿½rico.
          */
-        JasperPrint print = JasperFillManager.fillReport(
-                report, parametros, conn );
+        JasperPrint print = JasperFillManager.fillReport(report, parametros, conn );
+        
+        if (tipo.equals("PDF")){
+        	byte[] pdfByteArray = JasperExportManager.exportReportToPdf(print);
+            resp.setContentLength( pdfByteArray.length );
+            
+            out.write(pdfByteArray, 0, pdfByteArray.length);
+            out.flush();
+            out.close();
+        }else{
+        	JRXlsExporter xlsExporter = new JRXlsExporter();
+        	xlsExporter.setExporterInput(new SimpleExporterInput(print));
+            xlsExporter.setExporterOutput(new SimpleOutputStreamExporterOutput(out));
+            
+            SimpleXlsReportConfiguration xlsReportConfiguration = new SimpleXlsReportConfiguration();
+            xlsReportConfiguration.setOnePagePerSheet(false);
+            xlsReportConfiguration.setRemoveEmptySpaceBetweenRows(true);
+            xlsReportConfiguration.setDetectCellType(true);
+            xlsReportConfiguration.setWhitePageBackground(false);
+            xlsExporter.setConfiguration(xlsReportConfiguration);
+            
+            xlsExporter.exportReport();
+        }
  
-        // abre o JasperPrint em um JFrame
-        //viewReportFrame( titulo, print );
-        
-        //JasperViewer.viewReport(print, false);
-        
-        //JasperExportManager.exportReportToPdfStream(print, resp.getOutputStream());
-        
-        byte[] pdfByteArray = JasperExportManager.exportReportToPdf(print);
-        resp.setContentLength( pdfByteArray.length );
-        
-        out.write(pdfByteArray, 0, pdfByteArray.length);
-        out.flush();
-        out.close();
-        
         fctx.responseComplete();
         
     }
     
 	 /**
-     * Cria um JFrame para exibir o relatório representado pelo JasperPrint.
+     * Cria um JFrame para exibir o relatï¿½rio representado pelo JasperPrint.
      *
-     * @param titulo Título do JFrame.
-     * @param print JasperPrint do relatório.
+     * @param titulo Tï¿½tulo do JFrame.
+     * @param print JasperPrint do relatï¿½rio.
      */
     private static void viewReportFrame( String titulo, JasperPrint print ) {
  
         /*
-         * Cria um JRViewer para exibir o relatório.
-         * Um JRViewer é uma JPanel.
+         * Cria um JRViewer para exibir o relatï¿½rio.
+         * Um JRViewer ï¿½ uma JPanel.
          */
         JRViewer viewer = new JRViewer( print );
  
@@ -133,13 +152,13 @@ public class ReportUtil {
         // adiciona o JRViewer no JFrame
         frameRelatorio.add( viewer, BorderLayout.CENTER );
  
-        // configura o tamanho padrão do JFrame
+        // configura o tamanho padrï¿½o do JFrame
         frameRelatorio.setSize( 500, 500 );
  
         // maximiza o JFrame para ocupar a tela toda.
         frameRelatorio.setExtendedState( JFrame.MAXIMIZED_BOTH );
  
-        // configura a operação padrão quando o JFrame for fechado.
+        // configura a operaï¿½ï¿½o padrï¿½o quando o JFrame for fechado.
         frameRelatorio.setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
  
         // exibe o JFrame

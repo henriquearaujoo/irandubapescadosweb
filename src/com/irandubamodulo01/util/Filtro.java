@@ -6,6 +6,7 @@ import java.util.Date;
 import com.irandubamodulo01.enumerated.StatusArmazenamento;
 import com.irandubamodulo01.enumerated.StatusCompra;
 import com.irandubamodulo01.enumerated.StatusPedido;
+import com.irandubamodulo01.model.Compra;
 import com.irandubamodulo01.model.TipoPagamento;
 import com.irandubamodulo01.model.Usuario;
 
@@ -32,6 +33,7 @@ public class Filtro implements Serializable{
     private StatusArmazenamento filtroStatus;
     private String statusRetirada;
 	private StatusPedido statusPedido;
+	private Compra compra;
     
     public Filtro(){}
 
@@ -230,5 +232,15 @@ public class Filtro implements Serializable{
 
 	public void setCodigo(String codigo) {
 		this.codigo = codigo;
+	}
+
+
+	public Compra getCompra() {
+		return compra;
+	}
+
+
+	public void setCompra(Compra compra) {
+		this.compra = compra;
 	}
 }

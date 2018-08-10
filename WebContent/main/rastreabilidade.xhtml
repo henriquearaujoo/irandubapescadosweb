@@ -1,0 +1,1086 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="miolo">
+		<f:metadata>
+			<f:viewAction action="#{rastreabilidadeBean.carregarConfiguracao()}" />
+		</f:metadata>
+		<div class="Container96 white-back Fnone MarAuto BordRad10">
+			<br />
+			<h:form id="formtable" acceptcharset="ISO-8859-1">
+				<p:fieldset legend="Visualizar Rastreabilidade">
+					<h:panelGrid columns="7">
+						<span style="font-weight: bold">Período: </span>
+						<p:calendar id="dataInicio"
+							value="#{rastreabilidadeBean.filtro.dataInicio}"
+							pattern="dd/MM/yyy" />
+						<p:watermark value="Data inicial" for="dataInicio" />
+						<span style="font-weight: bold">até </span>
+						<p:calendar id="dataFinal"
+							value="#{rastreabilidadeBean.filtro.dataFinal}"
+							pattern="dd/MM/yyy" />
+						<p:watermark value="Data final" for="dataFinal" />
+						<p:commandButton action="#{rastreabilidadeBean.carregarItens}"
+							value="Pesquisar" icon="ui-icon-search" style="margin-left:5px"
+							update="fsRecebimentoFluvial fsRecebimentoTerrestre fsTunel fsEstocagem1 fsEstocagem2 fsExpedicao1 fsExpedicao2" />
+					</h:panelGrid>
+				</p:fieldset>
+
+				<br />
+
+				<h:panelGrid columns="5">
+
+					<p:fieldset id="fsRecebimentoFluvial" legend="Recebimento Fluvial"
+						toggleable="true" toggleSpeed="500" collapsed="false">
+						<h:panelGrid id="panelPesoRecebimentoFluvial" columns="2">
+							<span style="font-weight: bold">Peso Total (kg): </span>
+							<h:outputText
+								value="#{rastreabilidadeBean.pesoTotalRecebimentoFluvial}">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+						</h:panelGrid>
+						<br />
+
+						<p:commandButton icon="ui-icon-plus" value="Detalhes"
+							oncomplete="PF('modalDetalhesRecFluvial').show()"
+							update=":formDetalhesRecFluvial:panelDetalhesRecFluvial"
+							styleClass="GreenButton" />
+
+					</p:fieldset>
+
+					<p:separator style="width:50px" />
+
+					<p:fieldset id="fsRecebimentoTerrestre"
+						legend="Recebimento Terrestre" toggleable="true" toggleSpeed="500"
+						collapsed="false">
+						<h:panelGrid id="panelPesoRecebimentoTerrestre" columns="2">
+							<span style="font-weight: bold">Peso Total (kg): </span>
+							<h:outputText
+								value="#{rastreabilidadeBean.pesoTotalRecebimentoTerrestre}">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+						</h:panelGrid>
+						<br />
+
+						<p:commandButton icon="ui-icon-plus" value="Detalhes"
+							oncomplete="PF('modalDetalhesRecTerrestre').show()"
+							update=":formDetalhesRecTerrestre:panelDetalhesRecTerrestre"
+							styleClass="GreenButton" />
+
+					</p:fieldset>
+
+					<p:separator style="width:50px" />
+
+					<p:fieldset id="fsTunel" legend="Túnel" toggleable="true"
+						toggleSpeed="500" collapsed="false">
+						<h:panelGrid id="panelTunel" columns="2">
+							<span style="font-weight: bold"> Entradas (kg): </span>
+							<h:outputText
+								value="#{rastreabilidadeBean.pesoTotalArmTunel}">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+
+							<span style="font-weight: bold"> Saídas (kg): </span>
+							<h:outputText
+								value="#{rastreabilidadeBean.pesoTotalRetTunel}">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+
+							<span style="font-weight: bold">Total (kg): </span>
+							<h:outputText value="#{rastreabilidadeBean.pesoTotalTunel}">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+						</h:panelGrid>
+						<br />
+
+						<p:commandButton icon="ui-icon-plus" value="Detalhes"
+							oncomplete="PF('modalDetalhesTunel').show()"
+							update=":formDetalhesTunel:panelDetalhesTunel"
+							styleClass="GreenButton" />
+
+					</p:fieldset>
+
+				</h:panelGrid>
+
+				<br />
+				<br />
+
+				<h:panelGrid columns="3">
+
+					<p:fieldset id="fsEstocagem1" legend="Estocagem 1"
+						toggleable="true" toggleSpeed="500" collapsed="false">
+						<h:panelGrid id="panelEstocagem1" columns="2">
+							<span style="font-weight: bold"> Entradas (kg): </span>
+							<h:outputText
+								value="#{rastreabilidadeBean.pesoTotalArmEstoc1}">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+
+							<span style="font-weight: bold"> Saídas (kg): </span>
+							<h:outputText
+								value="#{rastreabilidadeBean.pesoTotalRetEstoic1}">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+
+							<span style="font-weight: bold">Total (kg): </span>
+							<h:outputText value="#{rastreabilidadeBean.pesoTotalEstoc1}">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+
+						</h:panelGrid>
+						<br />
+
+						<p:commandButton icon="ui-icon-plus" value="Detalhes"
+							oncomplete="PF('modalDetalhesEstoc1').show()"
+							update=":formDetalhesEstoc1:panelDetalhesEstoc1"
+							styleClass="GreenButton" />
+
+					</p:fieldset>
+
+					<p:separator style="width:50px" />
+
+					<p:fieldset id="fsEstocagem2" legend="Estocagem 2"
+						toggleable="true" toggleSpeed="500" collapsed="false">
+						<h:panelGrid id="panelEstocagem2" columns="2">
+							<span style="font-weight: bold"> Entradas (kg): </span>
+							<h:outputText
+								value="#{rastreabilidadeBean.pesoTotalArmEstoc2}">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+
+							<span style="font-weight: bold"> Saídas (kg): </span>
+							<h:outputText
+								value="#{rastreabilidadeBean.pesoTotalRetEstoic2}">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+
+							<span style="font-weight: bold">Total (kg): </span>
+							<h:outputText value="#{rastreabilidadeBean.pesoTotalEstoc2}">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+						</h:panelGrid>
+						<br />
+
+						<p:commandButton icon="ui-icon-plus" value="Detalhes"
+							oncomplete="PF('modalDetalhesEstoc2').show()"
+							update=":formDetalhesEstoc2:panelDetalhesEstoc2"
+							styleClass="GreenButton" />
+
+					</p:fieldset>
+				</h:panelGrid>
+
+				<br />
+				<br />
+
+				<h:panelGrid columns="3">
+
+					<p:fieldset id="fsExpedicao1" legend="Expedição 1"
+						toggleable="true" toggleSpeed="500" collapsed="false">
+						<h:panelGrid id="panelExpedicao1" columns="2">
+							<span style="font-weight: bold">Peso Total (kg): </span>
+							<h:outputText
+								value="#{rastreabilidadeBean.pesoTotalProdExped1}">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+						</h:panelGrid>
+						<br />
+
+						<p:commandButton icon="ui-icon-plus" value="Detalhes"
+							oncomplete="PF('modalDetalhesExped1').show()"
+							update=":formDetalhesExped1:panelDetalhesExped1"
+							styleClass="GreenButton" />
+
+					</p:fieldset>
+
+					<p:separator style="width:50px" />
+
+					<p:fieldset id="fsExpedicao2" legend="Expedição 2"
+						toggleable="true" toggleSpeed="500" collapsed="false">
+						<h:panelGrid id="panelExpedicao2" columns="2">
+							<span style="font-weight: bold">Peso Total (kg): </span>
+							<h:outputText
+								value="#{rastreabilidadeBean.pesoTotalProdExped2}">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+						</h:panelGrid>
+						<br />
+
+						<p:commandButton icon="ui-icon-plus" value="Detalhes"
+							oncomplete="PF('modalDetalhesExped2').show()"
+							update=":formDetalhesExped2:panelDetalhesExped2"
+							styleClass="GreenButton" />
+
+					</p:fieldset>
+				</h:panelGrid>
+
+				<br />
+				<br />
+
+			</h:form>
+		</div>
+	</ui:define>
+
+	<ui:define name="adicionais">
+		<p:dialog header="Detalhes Recebimento Fluvial"
+			widgetVar="modalDetalhesRecFluvial" closable="true" modal="true"
+			closeOnEscape="true" resizable="true" width="950">
+			<h:form id="formDetalhesRecFluvial">
+				<h:panelGrid id="panelDetalhesRecFluvial">
+					<p:dataTable id="tableItensRecebimentoFluvial" var="item"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+						value="#{rastreabilidadeBean.lotesRecebimentoFluvial}"
+						paginator="true" paginatorPosition="bottom" rows="10">
+						<f:facet name="header">
+							Itens
+						</f:facet>
+
+						<f:facet name="{Exporters}">
+							<div style="float: right; margin-top: 15px">
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/pdf.png" width="28"
+										title="Exportar pdf" />
+									<p:dataExporter type="pdf"
+										target="tableItensRecebimentoFluvial"
+										fileName="recebimento_fluviual" pageOnly="false" />
+								</h:commandLink>
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/excel.png" width="28"
+										title="Exportar excel" />
+									<p:dataExporter type="xls"
+										target="tableItensRecebimentoFluvial"
+										fileName="recebimento_fluviual" pageOnly="false" />
+								</h:commandLink>
+							</div>
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+							  Compra
+							</f:facet>
+							<h:outputText value="#{item.compra.codigo}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+							  Peixe
+							</f:facet>
+							<h:outputText value="#{item.peixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+							  Valor Tabela (R$)
+							</f:facet>
+							<h:outputText value="#{item.peixe.valor}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+							  Valor KG (R$)
+							</f:facet>
+							<h:outputText value="#{item.valorUnitarioPeixe}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+							  Peso Bruto (kg)
+							</f:facet>
+							<h:outputText value="#{item.peso}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+
+						<p:column>
+							<f:facet name="header">
+							  Qtde. caçapas
+							</f:facet>
+							<h:outputText value="#{item.qtdCaixas}" style="float:right">
+
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+							  Peso Líquido (kg)
+							</f:facet>
+							<h:outputText value="#{item.pesoLiquido}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+
+					</p:dataTable>
+
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Detalhes Recebimento Terrestre"
+			widgetVar="modalDetalhesRecTerrestre" closable="true" modal="true"
+			closeOnEscape="true" resizable="true" width="950">
+			<h:form id="formDetalhesRecTerrestre">
+				<h:panelGrid id="panelDetalhesRecTerrestre">
+
+					<p:dataTable id="tableItensRecebimentoTerrestre" var="item"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+						value="#{rastreabilidadeBean.lotesRecebimentoTerrestre}"
+						paginator="true" paginatorPosition="bottom" rows="10">
+						<f:facet name="header">
+								Itens
+							</f:facet>
+
+						<f:facet name="{Exporters}">
+							<div style="float: right; margin-top: 15px">
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/pdf.png" width="28"
+										title="Exportar pdf" />
+									<p:dataExporter type="pdf"
+										target="tableItensRecebimentoTerrestre"
+										fileName="recebimento_terrestre" pageOnly="false" />
+								</h:commandLink>
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/excel.png" width="28"
+										title="Exportar excel" />
+									<p:dataExporter type="xls"
+										target="tableItensRecebimentoTerrestre"
+										fileName="recebimento_terrestre" pageOnly="false" />
+								</h:commandLink>
+							</div>
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+								  Compra
+								</f:facet>
+							<h:outputText value="#{item.compra.codigo}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								  Peixe
+								</f:facet>
+							<h:outputText value="#{item.peixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								  Valor Tabela (R$)
+								</f:facet>
+							<h:outputText value="#{item.peixe.valor}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								  Valor KG (R$)
+								</f:facet>
+							<h:outputText value="#{item.valorUnitarioPeixe}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								  Peso Bruto (kg)
+								</f:facet>
+							<h:outputText value="#{item.peso}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+
+						<p:column>
+							<f:facet name="header">
+								  Qtde. caçapas
+								</f:facet>
+							<h:outputText value="#{item.qtdCaixas}" style="float:right">
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								  Peso Líquido (kg)
+								</f:facet>
+							<h:outputText value="#{item.pesoLiquido}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+
+					</p:dataTable>
+
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Detalhes Tunel" widgetVar="modalDetalhesTunel"
+			closable="true" modal="true" closeOnEscape="true" resizable="true"
+			width="950">
+			<h:form id="formDetalhesTunel">
+				<h:panelGrid id="panelDetalhesTunel">
+
+					<p:dataTable id="tableItensArmTunel" var="estoque"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+						value="#{rastreabilidadeBean.armazenamentosTunel}"
+						paginator="true" paginatorPosition="bottom" rows="10">
+						<f:facet name="header">
+							Entradas
+						</f:facet>
+
+						<f:facet name="{Exporters}">
+							<div style="float: right; margin-top: 15px">
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/pdf.png" width="28"
+										title="Exportar pdf" />
+									<p:dataExporter type="pdf" target="tableItensArmTunel"
+										fileName="entradas_tunel" pageOnly="false" />
+								</h:commandLink>
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/excel.png" width="28"
+										title="Exportar excel" />
+									<p:dataExporter type="xls" target="tableItensArmTunel"
+										fileName="entradas_tunel" pageOnly="false" postProcessor="#{layoutBean.postProcessXLS}"/>
+								</h:commandLink>
+							</div>
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+								Data
+							</f:facet>
+							<h:outputText value="#{estoque.data}">
+								<f:convertDateTime pattern="dd/MM/yyyy"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+						
+						<p:column>
+							<f:facet name="header">
+								Hora
+							</f:facet>
+							<h:outputText value="#{estoque.data}">
+								<f:convertDateTime pattern="HH:mm:ss"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								  Peixe
+								</f:facet>
+							<h:outputText value="#{estoque.peixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Tipo
+							</f:facet>
+							<h:outputText value="#{estoque.tipoPeixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Tamanho
+							</f:facet>
+							<h:outputText value="#{estoque.tamanhoPeixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Embalagem
+							</f:facet>
+							<h:outputText value="#{estoque.embalagem.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Peso (kg)
+							</f:facet>
+							<h:outputText value="#{estoque.peso}" style="float:right">
+								<f:convertNumber type="number" locale="PT-BR" maxFractionDigits="2"/>
+							</h:outputText>
+						</p:column>
+
+
+					</p:dataTable>
+
+					<br />
+
+					<p:dataTable id="tableItensRetTunel" var="estoque"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+						value="#{rastreabilidadeBean.retiradasTunel}" paginator="true"
+						paginatorPosition="bottom" rows="10">
+						<f:facet name="header">
+							Saídas
+						</f:facet>
+
+						<f:facet name="{Exporters}">
+							<div style="float: right; margin-top: 15px">
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/pdf.png" width="28"
+										title="Exportar pdf" />
+									<p:dataExporter type="pdf" target="tableItensRetTunel"
+										fileName="saidas_tunel" pageOnly="false" />
+								</h:commandLink>
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/excel.png" width="28"
+										title="Exportar excel" />
+									<p:dataExporter type="xls" target="tableItensRetTunel"
+										fileName="saidas_tunel" pageOnly="false" />
+								</h:commandLink>
+							</div>
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+								Data
+							</f:facet>
+							<h:outputText value="#{estoque.data}">
+								<f:convertDateTime pattern="dd/MM/yyyy"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+						
+						<p:column>
+							<f:facet name="header">
+								Hora
+							</f:facet>
+							<h:outputText value="#{estoque.data}">
+								<f:convertDateTime pattern="HH:mm:ss"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								  Peixe
+								</f:facet>
+							<h:outputText value="#{estoque.peixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Tipo
+							</f:facet>
+							<h:outputText value="#{estoque.tipoPeixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Tamanho
+							</f:facet>
+							<h:outputText value="#{estoque.tamanhoPeixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Embalagem
+							</f:facet>
+							<h:outputText value="#{estoque.embalagem.descricao}" />
+						</p:column>
+
+						<p:column >
+							<f:facet name="header">
+								Peso (kg)
+							</f:facet>
+							<h:outputText value="#{estoque.peso}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+
+					</p:dataTable>
+
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Detalhes Estocagem 1"
+			widgetVar="modalDetalhesEstoc1" closable="true" modal="true"
+			closeOnEscape="true" resizable="true" width="950">
+			<h:form id="formDetalhesEstoc1">
+				<h:panelGrid id="panelDetalhesEstoc1">
+
+					<p:dataTable id="tableItensArmEstoc1" var="estoque"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+						value="#{rastreabilidadeBean.armazenamentosEstocagem1}"
+						paginator="true" paginatorPosition="bottom" rows="10">
+						<f:facet name="header">
+								Entradas
+							</f:facet>
+
+						<f:facet name="{Exporters}">
+							<div style="float: right; margin-top: 15px">
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/pdf.png" width="28"
+										title="Exportar pdf" />
+									<p:dataExporter type="pdf" target="tableItensArmEstoc1"
+										fileName="entradas_estoque1" pageOnly="false" />
+								</h:commandLink>
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/excel.png" width="28"
+										title="Exportar excel" />
+									<p:dataExporter type="xls" target="tableItensArmEstoc1"
+										fileName="entradas_estoque1" pageOnly="false" />
+								</h:commandLink>
+							</div>
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+									Data
+								</f:facet>
+							<h:outputText value="#{estoque.data}">
+								<f:convertDateTime pattern="dd/MM/yyyy"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+									Hora
+								</f:facet>
+							<h:outputText value="#{estoque.data}">
+								<f:convertDateTime pattern="HH:mm:ss"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+						
+						<p:column>
+							<f:facet name="header">
+									  Peixe
+									</f:facet>
+							<h:outputText value="#{estoque.peixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+									Tipo
+								</f:facet>
+							<h:outputText value="#{estoque.tipoPeixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+									Tamanho
+								</f:facet>
+							<h:outputText value="#{estoque.tamanhoPeixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+									Embalagem
+								</f:facet>
+							<h:outputText value="#{estoque.embalagem.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+									Peso (kg)
+								</f:facet>
+							<h:outputText value="#{estoque.peso}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+
+					</p:dataTable>
+
+					<br />
+
+					<p:dataTable id="tableItensRetEstoc1" var="estoque"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+						value="#{rastreabilidadeBean.retiradasEstocagem1}"
+						paginator="true" paginatorPosition="bottom" rows="10">
+						<f:facet name="header">
+								Saídas
+							</f:facet>
+
+						<f:facet name="{Exporters}">
+							<div style="float: right; margin-top: 15px">
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/pdf.png" width="28"
+										title="Exportar pdf" />
+									<p:dataExporter type="pdf" target="tableItensRetEstoc1"
+										fileName="saidas_estoque1" pageOnly="false" />
+								</h:commandLink>
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/excel.png" width="28"
+										title="Exportar excel" />
+									<p:dataExporter type="xls" target="tableItensRetEstoc1"
+										fileName="saidas_estoque1" pageOnly="false" />
+								</h:commandLink>
+							</div>
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+									Data
+								</f:facet>
+							<h:outputText value="#{estoque.data}">
+								<f:convertDateTime pattern="dd/MM/yyyy"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+						
+						<p:column>
+							<f:facet name="header">
+									Hora
+								</f:facet>
+							<h:outputText value="#{estoque.data}">
+								<f:convertDateTime pattern="HH:mm:ss"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+									  Peixe
+									</f:facet>
+							<h:outputText value="#{estoque.peixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+									Tipo
+								</f:facet>
+							<h:outputText value="#{estoque.tipoPeixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+									Tamanho
+								</f:facet>
+							<h:outputText value="#{estoque.tamanhoPeixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+									Embalagem
+								</f:facet>
+							<h:outputText value="#{estoque.embalagem.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+									Peso (kg)
+								</f:facet>
+							<h:outputText value="#{estoque.peso}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+
+					</p:dataTable>
+
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Detalhes Estocagem 2"
+			widgetVar="modalDetalhesEstoc2" closable="true" modal="true"
+			closeOnEscape="true" resizable="true" width="950">
+			<h:form id="formDetalhesEstoc2">
+				<h:panelGrid id="panelDetalhesEstoc2">
+
+					<p:dataTable id="tableItensArmEstoc2" var="estoque"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+						value="#{rastreabilidadeBean.armazenamentosEstocagem2}"
+						paginator="true" paginatorPosition="bottom" rows="10">
+						<f:facet name="header">
+							Entradas
+						</f:facet>
+
+						<f:facet name="{Exporters}">
+							<div style="float: right; margin-top: 15px">
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/pdf.png" width="28"
+										title="Exportar pdf" />
+									<p:dataExporter type="pdf" target="tableItensArmEstoc2"
+										fileName="entradas_estoque2" pageOnly="false" />
+								</h:commandLink>
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/excel.png" width="28"
+										title="Exportar excel" />
+									<p:dataExporter type="xls" target="tableItensArmEstoc2"
+										fileName="entradas_estoque2" pageOnly="false" />
+								</h:commandLink>
+							</div>
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+								Data
+							</f:facet>
+							<h:outputText value="#{estoque.data}">
+								<f:convertDateTime pattern="dd/MM/yyyy"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+						
+						<p:column>
+							<f:facet name="header">
+								Hora
+							</f:facet>
+							<h:outputText value="#{estoque.data}">
+								<f:convertDateTime pattern="HH:mm:ss"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								  Peixe
+								</f:facet>
+							<h:outputText value="#{estoque.peixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Tipo
+							</f:facet>
+							<h:outputText value="#{estoque.tipoPeixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Tamanho
+							</f:facet>
+							<h:outputText value="#{estoque.tamanhoPeixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Embalagem
+							</f:facet>
+							<h:outputText value="#{estoque.embalagem.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Peso (kg)
+							</f:facet>
+							<h:outputText value="#{estoque.peso}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+
+					</p:dataTable>
+
+					<br />
+
+					<p:dataTable id="tableItensRetEstoc2" var="estoque"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+						value="#{rastreabilidadeBean.retiradasEstocagem2}"
+						paginator="true" paginatorPosition="bottom" rows="10">
+						<f:facet name="header">
+							Saídas
+						</f:facet>
+
+						<f:facet name="{Exporters}">
+							<div style="float: right; margin-top: 15px">
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/pdf.png" width="28"
+										title="Exportar pdf" />
+									<p:dataExporter type="pdf" target="tableItensRetEstoc2"
+										fileName="saidas_estoque2" pageOnly="false" />
+								</h:commandLink>
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/excel.png" width="28"
+										title="Exportar excel" />
+									<p:dataExporter type="xls" target="tableItensRetEstoc2"
+										fileName="saidas_estoque2" pageOnly="false" />
+								</h:commandLink>
+							</div>
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+								Data
+							</f:facet>
+							<h:outputText value="#{estoque.data}">
+								<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"
+									timeZone="America/Manaus" />
+							</h:outputText>
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								  Peixe
+								</f:facet>
+							<h:outputText value="#{estoque.peixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Tipo
+							</f:facet>
+							<h:outputText value="#{estoque.tipoPeixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Tamanho
+							</f:facet>
+							<h:outputText value="#{estoque.tamanhoPeixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Embalagem
+							</f:facet>
+							<h:outputText value="#{estoque.embalagem.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+								Peso (kg)
+							</f:facet>
+							<h:outputText value="#{estoque.peso}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+
+					</p:dataTable>
+
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Detalhes Expedição 1"
+			widgetVar="modalDetalhesExped1" closable="true" modal="true"
+			closeOnEscape="true" resizable="true" width="950">
+			<h:form id="formDetalhesExped1">
+				<h:panelGrid id="panelDetalhesExped1">
+
+					<p:dataTable id="tableItensExped1" var="item"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+						value="#{rastreabilidadeBean.produtosExped1}" paginator="true"
+						paginatorPosition="bottom" rows="10">
+						<f:facet name="header">
+							Produtos
+						</f:facet>
+
+						<f:facet name="{Exporters}">
+							<div style="float: right; margin-top: 15px">
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/pdf.png" width="28"
+										title="Exportar pdf" />
+									<p:dataExporter type="pdf" target="tableItensExped1"
+										fileName="expedicao1" pageOnly="false" />
+								</h:commandLink>
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/excel.png" width="28"
+										title="Exportar excel" />
+									<p:dataExporter type="xls" target="tableItensExped1"
+										fileName="expedicao1" pageOnly="false" />
+								</h:commandLink>
+							</div>
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+							  Pedido
+							</f:facet>
+							<h:outputText value="#{item.pedido.codigo}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+							  Peixe
+							</f:facet>
+							<h:outputText value="#{item.peixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+							  Peso (kg)
+							</f:facet>
+							<h:outputText value="#{estoque.peso}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+
+					</p:dataTable>
+
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Detalhes Expedição 2"
+			widgetVar="modalDetalhesExped2" closable="true" modal="true"
+			closeOnEscape="true" resizable="true" width="950">
+			<h:form id="formDetalhesExped2">
+				<h:panelGrid id="panelDetalhesExped2">
+
+					<p:dataTable id="tableItensExped2" var="item"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+						value="#{rastreabilidadeBean.produtosExped2}" paginator="true"
+						paginatorPosition="bottom" rows="10">
+						<f:facet name="header">
+							Produtos
+						</f:facet>
+
+						<f:facet name="{Exporters}">
+							<div style="float: right; margin-top: 15px">
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/pdf.png" width="28"
+										title="Exportar pdf" />
+									<p:dataExporter type="pdf" target="tableItensExped2"
+										fileName="expedicao2" pageOnly="false" />
+								</h:commandLink>
+								<h:commandLink style="padding-left: 5px">
+									<p:graphicImage url="/images/excel.png" width="28"
+										title="Exportar excel" />
+									<p:dataExporter type="xls" target="tableItensExped2"
+										fileName="expedicao2" pageOnly="false" />
+								</h:commandLink>
+							</div>
+						</f:facet>
+
+						<p:column>
+							<f:facet name="header">
+							  Pedido
+							</f:facet>
+							<h:outputText value="#{item.pedido.codigo}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+							  Peixe
+							</f:facet>
+							<h:outputText value="#{item.peixe.descricao}" />
+						</p:column>
+
+						<p:column>
+							<f:facet name="header">
+							  Peso (kg)
+							</f:facet>
+							<h:outputText value="#{estoque.peso}" style="float:right">
+								<f:convertNumber locale="PT-BR" maxFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+
+					</p:dataTable>
+
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+	</ui:define>
+</ui:composition>
+

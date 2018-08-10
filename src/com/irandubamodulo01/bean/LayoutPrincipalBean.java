@@ -1,9 +1,19 @@
 package com.irandubamodulo01.bean;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 
 @ManagedBean(name="layoutBean")
@@ -15,9 +25,51 @@ public class LayoutPrincipalBean implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	private Boolean tipoExport = false;
+	
 
 	public LayoutPrincipalBean(){}
 	
+	public void postProcessXLS(Object document){
+		HSSFWorkbook wb = (HSSFWorkbook) document;
+		HSSFSheet sheet = wb.getSheetAt(0);
+		
+		HSSFCellStyle cellStyle = wb.createCellStyle();
+		HSSFDataFormat dataFormat = wb.createDataFormat();
+		cellStyle.setDataFormat(dataFormat.getFormat("0.00"));
+		
+		for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+			HSSFRow row = sheet.getRow(i);
+			HSSFCell cell = row.getCell(6);
+			
+			String valor = cell.getStringCellValue();
+			
+			//cell.setCellType(HSSFCell.CELL_TYPE_BLANK);
+		    //cell.setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+		    
+			BigDecimal dbVal = new BigDecimal(valor.replace(",", "."));
+			dbVal.setScale(2, BigDecimal.ROUND_HALF_UP);
+			cell.setCellValue(dbVal.doubleValue());
+			
+			cell.setCellStyle(cellStyle);			
+
+		}
+	}
+	
+	
+	
+	public Boolean getTipoExport() {
+		return tipoExport;
+	}
+
+
+
+	public void setTipoExport(Boolean tipoExport) {
+		this.tipoExport = tipoExport;
+	}
+
+
+
 	public String iniciarTelaUsuarios(){
 		return "usuarios?faces-redirect=true";
 	}
@@ -111,5 +163,9 @@ public class LayoutPrincipalBean implements Serializable{
 
 	public String iniciarTelaPedido(){
 		return "pedidos?faces-redirect=true";
+	}
+	
+	public String iniciarTelaRastreabilidade(){
+		return "rastreabilidade?faces-redirect=true";
 	}
 }

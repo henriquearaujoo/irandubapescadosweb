@@ -30,63 +30,78 @@
 
 				<br />
 				<br />
+				
+				<h:panelGrid columns="3" style="float: right;">
+					<p:selectOneMenu value="#{layoutBean.tipoExport}">
+						<f:selectItem itemLabel="Todos" itemValue="false"/>
+						<f:selectItem itemLabel="Atual" itemValue="true"/>
+					</p:selectOneMenu>
+					<h:commandLink style="padding-left: 5px">
+		                <p:graphicImage url="/images/pdf.png" width="28" title="Exportar pdf"/>
+		                <p:dataExporter type="pdf" target="tableusuario" fileName="usuarios" pageOnly="#{layoutBean.tipoExport}"/>
+		            </h:commandLink>
+		            <h:commandLink style="padding-left: 5px">
+		                <p:graphicImage url="/images/excel.png" width="28" title="Exportar excel"/>
+		                <p:dataExporter type="xls" target="tableusuario" fileName="usuarios" pageOnly="#{layoutBean.tipoExport}"/>
+		            </h:commandLink>
+	            </h:panelGrid>
+
+				<br />
+				<br />
 
 				<p:dataTable id="tableusuario" var="usu" value="#{usuariobean.model}"
-					lazy="true" paginator="true" paginatorPosition="bottom" rows="15"
+					paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+					lazy="true" paginator="true" rows="15"
 						sortBy="#{usu.nome}" sortMode="ASCENDING">
 					<f:facet name="header">
 					Listagem de usuários
 				</f:facet>
 
-					<p:column>
+					<p:column style="width:55%;">
 						<f:facet name="header">
 					  Nome
 					</f:facet>
 						<h:outputText value="#{usu.nome}" />
 					</p:column>
 
-					<p:column>
+					<p:column style="width:10%;">
 						<f:facet name="header">
 					  Perfil
 					</f:facet>
 						<h:outputText value="#{usu.perfil.descricao}" />
 					</p:column>
 
-					<p:column>
+					<p:column style="width:15%;">
 						<f:facet name="header">
 					  Cpf
 					</f:facet>
 						<h:outputText value="#{usu.cpf}" />
 					</p:column>
 
-					<p:column>
+					<p:column style="width:10%;">
 						<f:facet name="header">
 					  Rg
 					</f:facet>
 						<h:outputText value="#{usu.rg}" />
 					</p:column>
 
-					<p:column style="width:100px;">
+					<p:column style="width:10%;" exportable="false">
 						<f:facet name="header">
-						  Editar
+						  Ações
 						</f:facet>
-						<p:commandButton action="#{usuariobean.editarUsuario()}" icon="ui-icon-pencil"
-							value="Editar">
-							<f:param name="id" value="usu.id"></f:param>
-							<f:setPropertyActionListener target="#{usuariobean.usuario}"
-								value="#{usu}" />
-						</p:commandButton>
-					</p:column>
-
-					<p:column style="width:100px;">
-						<f:facet name="header">
-						  Excluir
-						</f:facet>
-						<p:commandButton value="Excluir" icon="ui-icon-trash"
-							oncomplete="PF('confirmacaoDelete').show()">
-							<f:setPropertyActionListener target="#{usuariobean.usuario}"
-								value="#{usu}" />
-						</p:commandButton>
+						<h:panelGrid columns="2" style="float: inherit;">
+							<p:commandButton action="#{usuariobean.editarUsuario()}" icon="ui-icon-pencil"
+								title="Editar">
+								<f:param name="id" value="usu.id"></f:param>
+								<f:setPropertyActionListener target="#{usuariobean.usuario}"
+									value="#{usu}" />
+							</p:commandButton>
+							<p:commandButton title="Excluir" icon="ui-icon-trash"
+								oncomplete="PF('confirmacaoDelete').show()">
+								<f:setPropertyActionListener target="#{usuariobean.usuario}"
+									value="#{usu}" />
+							</p:commandButton>
+						</h:panelGrid>
 					</p:column>
 
 				</p:dataTable>

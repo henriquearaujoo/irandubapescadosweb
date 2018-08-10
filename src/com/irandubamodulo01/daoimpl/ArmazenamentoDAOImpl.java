@@ -219,6 +219,13 @@ public class ArmazenamentoDAOImpl extends DAOimpl<Armazenamento, Long> implement
 
 		return itens;
 	}
+	
+	@Override
+	public Armazenamento obterArmazenamentoPorId(Long id){
+		String hql = "from Armazenamento where id = " + id;
+		Query query = em.createQuery(hql);
+		return (Armazenamento) query.getSingleResult();
+	}
 
 	
 }

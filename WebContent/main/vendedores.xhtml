@@ -27,14 +27,33 @@
 
 		  <br/>
 			   <br/>
+			   
+			   <h:panelGrid columns="3" style="float: right;">
+					<p:selectOneMenu value="#{layoutBean.tipoExport}">
+						<f:selectItem itemLabel="Todos" itemValue="false"/>
+						<f:selectItem itemLabel="Atual" itemValue="true"/>
+					</p:selectOneMenu>
+					<h:commandLink style="padding-left: 5px">
+		                <p:graphicImage url="/images/pdf.png" width="28" title="Exportar pdf"/>
+		                <p:dataExporter type="pdf" target="tableVendedores" fileName="vendedores" pageOnly="#{layoutBean.tipoExport}"/>
+		            </h:commandLink>
+		            <h:commandLink style="padding-left: 5px">
+		                <p:graphicImage url="/images/excel.png" width="28" title="Exportar excel"/>
+		                <p:dataExporter type="xls" target="tableVendedores" fileName="vendedores" pageOnly="#{layoutBean.tipoExport}"/>
+		            </h:commandLink>
+	            </h:panelGrid>
+
+				<br />
+				<br />
 
 				<p:dataTable id="tableVendedores" var="f"
-					value="#{vendedorBean.model}" lazy="true" paginator="true" paginatorPosition="bottom" rows="15">
+					paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+					value="#{vendedorBean.model}" lazy="true" paginator="true" rows="15">
 					<f:facet name="header">
 					Listagem de Vendedores
-				</f:facet>
+					</f:facet>
 
-					<p:column>
+					<p:column style="width:60%;">
 						<f:facet name="header">
 					  Nome
 					</f:facet>
@@ -42,41 +61,37 @@
 					</p:column>
 
 
-					<p:column>
+					<p:column style="width:15%;">
 						<f:facet name="header">
 					  Cnpj
 					</f:facet>
 						<h:outputText value="#{f.cnpj}" />
 					</p:column>
 
-					<p:column>
+					<p:column style="width:15%;">
 						<f:facet name="header">
 					  Cpf
 					</f:facet>
 						<h:outputText value="#{f.cpf}" />
 					</p:column>
 
-					<p:column style="width:100px;">
+					<p:column style="width:10%;" exportable="false">
 						<f:facet name="header">
-						  Editar
+						  Ações
 						</f:facet>
-						<p:commandButton action="#{vendedorBean.editar()}" icon="ui-icon-pencil"
-							value="Editar">
-							<f:param name="vendedor" value="#{f.id}"/>
-							<f:setPropertyActionListener target="#{vendedorBean.vendedor}"
-								value="#{f}" />
-						</p:commandButton>
-					</p:column>
-
-					<p:column style="width:100px;">
-						<f:facet name="header">
-						  Excluir
-						</f:facet>
-						<p:commandButton value="Excluir" icon="ui-icon-trash"
-							oncomplete="PF('confirmacaoDelete').show()">
-							<f:setPropertyActionListener target="#{vendedorBean.vendedor}"
-								value="#{f}" />
-						</p:commandButton>
+						<h:panelGrid columns="2" style="float: inherit;">
+							<p:commandButton action="#{vendedorBean.editar()}" icon="ui-icon-pencil"
+								title="Editar">
+								<f:param name="vendedor" value="#{f.id}"/>
+								<f:setPropertyActionListener target="#{vendedorBean.vendedor}"
+									value="#{f}" />
+							</p:commandButton>
+							<p:commandButton title="Excluir" icon="ui-icon-trash"
+								oncomplete="PF('confirmacaoDelete').show()">
+								<f:setPropertyActionListener target="#{vendedorBean.vendedor}"
+									value="#{f}" />
+							</p:commandButton>
+						</h:panelGrid>
 					</p:column>
 
 				</p:dataTable>

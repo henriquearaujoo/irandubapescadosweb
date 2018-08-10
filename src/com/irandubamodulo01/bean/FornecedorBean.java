@@ -577,7 +577,7 @@ public class FornecedorBean implements Serializable {
 			jd = JRXmlLoader.load(path + "relatorios/relatorio_preco_diferenciado_fornecedor.jrxml");
 
 			JasperReport report = JasperCompileManager.compileReport(jd);
-			ReportUtil.openReportCon("Relatório", nomeRel + new SimpleDateFormat("ddMMyyyyHHmmss").format(new Date()), report, parametros, fornDAO.getConnection());
+			ReportUtil.openReportCon("Relatório", nomeRel + new SimpleDateFormat("ddMMyyyyHHmmss").format(new Date()), report, parametros, fornDAO.getConnection(), "PDF");
 
 		} catch (Exception e) {
 			e.printStackTrace();

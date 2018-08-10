@@ -40,6 +40,9 @@
                 <p:submenu id="sm_espedicao" label="  Expedição" icon="icon-export-1">
                     <p:menuitem id="sm_pedido" value="Pedido" ajax="false" action="#{layoutBean.iniciarTelaPedido()}" icon="icon-check-1"/>
                 </p:submenu>
+                <p:submenu id="sm_rastreabilidade" label="  Rastreabilidade" icon="icon-export-1">
+                    <p:menuitem id="sm_visualizar_rastreabilidade" value="Visualizar" ajax="false" action="#{layoutBean.iniciarTelaRastreabilidade()}" icon="icon-check-1"/>
+                </p:submenu>
                 <p:submenu id="sm_relatorios" label="Relatórios" icon="icon-doc">
                     <p:menuitem id="sm_rel_compras" value="Compras" ajax="false" action="#{layoutBean.iniciarTelaRelatoriCompras}" icon="icon-doc-text"/>
                     <p:menuitem id="sm_rel_hist_compra" value="Histórico compra" ajax="false" action="#{layoutBean.iniciarTelaRelatorioHistoricoCompras}" icon="icon-doc-text" rendered="false"/>

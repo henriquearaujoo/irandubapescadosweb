@@ -144,7 +144,7 @@ public class RelatorioComprasDetalhadasBean implements Serializable{
 			else
 				jd = JRXmlLoader.load(path + "relatorios/relatorio_compra_peixe_agrupado.jrxml");
 			JasperReport report = JasperCompileManager.compileReport(jd);
-			ReportUtil.openReportCon("Relatório", "relatorio_compra_detalhada" + new SimpleDateFormat("HHmmssddMMyyyy").format(new Date()), report, parametros, compraDAO.getConnection());
+			ReportUtil.openReportCon("Relatório", "relatorio_compra_detalhada" + new SimpleDateFormat("HHmmssddMMyyyy").format(new Date()), report, parametros, compraDAO.getConnection(), "PDF");
 			
 			addMessage("Informação: ", "Relatório exportado com sucesso.");
 		} catch (Exception e) {

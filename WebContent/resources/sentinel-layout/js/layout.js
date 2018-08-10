@@ -1,6 +1,10 @@
-var Sentinel = {
+/** 
+ * PrimeFaces Sentinel Layout
+ */
+PrimeFaces.widget.Sentinel = PrimeFaces.widget.BaseWidget.extend({
     
-    init: function() {
+    init: function(cfg) {
+        this._super(cfg);
         this.menubar = this.menubar||$('#layout-menubar');
         this.menubarElement = this.menubar.get(0);
         this.menubarContainer = this.menubarContainer||this.menubar.find('ul.layout-menubar-container');
@@ -15,6 +19,7 @@ var Sentinel = {
             topItem.attr('tabindex', '0');
         }
         
+        this.restoreMenuState();
         this.bindEvents();
         this.bindKeyEvents();
     },
@@ -112,7 +117,7 @@ var Sentinel = {
         
         //menubar resize btn binding
         $('#layout-menubar-resize').on('click', function(e) {
-            Sentinel.toggleLeftMenu();
+            $this.toggleLeftMenu();
             e.preventDefault();
         });
 
@@ -296,11 +301,6 @@ var Sentinel = {
     isIOS: function() {
         return ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false );
     }
-         
-};
-
-$(function() {
-    Sentinel.init();
 });
 
 /*!
@@ -419,14 +419,14 @@ $(function() {
 }));
 
 /* Issue #924 is fixed for 5.3+ and 6.0. (compatibility with 5.3) */
-PrimeFaces.widget.Dialog = PrimeFaces.widget.Dialog.extend({
-    
-    enableModality: function() {
-        this._super();
-        $(document.body).children(this.jqId + '_modal').addClass('ui-dialog-mask');
-    },
-    
-    syncWindowResize: function() {
-
-    }
-});
+if(window['PrimeFaces'] && window['PrimeFaces'].widget.Dialog) {
+    PrimeFaces.widget.Dialog = PrimeFaces.widget.Dialog.extend({
+        
+        enableModality: function() {
+            this._super();
+            $(document.body).children(this.jqId + '_modal').addClass('ui-dialog-mask');
+        },
+        
+        syncWindowResize: function() {}
+    });
+}

@@ -12,6 +12,7 @@ import com.irandubamodulo01.util.Filtro;
 
 public interface ArmazenamentoDAO extends DAO<Armazenamento, Long>{
 
+	public Armazenamento obterArmazenamentoPorId(Long id);
 	public List<Armazenamento> filtrados(Filtro filtro);
 	public int quantidadeFiltrados(Filtro filtro);
 	public BigDecimal getPesoDisponivelPorPeixe(Peixe peixe);

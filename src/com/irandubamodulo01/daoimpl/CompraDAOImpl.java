@@ -95,6 +95,7 @@ public class CompraDAOImpl extends DAOimpl<Compra, Long> implements CompraDAO {
 		
 		return criteria.list();
 	}
+	
 	@Transactional
 	@SuppressWarnings("unchecked")
 	@Override

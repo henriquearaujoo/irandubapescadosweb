@@ -10,4 +10,5 @@ public interface RetiradaDAO extends DAO<Retirada, Long>{
 
 	public List<Retirada> filtrados(Filtro filtro);
 	public int quantidadeFiltrados(Filtro filtro);
+	public Retirada obterRetiradaPorId(Long id);
 }

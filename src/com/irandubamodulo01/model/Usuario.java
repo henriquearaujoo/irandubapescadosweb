@@ -29,7 +29,7 @@ public class Usuario implements Serializable{
 	@JoinColumn(name="perfil_id")
 	private Perfil perfil;
 	@Column
-	private Boolean enable;
+	private Boolean ativo;
 	
 	
 	public Usuario(){
@@ -203,23 +203,6 @@ public class Usuario implements Serializable{
 
 
 
-
-	public Boolean getEnable() {
-		return enable;
-	}
-
-
-
-
-
-	public void setEnable(Boolean enable) {
-		this.enable = enable;
-	}
-
-
-
-
-
 	public String getImei() {
 		return imei;
 	}
@@ -230,6 +213,22 @@ public class Usuario implements Serializable{
 
 	public void setImei(String imei) {
 		this.imei = imei;
+	}
+
+
+
+
+
+	public Boolean getAtivo() {
+		return ativo;
+	}
+
+
+
+
+
+	public void setAtivo(Boolean ativo) {
+		this.ativo = ativo;
 	}
 	
 	

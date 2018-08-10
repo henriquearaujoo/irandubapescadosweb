@@ -22,6 +22,12 @@ public enum StatusArmazenamento{
 			return controladores.select(ArmazenamentoAutorizado.class).get();
 		}
 	},
+	TUNEL("TUNEL") {
+		@Override
+		public ControladorArmazenamento obterControlador(Instance<ControladorArmazenamento> controladores) {
+			return controladores.select(ArmazenamentoRetornado.class).get();
+		}
+	},
 	RETORNADO("RETORNADO") {
 		@Override
 		public ControladorArmazenamento obterControlador(Instance<ControladorArmazenamento> controladores) {
